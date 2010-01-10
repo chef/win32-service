@@ -1,0 +1,45 @@
+= Description
+The win32-service library allows you to control or create MS Windows services.
+
+= Installation
+rake test (optional)
+rake install
+
+= Documentation
+Please see the documentation in the 'doc' directory, or the gem documentation
+that was installed when you installed this library as a gem.
+
+= Possible errors
+* Service.delete causes "Unable to delete: The specified service has
+been marked for deletion."
+ 
+This can be caused by two things.  Either you attempted to delete a running
+service without stopping it first, or you have the Services administrative 
+tool (GUI) open.  The solution is to first stop the service if it's running
+and close the Services GUI admin tool before deleting.
+	
+* Service.start causes, "The service did not respond to the start or control
+request in a timely fashion."
+
+The best way to debug your services is to wrap your entire Daemon subclass
+in a begin/end block and send error messages to a file. That should give a
+good clue as to the nature of the problem. The most probable culprits are:
+
+* You've tried to require a library that's not in your $LOAD_PATH. Make sure
+that your require statements are inside the begin/rescue block so that you can
+easily find those mistakes.
+
+* Your have a bad binary path name. Be sure to use an absolute path name for
+the binary path name, including the full path to the Ruby interpreter, e.g.
+'c:\ruby\bin\ruby' instead of just 'ruby'.
+
+* You've got a syntax error in your code somewhere.
+
+= Possible test failures
+The 'test_service_start_stop' test in the tc_service.rb file may fail. This
+will happen if your W32Time service isn't running.
+
+= Future Plans
+* Pure Ruby Daemon class
+* Add service_session_change hook
+* Add a WMI variant of the Service class.
