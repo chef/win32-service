@@ -1,5 +1,5 @@
 ##########################################################################
-# tc_service.rb
+# test_win32_service.rb
 # 
 # Test case for the Win32::Service class.
 ##########################################################################
@@ -23,7 +23,7 @@ class TC_Win32_Service < Test::Unit::TestCase
    end
 
    def test_version
-      assert_equal('0.7.0', Win32::Service::VERSION)
+      assert_equal('0.7.1', Win32::Service::VERSION)
    end
    
    def test_services_basic
