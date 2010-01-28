@@ -353,10 +353,7 @@ Service::ERROR_CRITICAL
    Use RegisterServiceCtrlHandlerEx().
     
 = Copyright
-   (C) 2003-2009, Daniel J. Berger, All Rights Reserved
-    
-= License
-   Artistic 2.0
+   (C) 2003-2010, Daniel J. Berger, All Rights Reserved
     
 = Warranty
    This package is provided "as is" and without any express or
