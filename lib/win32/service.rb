@@ -433,846 +433,825 @@ module Win32
       self
     end
 
-      # Configures the named +service+ on +host+, or the local host if no host
-      # is specified. The +options+ parameter is a hash that can contain any
-      # of the following parameters:
-      #
-      # * service_type
-      # * start_type
-      # * error_control
-      # * binary_path_name
-      # * load_order_group
-      # * dependencies
-      # * service_start_name
-      # * password (used with service_start_name)
-      # * display_name
-      # * description
-      # * failure_reset_period
-      # * failure_reboot_message
-      # * failure_command
-      # * failure_actions
-      # * failure_delay
-      #
-      # Examples:
-      #
-      #    # Configure only the display name
-      #    Service.configure(:service_name => 'some_service', :display_name => 'Test 33')
-      #
-      #    # Configure everything
-      #    Service.configure(
-      #       :service_name       => 'some_service'
-      #       :service_type       => Service::WIN32_OWN_PROCESS,
-      #       :start_type         => Service::AUTO_START,
-      #       :error_control      => Service::ERROR_NORMAL,
-      #       :binary_path_name   => 'C:\path\to\some_service.exe',
-      #       :load_order_group   => 'Network',
-      #       :dependencies       => ['W32Time','Schedule']
-      #       :service_start_name => 'SomeDomain\\User',
-      #       :password           => 'XXXXXXX',
-      #       :display_name       => 'This is some service',
-      #       :description        => 'A custom service I wrote just for fun'
-      #    )
-      #
-      def self.configure(options={})    
-         unless options.is_a?(Hash)
-            raise ArgumentError, 'options parameter must be a hash'
-         end
+    # Configures the named +service+ on +host+, or the local host if no host
+    # is specified. The +options+ parameter is a hash that can contain any
+    # of the following parameters:
+    #
+    # * service_type
+    # * start_type
+    # * error_control
+    # * binary_path_name
+    # * load_order_group
+    # * dependencies
+    # * service_start_name
+    # * password (used with service_start_name)
+    # * display_name
+    # * description
+    # * failure_reset_period
+    # * failure_reboot_message
+    # * failure_command
+    # * failure_actions
+    # * failure_delay
+    #
+    # Examples:
+    #
+    #    # Configure only the display name
+    #    Service.configure(:service_name => 'some_service', :display_name => 'Test 33')
+    #
+    #    # Configure everything
+    #    Service.configure(
+    #       :service_name       => 'some_service'
+    #       :service_type       => Service::WIN32_OWN_PROCESS,
+    #       :start_type         => Service::AUTO_START,
+    #       :error_control      => Service::ERROR_NORMAL,
+    #       :binary_path_name   => 'C:\path\to\some_service.exe',
+    #       :load_order_group   => 'Network',
+    #       :dependencies       => ['W32Time','Schedule']
+    #       :service_start_name => 'SomeDomain\\User',
+    #       :password           => 'XXXXXXX',
+    #       :display_name       => 'This is some service',
+    #       :description        => 'A custom service I wrote just for fun'
+    #    )
+    #
+    def self.configure(options={})    
+      unless options.is_a?(Hash)
+        raise ArgumentError, 'options parameter must be a hash'
+      end
 
-         if options.empty?
-            raise ArgumentError, 'no options provided'
-         end
+      if options.empty?
+        raise ArgumentError, 'no options provided'
+      end
 
-         opts = {
-            'service_type'           => SERVICE_NO_CHANGE,
-            'start_type'             => SERVICE_NO_CHANGE,
-            'error_control'          => SERVICE_NO_CHANGE,
-            'binary_path_name'       => nil,
-            'load_order_group'       => nil,
-            'dependencies'           => nil,
-            'service_start_name'     => nil,
-            'password'               => nil,
-            'display_name'           => nil,
-            'description'            => nil,
-            'failure_reset_period'   => nil,
-            'failure_reboot_message' => nil,
-            'failure_command'        => nil,
-            'failure_actions'        => nil,
-            'failure_delay'          => 0,
-            'service_name'           => nil,
-            'host'                   => nil
-         }
+      opts = {
+        'service_type'           => SERVICE_NO_CHANGE,
+        'start_type'             => SERVICE_NO_CHANGE,
+        'error_control'          => SERVICE_NO_CHANGE,
+        'binary_path_name'       => nil,
+        'load_order_group'       => nil,
+        'dependencies'           => nil,
+        'service_start_name'     => nil,
+        'password'               => nil,
+        'display_name'           => nil,
+        'description'            => nil,
+        'failure_reset_period'   => nil,
+        'failure_reboot_message' => nil,
+        'failure_command'        => nil,
+        'failure_actions'        => nil,
+        'failure_delay'          => 0,
+        'service_name'           => nil,
+        'host'                   => nil
+      }
 
-         # Validate the hash options
-         options.each{ |key, value|
-            key = key.to_s.downcase
-            unless opts.include?(key)
-               raise ArgumentError, "Invalid option '#{key}'"
-            end
-            opts[key] = value
-         }
+      # Validate the hash options
+      options.each{ |key, value|
+        key = key.to_s.downcase
+        unless opts.include?(key)
+          raise ArgumentError, "Invalid option '#{key}'"
+        end
+        opts[key] = value
+      }
          
-         unless opts['service_name']
-            raise ArgumentError, 'No service_name specified'            
-         end
+      unless opts['service_name']
+        raise ArgumentError, 'No service_name specified'            
+      end
          
-         service = opts.delete('service_name')
-         host = opts.delete('host')
+      service = opts.delete('service_name')
+      host = opts.delete('host')
 
-         raise TypeError unless service.is_a?(String)
-         raise TypeError unless host.is_a?(String) if host
+      raise TypeError unless service.is_a?(String)
+      raise TypeError unless host.is_a?(String) if host
 
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      begin
+        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
 
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
+        if handle_scm == 0
+          raise Error, get_last_error
+        end
          
-         desired_access = SERVICE_CHANGE_CONFIG
+        desired_access = SERVICE_CHANGE_CONFIG
          
-         if opts['failure_actions']
-            desired_access |= SERVICE_START
-         end
+        if opts['failure_actions']
+          desired_access |= SERVICE_START
+        end
 
-         handle_scs = OpenService(
-            handle_scm,
-            service,
-            desired_access
-         )
+        handle_scs = OpenService(
+          handle_scm,
+          service,
+          desired_access
+        )
 
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
 
-         dependencies = opts['dependencies']
+        dependencies = opts['dependencies']
 
-         if dependencies && !dependencies.empty?
-            unless dependencies.is_a?(Array) || dependencies.is_a?(String)
-               raise TypeError, 'dependencies must be a string or array'
-            end
+        if dependencies && !dependencies.empty?
+          unless dependencies.is_a?(Array) || dependencies.is_a?(String)
+            raise TypeError, 'dependencies must be a string or array'
+          end
 
-            if dependencies.is_a?(Array)
-               dependencies = dependencies.join("\000")
-            end
+          if dependencies.is_a?(Array)
+            dependencies = dependencies.join("\000")
+          end
             
-            dependencies += "\000"
-         end
+          dependencies += "\000"
+        end
 
-         bool = ChangeServiceConfig(
+        bool = ChangeServiceConfig(
+          handle_scs,
+          opts['service_type'],
+          opts['start_type'],
+          opts['error_control'],
+          opts['binary_path_name'],
+          opts['load_order_group'],
+          0,
+          dependencies,
+          opts['service_start_name'],
+          opts['password'],
+          opts['display_name']
+        )
+
+        unless bool
+          raise Error, get_last_error
+        end
+
+        if opts['description']
+          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
+          description[0,4] = [opts['description']].pack('p*')
+
+          bool = ChangeServiceConfig2(
             handle_scs,
-            opts['service_type'],
-            opts['start_type'],
-            opts['error_control'],
-            opts['binary_path_name'],
-            opts['load_order_group'],
-            0,
-            dependencies,
-            opts['service_start_name'],
-            opts['password'],
-            opts['display_name']
-         )
+            SERVICE_CONFIG_DESCRIPTION,
+            description
+          )
 
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            CloseServiceHandle(handle_scs)
-            raise Error, error
-         end
-
-         if opts['description']
-            description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-            description[0,4] = [opts['description']].pack('p*')
-
-            bool = ChangeServiceConfig2(
-               handle_scs,
-               SERVICE_CONFIG_DESCRIPTION,
-               description
-            )
-
-            unless bool
-               error = get_last_error
-               CloseServiceHandle(handle_scs)
-               raise Error, error
-            end
-         end
-
-         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
-            opts['failure_command'] || opts['failure_actions']
-         then
-            configure_failure_actions(handle_scs, opts)
-         end
-
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
-
-         self
-      end
-      
-      # Returns whether or not +service+ exists on +host+ or localhost, if
-      # no host is specified.
-      #
-      # Example:
-      #
-      # Service.exists?('W32Time') => true
-      # 
-      def self.exists?(service, host=nil)
-         bool = false
-
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-         
-         if handle_scm == 0
+          unless bool
             raise Error, get_last_error
-         end
-         
-         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
-         bool = true if handle_scs > 0
-         
-         CloseServiceHandle(handle_scm)
-         CloseServiceHandle(handle_scs)
+          end
+        end
 
-         bool         
+        if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
+           opts['failure_command'] || opts['failure_actions']
+        then
+          configure_failure_actions(handle_scs, opts)
+        end
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
       end
+
+      self
+    end
       
-      # Returns the display name of the specified service name, i.e. the string
-      # displayed in the Services GUI. Raises a Service::Error if the service
-      # name cannot be found.
-      #
-      # If a +host+ is provided, the information will be retrieved from that
-      # host. Otherwise, the information is pulled from the local host (the
-      # default behavior).
-      #
-      # Example:
-      #
-      # Service.get_display_name('W32Time') => 'Windows Time'
-      #
-      def self.get_display_name(service, host=nil)
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+    # Returns whether or not +service+ exists on +host+ or localhost, if
+    # no host is specified.
+    #
+    # Example:
+    #
+    # Service.exists?('W32Time') => true
+    # 
+    def self.exists?(service, host=nil)
+      bool = false
+
+      begin
+        handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
          
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
+        if handle_scm == 0
+          raise Error, get_last_error
+        end
          
-         display_name = 0.chr * 260
-         display_buf  = [display_name.size].pack('L')
-
-         bool = GetServiceDisplayName(
-            handle_scm,
-            service,
-            display_name,
-            display_buf
-         )
-
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-
-         CloseServiceHandle(handle_scm);
-
-         display_name.unpack('Z*')[0]
+        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
+        bool = true if handle_scs > 0
+      ensure
+        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
       end
+
+      bool         
+    end
       
-      # Returns the service name of the specified service from the provided
-      # +display_name+. Raises a Service::Error if the +display_name+ cannote
-      # be found.
-      #
-      # If a +host+ is provided, the information will be retrieved from that
-      # host. Otherwise, the information is pulled from the local host (the
-      # default behavior).
-      #
-      # Example:
-      #
-      # Service.get_service_name('Windows Time') => 'W32Time'
-      #
-      def self.get_service_name(display_name, host=nil)
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
-         
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-         
-         service_name = 0.chr * 260
-         service_buf  = [service_name.size].pack('L')
-         
-         bool = GetServiceKeyName(
-            handle_scm,
-            display_name,
-            service_name,
-            service_buf
-         )
-
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-
-         CloseServiceHandle(handle_scm);
-
-         service_name.unpack('Z*')[0]
-      end
-
-      class << self
-         alias getdisplayname get_display_name
-         alias getservicename get_service_name
-      end
-      
-      # Attempts to start the named +service+ on +host+, or the local machine
-      # if no host is provided. If +args+ are provided, they are passed to the
-      # Daemon#service_main method.
-      #
-      # Examples:
-      #
-      #    # Start 'SomeSvc' on the local machine
-      #    Service.start('SomeSvc', nil) => self
-      #
-      #    # Start 'SomeSvc' on host 'foo', passing 'hello' as an argument
-      #    Service.start('SomeSvc', 'foo', 'hello') => self
-      #     
-      def self.start(service, host=nil, *args)
-         handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
-       
-         if handle_scm == 0
-	         raise Error, get_last_error
-         end
-         
-         handle_scs = OpenService(handle_scm, service, SERVICE_START)
-                  
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-         
-         num_args = 0
-         
-         if args.empty?
-            args = nil
-         else
-            num_args = args.length
-            args = args.map{ |x| [x].pack('p*') }.join
-         end     
-         
-         unless StartService(handle_scs, num_args, args)
-            error = get_last_error
-            CloseServiceHandle(handle_scs)
-            CloseServiceHandle(handle_scm) 
-            raise Error, error        
-         end
-         
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
-         
-         self                          
-      end
-      
-      # Stops a the given +service+ on +host+, or the local host if no host
-      # is specified. Returns self.
-      #
-      # Note that attempting to stop an already stopped service raises
-      # Service::Error.
-      #
-      # Example:
-      #
-      #    Service.stop('W32Time') => self
-      #      
-      def self.stop(service, host=nil)
-         service_signal = SERVICE_STOP
-         control_signal = SERVICE_CONTROL_STOP
-         send_signal(service, host, service_signal, control_signal)
-         self
-      end
-      
-      # Pauses the given +service+ on +host+, or the local host if no host
-      # is specified. Returns self
-      #
-      # Note that pausing a service that is already paused will have
-      # no effect and it will not raise an error.
-      #
-      # Be aware that not all services are configured to accept a pause
-      # command. Attempting to pause a service that isn't setup to receive
-      # a pause command will raise an error.
-      #
-      # Example:
-      #
-      #    Service.pause('Schedule') => self
-      #      
-      def self.pause(service, host=nil)
-         service_signal = SERVICE_PAUSE_CONTINUE
-         control_signal = SERVICE_CONTROL_PAUSE
-         send_signal(service, host, service_signal, control_signal)
-         self
-      end
-      
-      # Resume the given +service+ on +host+, or the local host if no host
-      # is specified. Returns self.
-      #
-      # Note that resuming a service that's already running will have no
-      # effect and it will not raise an error.
-      #
-      # Example:
-      #
-      #    Service.resume('Schedule') => self
-      #    
-      def self.resume(service, host=nil)
-         service_signal = SERVICE_PAUSE_CONTINUE
-         control_signal = SERVICE_CONTROL_CONTINUE
-         send_signal(service, host, service_signal, control_signal)
-         self
-      end
-      
-      # Deletes the specified +service+ from +host+, or the local host if
-      # no host is specified. Returns self.
-      #
-      # Technical note. This method is not instantaneous. The service is first
-      # marked for deletion from the service control manager database. Then all
-      # handles to the service are closed. Then an attempt to stop the service
-      # is made. If the service cannot be stopped, the service control manager
-      # database entry is removed when the system is restarted.
-      #
-      # Example:
-      #
-      #   Service.delete('SomeService') => self
-      #
-      def self.delete(service, host=nil)
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
-         
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-         
-         handle_scs = OpenService(handle_scm, service, DELETE)
-
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-         
-         unless DeleteService(handle_scs)
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            CloseServiceHandle(handle_scs)
-            raise Error, error
-         end
-         
-         CloseServiceHandle(handle_scm)
-         CloseServiceHandle(handle_scs)
-
-         self
-      end
-
-      # Returns a ServiceConfigInfo struct containing the configuration
-      # information about +service+ on +host+, or the local host if no
-      # host is specified.
-      #
-      # Example:
-      #
-      #   Service.config_info('W32Time') => <struct ServiceConfigInfo ...>
-      #--
-      # This contains less information that the ServiceInfo struct that
-      # is returned with the Service.services method, but is faster for
-      # looking up basic information for a single service.
-      #
-      def self.config_info(service, host=nil)
-         raise TypeError if host && !host.is_a?(String)
-
-         handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
-
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-
-         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
-
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-
-         # First, get the buf size needed
-         bytes_needed = [0].pack('L')
-
-         bool = QueryServiceConfig(handle_scs, nil, 0, bytes_needed)
-
-         if !bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER
-            error = get_last_error
-            CloseServiceHandle(handle_scs)
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-
-         buf   = 0.chr * bytes_needed.unpack('L')[0]
-         bytes = [0].pack('L')
-
-         bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes_needed)
-
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scs)
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
-
-         binary_path_name   = 0.chr * 1024
-         load_order_group   = 0.chr * 1024
-         dependencies       = 0.chr * 1024
-         service_start_name = 0.chr * 260
-         display_name       = 0.chr * 260
-
-         strcpy(binary_path_name, buf[12,4].unpack('L')[0])
-         binary_path_name = binary_path_name.unpack('Z*')[0]
-
-         strcpy(load_order_group, buf[16,4].unpack('L')[0])
-         load_order_group = load_order_group.unpack('Z*')[0]
-
-         dependencies = get_dependencies(buf[24,4].unpack('L').first)
-
-         strcpy(service_start_name, buf[28,4].unpack('L')[0])
-         service_start_name = service_start_name.unpack('Z*')[0]
-
-         strcpy(display_name, buf[32,4].unpack('L')[0])
-         display_name = display_name.unpack('Z*')[0]
-
-         ConfigStruct.new(
-            get_service_type(buf[0,4].unpack('L')[0]),
-            get_start_type(buf[4,4].unpack('L')[0]),
-            get_error_control(buf[8,4].unpack('L')[0]),
-            binary_path_name,
-            load_order_group,
-            buf[20,4].unpack('L')[0],
-            dependencies,
-            service_start_name,
-            display_name
-         )
-      end
-      
-      # Returns a ServiceStatus struct indicating the status of service +name+
-      # on +host+, or the localhost if none is provided.
-      #
-      # Example:
-      #
-      # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
-      #
-      def self.status(service, host=nil)
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-         
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-         
-         handle_scs = OpenService(
-            handle_scm,
-            service,
-            SERVICE_QUERY_STATUS
-         )
-         
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-         
-         # SERVICE_STATUS_PROCESS struct
-         status = [0,0,0,0,0,0,0,0,0].pack('LLLLLLLLL')
-         bytes  = [0].pack('L')
-         
-         bool = QueryServiceStatusEx(
-            handle_scs,
-            SC_STATUS_PROCESS_INFO,
-            status,
-            status.size,
-            bytes
-         )
-         
-         unless bool
-            raise Error, get_last_error
-         end
-         
-         dw_service_type = status[0,4].unpack('L').first
-         
-         service_type  = get_service_type(dw_service_type)
-         current_state = get_current_state(status[4,4].unpack('L').first)
-         controls      = get_controls_accepted(status[8,4].unpack('L').first)
-         interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
-         
-         # Note that the pid and service flags will always return 0 if you're
-         # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
-         # or earlier.
-         # 
-         status_struct = StatusStruct.new(
-            service_type,
-            current_state,
-            controls,
-            status[12,4].unpack('L').first, # Win32ExitCode
-            status[16,4].unpack('L').first, # ServiceSpecificExitCode
-            status[20,4].unpack('L').first, # CheckPoint
-            status[24,4].unpack('L').first, # WaitHint
-            interactive,
-            status[28,4].unpack('L').first, # ProcessId
-            status[32,4].unpack('L').first  # ServiceFlags
-         )
-         
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
-         
-         status_struct
-      end
-
-      # Enumerates over a list of service types on +host+, or the local
-      # machine if no host is specified, yielding a ServiceInfo struct for
-      # each service.
-      #
-      # If a +group+ is specified, then only those services that belong to
-      # that load order group are enumerated. If an empty string is provided,
-      # then only services that do not belong to any group are enumerated. If
-      # this parameter is nil (the default), group membership is ignored and
-      # all services are enumerated. This value is not case sensitive.
-      #
-      # Examples:
-      #
-      #    # Enumerate over all services on the localhost
-      #    Service.services{ |service| p service }
-      #
-      #    # Enumerate over all services on a remote host
-      #    Service.services('some_host'){ |service| p service }
-      #
-      #    # Enumerate over all 'network' services locally
-      #    Service.services(nil, 'network'){ |service| p service }
-      #  
-      def self.services(host=nil, group=nil)
-         unless host.nil?
-            raise TypeError unless host.is_a?(String) # Avoid strange errors
-         end
-         
-         unless group.nil?
-            raise TypeError unless group.is_a?(String) # Avoid strange errors
-         end
-                       
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-         
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-          
-         bytes_needed      = [0].pack('L')
-         services_returned = [0].pack('L')
-         resume_handle     = [0].pack('L')
-
-         # The first call is used to determine the required buffer size
-         bool = EnumServicesStatusEx(
-            handle_scm,
-            SC_ENUM_PROCESS_INFO,
-            SERVICE_WIN32 | SERVICE_DRIVER,
-            SERVICE_STATE_ALL,
-            0,
-            0,
-            bytes_needed,
-            services_returned,
-            resume_handle,
-            group
-         )
-
-         err_num = GetLastError()
-
-         if !bool && err_num == ERROR_MORE_DATA
-            service_buf = 0.chr * bytes_needed.unpack('L').first
-         else
-            error = get_last_error(err_num)
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
+    # Returns the display name of the specified service name, i.e. the string
+    # displayed in the Services GUI. Raises a Service::Error if the service
+    # name cannot be found.
+    #
+    # If a +host+ is provided, the information will be retrieved from that
+    # host. Otherwise, the information is pulled from the local host (the
+    # default behavior).
+    #
+    # Example:
+    #
+    # Service.get_display_name('W32Time') => 'Windows Time'
+    #
+    def self.get_display_name(service, host=nil)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
         
-         bool = EnumServicesStatusEx(
-            handle_scm,
-            SC_ENUM_PROCESS_INFO,
-            SERVICE_WIN32 | SERVICE_DRIVER,
-            SERVICE_STATE_ALL,
-            service_buf,
-            service_buf.size,
-            bytes_needed,
-            services_returned,
-            resume_handle,
-            group
-         )
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
          
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
+      display_name = 0.chr * 260
+      display_buf  = [display_name.size].pack('L')
 
-         num_services = services_returned.unpack('L').first
-            
-         index = 0
-         services_array = [] unless block_given?
+      begin
+        bool = GetServiceDisplayName(
+          handle_scm,
+          service,
+          display_name,
+          display_buf
+        )
 
-         1.upto(num_services){ |num|
-            service_name = 0.chr * 260
-            display_name = 0.chr * 260
-   
-            info = service_buf[index, 44] # sizeof(SERVICE_STATUS_PROCESS)
+        unless bool
+          raise Error, get_last_error
+        end
+      ensure
+        CloseServiceHandle(handle_scm)
+      end
 
-            strcpy(service_name, info[0,4].unpack('L').first)
-            strcpy(display_name, info[4,4].unpack('L').first)
-
-            service_name = service_name.unpack('Z*')[0]
-            display_name = display_name.unpack('Z*')[0]
-               
-            dw_service_type = info[8,4].unpack('L').first
+      display_name.unpack('Z*')[0]
+    end
+      
+    # Returns the service name of the specified service from the provided
+    # +display_name+. Raises a Service::Error if the +display_name+ cannote
+    # be found.
+    #
+    # If a +host+ is provided, the information will be retrieved from that
+    # host. Otherwise, the information is pulled from the local host (the
+    # default behavior).
+    #
+    # Example:
+    #
+    # Service.get_service_name('Windows Time') => 'W32Time'
+    #
+    def self.get_service_name(display_name, host=nil)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+       
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
          
-            service_type  = get_service_type(dw_service_type)
-            current_state = get_current_state(info[12,4].unpack('L').first)
-            controls      = get_controls_accepted(info[16,4].unpack('L').first)
-            interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
-            win_exit_code = info[20,4].unpack('L').first
-            ser_exit_code = info[24,4].unpack('L').first
-            check_point   = info[28,4].unpack('L').first
-            wait_hint     = info[32,4].unpack('L').first
-            pid           = info[36,4].unpack('L').first
-            service_flags = info[40,4].unpack('L').first
+      service_name = 0.chr * 260
+      service_buf  = [service_name.size].pack('L')
+         
+      begin
+        bool = GetServiceKeyName(
+          handle_scm,
+          display_name,
+          service_name,
+          service_buf
+        )
 
+        unless bool
+          raise Error, get_last_error
+        end
+      ensure
+        CloseServiceHandle(handle_scm)
+      end
+
+      service_name.unpack('Z*')[0]
+    end
+
+    # Attempts to start the named +service+ on +host+, or the local machine
+    # if no host is provided. If +args+ are provided, they are passed to the
+    # Daemon#service_main method.
+    #
+    # Examples:
+    #
+    #    # Start 'SomeSvc' on the local machine
+    #    Service.start('SomeSvc', nil) => self
+    #
+    #    # Start 'SomeSvc' on host 'foo', passing 'hello' as an argument
+    #    Service.start('SomeSvc', 'foo', 'hello') => self
+    #     
+    def self.start(service, host=nil, *args)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+    
+      if handle_scm == 0
+	      raise Error, get_last_error
+      end
+         
+      begin
+        handle_scs = OpenService(handle_scm, service, SERVICE_START)
+                  
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
+           
+        num_args = 0
+         
+        if args.empty?
+          args = nil
+        else
+          num_args = args.length
+          args = args.map{ |x| [x].pack('p*') }.join
+        end     
+           
+        unless StartService(handle_scs, num_args, args)
+          raise Error, get_last_error
+        end
+           
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm)
+      end
+        
+      self                          
+    end
+      
+    # Stops a the given +service+ on +host+, or the local host if no host
+    # is specified. Returns self.
+    #
+    # Note that attempting to stop an already stopped service raises
+    # Service::Error.
+    #
+    # Example:
+    #
+    #    Service.stop('W32Time') => self
+    #      
+    def self.stop(service, host=nil)
+      service_signal = SERVICE_STOP
+      control_signal = SERVICE_CONTROL_STOP
+      send_signal(service, host, service_signal, control_signal)
+      self
+    end
+      
+    # Pauses the given +service+ on +host+, or the local host if no host
+    # is specified. Returns self
+    #
+    # Note that pausing a service that is already paused will have
+    # no effect and it will not raise an error.
+    #
+    # Be aware that not all services are configured to accept a pause
+    # command. Attempting to pause a service that isn't setup to receive
+    # a pause command will raise an error.
+    #
+    # Example:
+    #
+    #    Service.pause('Schedule') => self
+    #      
+    def self.pause(service, host=nil)
+      service_signal = SERVICE_PAUSE_CONTINUE
+      control_signal = SERVICE_CONTROL_PAUSE
+      send_signal(service, host, service_signal, control_signal)
+      self
+    end
+      
+    # Resume the given +service+ on +host+, or the local host if no host
+    # is specified. Returns self.
+    #
+    # Note that resuming a service that's already running will have no
+    # effect and it will not raise an error.
+    #
+    # Example:
+    #
+    #    Service.resume('Schedule') => self
+    #    
+    def self.resume(service, host=nil)
+      service_signal = SERVICE_PAUSE_CONTINUE
+      control_signal = SERVICE_CONTROL_CONTINUE
+      send_signal(service, host, service_signal, control_signal)
+      self
+    end
+      
+    # Deletes the specified +service+ from +host+, or the local host if
+    # no host is specified. Returns self.
+    #
+    # Technical note. This method is not instantaneous. The service is first
+    # marked for deletion from the service control manager database. Then all
+    # handles to the service are closed. Then an attempt to stop the service
+    # is made. If the service cannot be stopped, the service control manager
+    # database entry is removed when the system is restarted.
+    #
+    # Example:
+    #
+    #   Service.delete('SomeService') => self
+    #
+    def self.delete(service, host=nil)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+       
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
+       
+      begin
+        handle_scs = OpenService(handle_scm, service, DELETE)
+
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
+       
+        unless DeleteService(handle_scs)
+          raise Error, get_last_error
+        end
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm)
+      end
+
+      self
+    end
+
+    # Returns a ServiceConfigInfo struct containing the configuration
+    # information about +service+ on +host+, or the local host if no
+    # host is specified.
+    #
+    # Example:
+    #
+    #   Service.config_info('W32Time') => <struct ServiceConfigInfo ...>
+    #--
+    # This contains less information that the ServiceInfo struct that
+    # is returned with the Service.services method, but is faster for
+    # looking up basic information for a single service.
+    #
+    def self.config_info(service, host=nil)
+      raise TypeError if host && !host.is_a?(String)
+
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
+
+      begin
+        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
+
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
+
+        # First, get the buf size needed
+        bytes_needed = [0].pack('L')
+
+        bool = QueryServiceConfig(handle_scs, nil, 0, bytes_needed)
+
+        if !bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER
+          raise Error, get_last_error
+        end
+
+        buf = 0.chr * bytes_needed.unpack('L')[0]
+        bytes = [0].pack('L')
+
+        bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes_needed)
+
+        unless bool
+          raise Error, get_last_error
+        end
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm)
+      end
+
+      binary_path_name   = 0.chr * 1024
+      load_order_group   = 0.chr * 1024
+      dependencies       = 0.chr * 1024
+      service_start_name = 0.chr * 260
+      display_name       = 0.chr * 260
+
+      strcpy(binary_path_name, buf[12,4].unpack('L')[0])
+      binary_path_name = binary_path_name.unpack('Z*')[0]
+
+      strcpy(load_order_group, buf[16,4].unpack('L')[0])
+      load_order_group = load_order_group.unpack('Z*')[0]
+
+      dependencies = get_dependencies(buf[24,4].unpack('L').first)
+
+      strcpy(service_start_name, buf[28,4].unpack('L')[0])
+      service_start_name = service_start_name.unpack('Z*')[0]
+
+      strcpy(display_name, buf[32,4].unpack('L')[0])
+      display_name = display_name.unpack('Z*')[0]
+
+      ConfigStruct.new(
+        get_service_type(buf[0,4].unpack('L')[0]),
+        get_start_type(buf[4,4].unpack('L')[0]),
+        get_error_control(buf[8,4].unpack('L')[0]),
+        binary_path_name,
+        load_order_group,
+        buf[20,4].unpack('L')[0],
+        dependencies,
+        service_start_name,
+        display_name
+      )
+    end
+      
+    # Returns a ServiceStatus struct indicating the status of service +name+
+    # on +host+, or the localhost if none is provided.
+    #
+    # Example:
+    #
+    # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
+    #
+    def self.status(service, host=nil)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+          
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
+           
+      begin
+        handle_scs = OpenService(
+          handle_scm,
+          service,
+          SERVICE_QUERY_STATUS
+        )
+           
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
+           
+        # SERVICE_STATUS_PROCESS struct
+        status = [0,0,0,0,0,0,0,0,0].pack('LLLLLLLLL')
+        bytes  = [0].pack('L')
+           
+        bool = QueryServiceStatusEx(
+          handle_scs,
+          SC_STATUS_PROCESS_INFO,
+          status,
+          status.size,
+          bytes
+        )
+           
+        unless bool
+          raise Error, get_last_error
+        end
+           
+        dw_service_type = status[0,4].unpack('L').first
+           
+        service_type  = get_service_type(dw_service_type)
+        current_state = get_current_state(status[4,4].unpack('L').first)
+        controls      = get_controls_accepted(status[8,4].unpack('L').first)
+        interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
+           
+        # Note that the pid and service flags will always return 0 if you're
+        # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
+        # or earlier.
+        # 
+        status_struct = StatusStruct.new(
+          service_type,
+          current_state,
+          controls,
+          status[12,4].unpack('L').first, # Win32ExitCode
+          status[16,4].unpack('L').first, # ServiceSpecificExitCode
+          status[20,4].unpack('L').first, # CheckPoint
+          status[24,4].unpack('L').first, # WaitHint
+          interactive,
+          status[28,4].unpack('L').first, # ProcessId
+          status[32,4].unpack('L').first  # ServiceFlags
+        )
+           
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm)
+      end
+       
+      status_struct
+    end
+
+    # Enumerates over a list of service types on +host+, or the local
+    # machine if no host is specified, yielding a ServiceInfo struct for
+    # each service.
+    #
+    # If a +group+ is specified, then only those services that belong to
+    # that load order group are enumerated. If an empty string is provided,
+    # then only services that do not belong to any group are enumerated. If
+    # this parameter is nil (the default), group membership is ignored and
+    # all services are enumerated. This value is not case sensitive.
+    #
+    # Examples:
+    #
+    #    # Enumerate over all services on the localhost
+    #    Service.services{ |service| p service }
+    #
+    #    # Enumerate over all services on a remote host
+    #    Service.services('some_host'){ |service| p service }
+    #
+    #    # Enumerate over all 'network' services locally
+    #    Service.services(nil, 'network'){ |service| p service }
+    #  
+    def self.services(host=nil, group=nil)
+      unless host.nil?
+        raise TypeError unless host.is_a?(String) # Avoid strange errors
+      end
+         
+      unless group.nil?
+        raise TypeError unless group.is_a?(String) # Avoid strange errors
+      end
+                       
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+         
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
+          
+      bytes_needed      = [0].pack('L')
+      services_returned = [0].pack('L')
+      resume_handle     = [0].pack('L')
+
+      begin
+        # The first call is used to determine the required buffer size
+        bool = EnumServicesStatusEx(
+          handle_scm,
+          SC_ENUM_PROCESS_INFO,
+          SERVICE_WIN32 | SERVICE_DRIVER,
+          SERVICE_STATE_ALL,
+          0,
+          0,
+          bytes_needed,
+          services_returned,
+          resume_handle,
+          group
+        )
+
+        err_num = GetLastError()
+
+        if !bool && err_num == ERROR_MORE_DATA
+          service_buf = 0.chr * bytes_needed.unpack('L').first
+        else
+          raise Error, get_last_error(err_num)
+        end
+          
+        bool = EnumServicesStatusEx(
+          handle_scm,
+          SC_ENUM_PROCESS_INFO,
+          SERVICE_WIN32 | SERVICE_DRIVER,
+          SERVICE_STATE_ALL,
+          service_buf,
+          service_buf.size,
+          bytes_needed,
+          services_returned,
+          resume_handle,
+          group
+        )
+         
+        unless bool
+          raise Error, get_last_error
+        end
+
+        num_services = services_returned.unpack('L').first
+           
+        index = 0
+        services_array = [] unless block_given?
+
+        1.upto(num_services){ |num|
+          service_name = 0.chr * 260
+          display_name = 0.chr * 260
+
+          info = service_buf[index, 44] # sizeof(SERVICE_STATUS_PROCESS)
+
+          strcpy(service_name, info[0,4].unpack('L').first)
+          strcpy(display_name, info[4,4].unpack('L').first)
+
+          service_name = service_name.unpack('Z*')[0]
+          display_name = display_name.unpack('Z*')[0]
+             
+          dw_service_type = info[8,4].unpack('L').first
+       
+          service_type  = get_service_type(dw_service_type)
+          current_state = get_current_state(info[12,4].unpack('L').first)
+          controls      = get_controls_accepted(info[16,4].unpack('L').first)
+          interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
+          win_exit_code = info[20,4].unpack('L').first
+          ser_exit_code = info[24,4].unpack('L').first
+          check_point   = info[28,4].unpack('L').first
+          wait_hint     = info[32,4].unpack('L').first
+          pid           = info[36,4].unpack('L').first
+          service_flags = info[40,4].unpack('L').first
+
+          begin
             handle_scs = OpenService(
-               handle_scm,
-               service_name,
-               SERVICE_QUERY_CONFIG
+              handle_scm,
+              service_name,
+              SERVICE_QUERY_CONFIG
             )
                
             if handle_scs == 0
-               error = get_last_error
-               CloseServiceHandle(handle_scm)
-               CloseServiceHandle(handle_scs)
-               raise Error, error
+              raise Error, get_last_error
             end
 
             config_buf = get_config_info(handle_scs)
 
             if config_buf != ERROR_FILE_NOT_FOUND
-               binary_path = 0.chr * 1024
-               strcpy(binary_path, config_buf[12,4].unpack('L').first)
-               binary_path = binary_path.unpack('Z*')[0]
+              binary_path = 0.chr * 1024
+              strcpy(binary_path, config_buf[12,4].unpack('L').first)
+              binary_path = binary_path.unpack('Z*')[0]
 
-               load_order = 0.chr * 1024
-               strcpy(load_order, config_buf[16,4].unpack('L').first)
-               load_order = load_order.unpack('Z*')[0]
+              load_order = 0.chr * 1024
+              strcpy(load_order, config_buf[16,4].unpack('L').first)
+              load_order = load_order.unpack('Z*')[0]
+           
+              start_name = 0.chr * 1024
+              strcpy(start_name, config_buf[28,4].unpack('L').first)
+              start_name = start_name.unpack('Z*')[0]
             
-               start_name = 0.chr * 1024
-               strcpy(start_name, config_buf[28,4].unpack('L').first)
-               start_name = start_name.unpack('Z*')[0]
-            
-               start_type = get_start_type(config_buf[4,4].unpack('L').first)
-               error_ctrl = get_error_control(config_buf[8,4].unpack('L').first)
+              start_type = get_start_type(config_buf[4,4].unpack('L').first)
+              error_ctrl = get_error_control(config_buf[8,4].unpack('L').first)
 
-               tag_id = config_buf[20,4].unpack('L').first
+              tag_id = config_buf[20,4].unpack('L').first
 
-               deps = get_dependencies(config_buf[24,4].unpack('L').first)
+              deps = get_dependencies(config_buf[24,4].unpack('L').first)
 
-               description = 0.chr * 2048
-               buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION) 
+              description = 0.chr * 2048
+              buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION) 
 
-               strcpy(description, buf[0,4].unpack('L').first)
-               description = description.unpack('Z*')[0]
+              strcpy(description, buf[0,4].unpack('L').first)
+              description = description.unpack('Z*')[0]
             else
-               msg = "WARNING: The registry entry for the #{service_name} "
-               msg += "service could not be found."
-               warn msg
-              
-               binary_path = nil
-               load_order  = nil
-               start_name  = nil
-               start_type  = nil
-               error_ctrl  = nil
-               tag_id      = nil
-               deps        = nil
-               description = nil
+              msg = "WARNING: The registry entry for the #{service_name} "
+              msg += "service could not be found."
+              warn msg
+             
+              binary_path = nil
+              load_order  = nil
+              start_name  = nil
+              start_type  = nil
+              error_ctrl  = nil
+              tag_id      = nil
+              deps        = nil
+              description = nil
             end
             
             buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
             
             if buf2 != ERROR_FILE_NOT_FOUND
-               reset_period = buf2[0,4].unpack('L').first
+              reset_period = buf2[0,4].unpack('L').first
             
-               reboot_msg = 0.chr * 260
-               strcpy(reboot_msg, buf2[4,4].unpack('L').first)
-               reboot_msg = reboot_msg.unpack('Z*')[0]
+              reboot_msg = 0.chr * 260
+              strcpy(reboot_msg, buf2[4,4].unpack('L').first)
+              reboot_msg = reboot_msg.unpack('Z*')[0]
             
-               command = 0.chr * 260
-               strcpy(command, buf2[8,4].unpack('L').first)
-               command = command.unpack('Z*')[0]
+              command = 0.chr * 260
+              strcpy(command, buf2[8,4].unpack('L').first)
+              command = command.unpack('Z*')[0]
             
-               num_actions = buf2[12,4].unpack('L').first
-               actions = nil
+              num_actions = buf2[12,4].unpack('L').first
+              actions = nil
             
-               if num_actions > 0
-                  action_ptr = buf2[16,4].unpack('L').first
-                  action_buf = [0,0].pack('LL') * num_actions
-                  memcpy(action_buf, action_ptr, action_buf.size)
+              if num_actions > 0
+                action_ptr = buf2[16,4].unpack('L').first
+                action_buf = [0,0].pack('LL') * num_actions
+                memcpy(action_buf, action_ptr, action_buf.size)
                
-                  i = 0
-                  actions = {}
-                  num_actions.times{ |n|
-                     action_type, delay = action_buf[i, 8].unpack('LL')
-                     action_type = get_action_type(action_type)
-                     actions[n+1] = {:action_type => action_type, :delay => delay}
-                     i += 8
-                  }
-               end
+                i = 0
+                actions = {}
+                num_actions.times{ |n|
+                  action_type, delay = action_buf[i, 8].unpack('LL')
+                  action_type = get_action_type(action_type)
+                  actions[n+1] = {:action_type => action_type, :delay => delay}
+                  i += 8
+                }
+              end
             else
-               reset_period   = nil
-               reboot_message = nil
-               command        = nil
-               actions        = nil
+              reset_period   = nil
+              reboot_message = nil
+              command        = nil
+              actions        = nil
             end
+          ensure
+            CloseServiceHandle(handle_scs) if handle_scs > 0
+          end
+          
+          struct = ServiceStruct.new(
+            service_name,
+            display_name,
+            service_type,
+            current_state,
+            controls,
+            win_exit_code,
+            ser_exit_code,
+            check_point,
+            wait_hint,
+            binary_path,
+            start_type,
+            error_ctrl,
+            load_order,
+            tag_id,
+            start_name,
+            deps,
+            description,
+            interactive,
+            pid,
+            service_flags,
+            reset_period,
+            reboot_msg,
+            command,
+            num_actions,
+            actions
+          )
+          
+          if block_given?
+             yield struct
+          else
+             services_array << struct
+          end
 
-            CloseServiceHandle(handle_scs)
-            
-            struct = ServiceStruct.new(
-               service_name,
-               display_name,
-               service_type,
-               current_state,
-               controls,
-               win_exit_code,
-               ser_exit_code,
-               check_point,
-               wait_hint,
-               binary_path,
-               start_type,
-               error_ctrl,
-               load_order,
-               tag_id,
-               start_name,
-               deps,
-               description,
-               interactive,
-               pid,
-               service_flags,
-               reset_period,
-               reboot_msg,
-               command,
-               num_actions,
-               actions
-            )
-            
-            if block_given?
-               yield struct
-            else
-               services_array << struct
-            end
-
-            index += 44 # sizeof(SERVICE_STATUS_PROCESS)
-         }
-                  
-         CloseServiceHandle(handle_scm)
-         
-         block_given? ? nil : services_array
+          index += 44 # sizeof(SERVICE_STATUS_PROCESS)
+        }
+      ensure
+        CloseServiceHandle(handle_scm)
       end
+       
+      block_given? ? nil : services_array
+    end
       
     private
       
@@ -1634,6 +1613,8 @@ module Win32
 
     class << self
       alias create new
+      alias getdisplayname get_display_name
+      alias getservicename get_service_name
     end
   end
 end
