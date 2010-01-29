@@ -33,7 +33,7 @@ task :install => [:build] do
   FileUtils.cp('lib/win32/service.rb', install_dir, :verbose => true)
 end
 
-desc 'Uninstall the (non-gem) win32-service library.'
+desc 'Uninstall the win32-service library (non-gem)'
 task :uninstall do
   service = File.join(CONFIG['sitelibdir'], 'win32', 'service.rb')
   FileUtils.rm(service, :verbose => true) if File.exists?(service)
@@ -96,12 +96,12 @@ namespace 'test' do
     t.warning = true
     t.test_files = FileList['test/test_win32_service.rb']
   end
-end
 
-task :test do
-   Rake.application[:clean].execute
-end
+  task :all do
+    Rake.application[:clean].execute
+  end
 
-task :test_daemon do
-   Rake.application[:clean].execute
+  task :daemon do
+    Rake.application[:clean].execute
+  end
 end
