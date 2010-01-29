@@ -1415,194 +1415,191 @@ module Win32
          config_buf
       end
       
-      # Shortcut for QueryServiceConfig2. Returns the buffer.
-      # 
-      def self.get_config2_info(handle, info_level)     
-         bytes_needed = [0].pack('L')
+    # Shortcut for QueryServiceConfig2. Returns the buffer.
+    # 
+    def self.get_config2_info(handle, info_level)     
+      bytes_needed = [0].pack('L')
          
-         # First attempt at QueryServiceConfig2 is to get size needed
-         bool = QueryServiceConfig2(handle, info_level, 0, 0, bytes_needed)
+      # First attempt at QueryServiceConfig2 is to get size needed
+      bool = QueryServiceConfig2(handle, info_level, 0, 0, bytes_needed)
 
-         err_num = GetLastError()
+      err_num = GetLastError()
 
-         if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
-            config2_buf = 0.chr * bytes_needed.unpack('L').first
-         elsif err_num == ERROR_FILE_NOT_FOUND
-            return err_num
-         else
-            CloseServiceHandle(handle)
-            raise Error, get_last_error(err_num)
-         end
+      if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
+        config2_buf = 0.chr * bytes_needed.unpack('L').first
+      elsif err_num == ERROR_FILE_NOT_FOUND
+        return err_num
+      else
+        CloseServiceHandle(handle)
+        raise Error, get_last_error(err_num)
+      end
          
-         bytes_needed = [0].pack('L')
+      bytes_needed = [0].pack('L')
 
-         # Second attempt at QueryServiceConfig2 gets the actual info
-         bool = QueryServiceConfig2(
-            handle,
-            info_level,
-            config2_buf,
-            config2_buf.size,
-            bytes_needed
-         )
+      # Second attempt at QueryServiceConfig2 gets the actual info
+      bool = QueryServiceConfig2(
+        handle,
+        info_level,
+        config2_buf,
+        config2_buf.size,
+        bytes_needed
+      )
 
-         unless bool
-            error = GetLastError()
-            CloseServiceHandle(handle)
-            raise Error, get_last_error(error)
-         end
-         
-         config2_buf
+      unless bool
+        error = GetLastError()
+        CloseServiceHandle(handle)
+        raise Error, get_last_error(error)
       end
+       
+      config2_buf
+    end
       
-      # Returns a human readable string indicating the error control
-      #
-      def self.get_error_control(error_control)
-         case error_control
-            when SERVICE_ERROR_CRITICAL
-               'critical'
-            when SERVICE_ERROR_IGNORE
-               'ignore'
-            when SERVICE_ERROR_NORMAL
-               'normal'
-            when SERVICE_ERROR_SEVERE
-               'severe'
-            else
-               nil
-         end
+    # Returns a human readable string indicating the error control
+    #
+    def self.get_error_control(error_control)
+      case error_control
+        when SERVICE_ERROR_CRITICAL
+          'critical'
+        when SERVICE_ERROR_IGNORE
+          'ignore'
+        when SERVICE_ERROR_NORMAL
+          'normal'
+        when SERVICE_ERROR_SEVERE
+          'severe'
+        else
+          nil
       end
+    end
       
-      # Returns a human readable string indicating the start type.
-      #
-      def self.get_start_type(start_type)
-         case start_type
-            when SERVICE_AUTO_START
-               'auto start'
-            when SERVICE_BOOT_START
-               'boot start'
-            when SERVICE_DEMAND_START
-               'demand start'
-            when SERVICE_DISABLED
-               'disabled'
-            when SERVICE_SYSTEM_START
-               'system start'
-            else
-               nil
-         end
+    # Returns a human readable string indicating the start type.
+    #
+    def self.get_start_type(start_type)
+      case start_type
+        when SERVICE_AUTO_START
+          'auto start'
+        when SERVICE_BOOT_START
+          'boot start'
+        when SERVICE_DEMAND_START
+          'demand start'
+        when SERVICE_DISABLED
+          'disabled'
+        when SERVICE_SYSTEM_START
+          'system start'
+        else
+          nil
       end
+    end
       
-      # Returns an array of human readable strings indicating the controls
-      # that the service accepts.
-      #
-      def self.get_controls_accepted(controls)
-         array = []
-         case controls
-            when controls & SERVICE_ACCEPT_NETBINDCHANGE > 0
-               array.push('netbind change')
-            when controls & SERVICE_ACCEPT_PARAMCHANGE > 0
-               array.push('param change')
-            when controls & SERVICE_PAUSE_CONTINUE > 0
-               array.push('pause continue')
-            when controls & SERVICE_ACCEPT_SHUTDOWN > 0
-               array.push('shutdown')
-            when controls & SERVICE_ACCEPT_STOP > 0
-               array.push('stop')
-            when controls & SERVICE_ACCEPT_HARDWAREPROFILECHANGE > 0
-               array.push('hardware profile change')
-            when controls & SERVICE_ACCEPT_POWEREVENT > 0
-               array.push('power event')
-            when controls & SERVICE_ACCEPT_SESSIONCHANGE > 0
-               array.push('session change')
-         end
-         
-         array.empty? ? nil : array
+    # Returns an array of human readable strings indicating the controls
+    # that the service accepts.
+    #
+    def self.get_controls_accepted(controls)
+      array = []
+      case controls
+        when controls & SERVICE_ACCEPT_NETBINDCHANGE > 0
+          array.push('netbind change')
+        when controls & SERVICE_ACCEPT_PARAMCHANGE > 0
+          array.push('param change')
+        when controls & SERVICE_PAUSE_CONTINUE > 0
+          array.push('pause continue')
+        when controls & SERVICE_ACCEPT_SHUTDOWN > 0
+          array.push('shutdown')
+        when controls & SERVICE_ACCEPT_STOP > 0
+          array.push('stop')
+        when controls & SERVICE_ACCEPT_HARDWAREPROFILECHANGE > 0
+          array.push('hardware profile change')
+        when controls & SERVICE_ACCEPT_POWEREVENT > 0
+          array.push('power event')
+        when controls & SERVICE_ACCEPT_SESSIONCHANGE > 0
+          array.push('session change')
       end
+         
+      array.empty? ? nil : array
+    end
       
-      # Converts a service state numeric constant into a readable string.
-      # 
-      def self.get_current_state(state)
-         case state
-            when SERVICE_CONTINUE_PENDING
-               'continue pending'
-            when SERVICE_PAUSE_PENDING
-               'pause pending'
-            when SERVICE_PAUSED
-               'paused'
-            when SERVICE_RUNNING
-               'running'
-            when SERVICE_START_PENDING
-               'start pending'
-            when SERVICE_STOP_PENDING
-               'stop pending'
-            when SERVICE_STOPPED
-               'stopped'
-            else
-               nil
-         end
+    # Converts a service state numeric constant into a readable string.
+    # 
+    def self.get_current_state(state)
+      case state
+        when SERVICE_CONTINUE_PENDING
+          'continue pending'
+        when SERVICE_PAUSE_PENDING
+          'pause pending'
+        when SERVICE_PAUSED
+          'paused'
+        when SERVICE_RUNNING
+          'running'
+        when SERVICE_START_PENDING
+          'start pending'
+        when SERVICE_STOP_PENDING
+          'stop pending'
+        when SERVICE_STOPPED
+          'stopped'
+        else
+          nil
       end
+    end
       
-      # Converts a service type numeric constant into a human readable string.
-      # 
-      def self.get_service_type(service_type)
-         case service_type
-            when SERVICE_FILE_SYSTEM_DRIVER
-               'file system driver'
-            when SERVICE_KERNEL_DRIVER
-               'kernel driver'
-            when SERVICE_WIN32_OWN_PROCESS
-               'own process'
-            when SERVICE_WIN32_SHARE_PROCESS
-               'share process'
-            when SERVICE_RECOGNIZER_DRIVER
-               'recognizer driver'
-            when SERVICE_DRIVER
-               'driver'
-            when SERVICE_WIN32
-               'win32'
-            when SERVICE_TYPE_ALL
-               'all'
-            when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_OWN_PROCESS
-               'own process, interactive'
-            when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_SHARE_PROCESS
-               'share process, interactive'
-            else
-               nil
-         end
+    # Converts a service type numeric constant into a human readable string.
+    # 
+    def self.get_service_type(service_type)
+      case service_type
+        when SERVICE_FILE_SYSTEM_DRIVER
+          'file system driver'
+        when SERVICE_KERNEL_DRIVER
+          'kernel driver'
+        when SERVICE_WIN32_OWN_PROCESS
+          'own process'
+        when SERVICE_WIN32_SHARE_PROCESS
+          'share process'
+        when SERVICE_RECOGNIZER_DRIVER
+          'recognizer driver'
+        when SERVICE_DRIVER
+          'driver'
+        when SERVICE_WIN32
+          'win32'
+        when SERVICE_TYPE_ALL
+          'all'
+        when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_OWN_PROCESS
+          'own process, interactive'
+        when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_SHARE_PROCESS
+          'share process, interactive'
+        else
+          nil
       end
+    end
       
-      # A shortcut method that simplifies the various service control methods.
-      # 
-      def self.send_signal(service, host, service_signal, control_signal)
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+    # A shortcut method that simplifies the various service control methods.
+    # 
+    def self.send_signal(service, host, service_signal, control_signal)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
          
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
-         
-         handle_scs = OpenService(handle_scm, service, service_signal)
-         
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end
-         
-         status = [0,0,0,0,0,0,0].pack('LLLLLLL')
-         
-         unless ControlService(handle_scs, control_signal, status)
-            error = get_last_error
-            CloseServiceHandle(handle_scs)
-            CloseServiceHandle(handle_scm)
-            raise Error, error
-         end        
-         
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
-         
-         status
+      if handle_scm == 0
+        raise Error, get_last_error
       end
+         
+      begin
+        handle_scs = OpenService(handle_scm, service, service_signal)
+         
+        if handle_scs == 0
+          raise Error, get_last_error
+        end
+         
+        status = [0,0,0,0,0,0,0].pack('LLLLLLL')
+         
+        unless ControlService(handle_scs, control_signal, status)
+          raise Error, get_last_error
+        end        
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+      end
+         
+      status
+    end
 
-      class << self
-         alias create new
-      end
-   end
+    class << self
+      alias create new
+    end
+  end
 end
