@@ -1,5 +1,7 @@
 == 0.7.1 - ???
+* Compatibility fixes for 1.9.x.
 * Changed test-unit from a runtime dependency to a development dependency.
+* Refactored the Rakefile and gemspec.
 
 == 0.7.0 - 30-Jun-2009
 * INTERFACE CHANGE: The Service.new and Service.configure methods now accept
