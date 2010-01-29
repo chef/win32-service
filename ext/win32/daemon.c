@@ -5,7 +5,22 @@
 #include <malloc.h>
 #include <tchar.h>
 
-#define WIN32_SERVICE_VERSION "0.7.0"
+#define WIN32_SERVICE_VERSION "0.7.1"
+
+// Ruby 1.9.x
+#ifndef RSTRING_PTR
+#define RSTRING_PTR(s) (RSTRING(s)->ptr)
+#endif
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(s) (RSTRING(s)->len)
+#endif
+
+#ifndef RARRAY_PTR
+#define RARRAY_PTR(a) (RARRAY(a)->ptr)
+#endif
+#ifndef RARRAY_LEN
+#define RARRAY_LEN(a) (RARRAY(a)->len)
+#endif
 
 static VALUE cDaemonError;
 
@@ -106,17 +121,17 @@ void WINAPI Service_Main(DWORD dwArgc, LPTSTR *lpszArgv)
 
 VALUE Service_Event_Dispatch(VALUE val)
 {
-   VALUE func,self;
-   VALUE result = Qnil;
+  VALUE func,self;
+  VALUE result = Qnil;
 
-   if(val!=Qnil) {
-      self = RARRAY(val)->ptr[0];
-      func = NUM2INT(RARRAY(val)->ptr[1]);
+  if(val!=Qnil) {
+    self = RARRAY_PTR(val)[0];
+    func = NUM2INT(RARRAY_PTR(val)[1]);
 
-      result = rb_funcall(self,func,0);
-   }
+    result = rb_funcall(self,func,0);
+  }
 
-   return result;
+  return result;
 }
 
 VALUE Ruby_Service_Ctrl(VALUE self)
@@ -291,36 +306,36 @@ static VALUE daemon_mainloop_protect(VALUE self)
 
 static VALUE daemon_mainloop_ensure(VALUE self)
 {
-   int i;
+  int i;
 
-   // Signal both the ruby thread and service_main thread to terminate
-   SetEvent(hStopEvent);
+  // Signal both the ruby thread and service_main thread to terminate
+  SetEvent(hStopEvent);
 
-   // Wait for ALL ruby threads to exit
-   for(i=1; TRUE; i++)
-   {
-      VALUE list = rb_funcall(rb_cThread, rb_intern("list"), 0);
+  // Wait for ALL ruby threads to exit
+  for(i=1; TRUE; i++)
+  {
+    VALUE list = rb_funcall(rb_cThread, rb_intern("list"), 0);
 
-      if(RARRAY(list)->len <= 1)
-         break;
+    if(RARRAY_LEN(list) <= 1)
+      break;
 
-      // This is another ugly polling loop, be as polite as possible
-      rb_thread_polling();
+    // This is another ugly polling loop, be as polite as possible
+    rb_thread_polling();
 
-      SetTheServiceStatus(SERVICE_STOP_PENDING, 0, i, 1000);
-   }
+    SetTheServiceStatus(SERVICE_STOP_PENDING, 0, i, 1000);
+  }
 
-   // Only one ruby thread
-   SetEvent(hStopCompletedEvent);
+  // Only one ruby thread
+  SetEvent(hStopCompletedEvent);
 
-   // Wait for the thread to stop BEFORE we close the hStopEvent handle
-   WaitForSingleObject(hThread, INFINITE);
+  // Wait for the thread to stop BEFORE we close the hStopEvent handle
+  WaitForSingleObject(hThread, INFINITE);
 
-   // Close the event handle, ignoring failures. We may be cleaning up
-   // after an exception, so let that exception fall through.
-   CloseHandle(hStopEvent);
+  // Close the event handle, ignoring failures. We may be cleaning up
+  // after an exception, so let that exception fall through.
+  CloseHandle(hStopEvent);
 
-   return self;
+  return self;
 }
 
 /*
