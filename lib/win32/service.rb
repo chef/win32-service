@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'windows/error'
 require 'windows/service'
 require 'windows/file'
@@ -208,24 +209,60 @@ module Win32
       
     # :stopdoc: #
  
-    StatusStruct = Struct.new('ServiceStatus', :service_type,
-      :current_state, :controls_accepted, :win32_exit_code,
-      :service_specific_exit_code, :check_point, :wait_hint, :interactive,
-      :pid, :service_flags
+    StatusStruct = Struct.new(
+      'ServiceStatus',
+      :service_type,
+      :current_state,
+      :controls_accepted,
+      :win32_exit_code,
+      :service_specific_exit_code,
+      :check_point,
+      :wait_hint,
+      :interactive,
+      :pid,
+      :service_flags
     )
 
-    ConfigStruct = Struct.new('ServiceConfigInfo', :service_type,
-      :start_type, :error_control, :binary_path_name, :load_order_group,
-      :tag_id, :dependencies, :service_start_name, :display_name
+    ConfigStruct = Struct.new(
+      'ServiceConfigInfo',
+      :service_type,
+      :start_type,
+      :error_control,
+      :binary_path_name,
+      :load_order_group,
+      :tag_id,
+      :dependencies,
+      :service_start_name,
+      :display_name
     )
       
-    ServiceStruct = Struct.new('ServiceInfo', :service_name,
-      :display_name, :service_type, :current_state, :controls_accepted,
-      :win32_exit_code, :service_specific_exit_code, :check_point,
-      :wait_hint, :binary_path_name, :start_type, :error_control,
-      :load_order_group, :tag_id, :start_name, :dependencies,
-      :description, :interactive, :pid, :service_flags, :reset_period,
-      :reboot_message, :command, :num_actions, :actions
+    ServiceStruct = Struct.new(
+      'ServiceInfo',
+      :service_name,
+      :display_name,
+      :service_type,
+      :current_state,
+      :controls_accepted,
+      :win32_exit_code,
+      :service_specific_exit_code,
+      :check_point,
+      :wait_hint,
+      :binary_path_name,
+      :start_type,
+      :error_control,
+      :load_order_group,
+      :tag_id,
+      :start_name,
+      :dependencies,
+      :description,
+      :interactive,
+      :pid,
+      :service_flags,
+      :reset_period,
+      :reboot_message,
+      :command,
+      :num_actions,
+      :actions
     )
 
     # :startdoc: #
@@ -260,18 +297,18 @@ module Win32
     #
     #    # Configure everything
     #    Service.new(
-    #       :service_name       => 'some_service',
-    #       :host               => 'localhost',
-    #       :service_type       => Service::WIN32_OWN_PROCESS,
-    #       :description        => 'A custom service I wrote just for fun',
-    #       :start_type         => Service::AUTO_START,
-    #       :error_control      => Service::ERROR_NORMAL,
-    #       :binary_path_name   => 'C:\path\to\some_service.exe',
-    #       :load_order_group   => 'Network',
-    #       :dependencies       => ['W32Time','Schedule'],
-    #       :service_start_name => 'SomeDomain\\User',
-    #       :password           => 'XXXXXXX',
-    #       :display_name       => 'This is some service',
+    #      :service_name       => 'some_service',
+    #      :host               => 'localhost',
+    #      :service_type       => Service::WIN32_OWN_PROCESS,
+    #      :description        => 'A custom service I wrote just for fun',
+    #      :start_type         => Service::AUTO_START,
+    #      :error_control      => Service::ERROR_NORMAL,
+    #      :binary_path_name   => 'C:\path\to\some_service.exe',
+    #      :load_order_group   => 'Network',
+    #      :dependencies       => ['W32Time','Schedule'],
+    #      :service_start_name => 'SomeDomain\\User',
+    #      :password           => 'XXXXXXX',
+    #      :display_name       => 'This is some service',
     #    )
     #
     def initialize(options={})        
@@ -324,77 +361,74 @@ module Win32
       raise TypeError unless service_name.is_a?(String)
       raise TypeError if host && !host.is_a?(String)
 
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+      begin
+        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
-			
-			# Display name defaults to service_name
-			opts['display_name'] ||= service_name
-
-      dependencies = opts['dependencies']
-
-      if dependencies && !dependencies.empty?
-        unless dependencies.is_a?(Array) || dependencies.is_a?(String)
-          raise TypeError, 'dependencies must be a string or array'
+        if handle_scm == 0
+          raise Error, get_last_error
         end
-         
-        if dependencies.is_a?(Array)
-          dependencies = dependencies.join("\000")
+        
+        # Display name defaults to service_name
+        opts['display_name'] ||= service_name
+
+        dependencies = opts['dependencies']
+
+        if dependencies && !dependencies.empty?
+          unless dependencies.is_a?(Array) || dependencies.is_a?(String)
+            raise TypeError, 'dependencies must be a string or array'
+          end
+           
+          if dependencies.is_a?(Array)
+            dependencies = dependencies.join("\000")
+          end
+              
+          dependencies += "\000"
         end
-            
-        dependencies += "\000"
-      end
 
-      handle_scs = CreateService(
-        handle_scm,
-        service_name,
-        opts['display_name'],
-        opts['desired_access'],
-        opts['service_type'],
-        opts['start_type'],
-        opts['error_control'],
-        opts['binary_path_name'],
-        opts['load_order_group'],
-        0,
-        dependencies,
-        opts['service_start_name'],
-        opts['password']
-      )
-
-      if handle_scs == 0
-        error = get_last_error
-        CloseServiceHandle(handle_scm)
-        CloseServiceHandle(handle_scs)
-        raise Error, error
-      end
-
-      if opts['description']
-        description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-        description[0,4] = [opts['description']].pack('p*')
-
-        bool = ChangeServiceConfig2(
-          handle_scs,
-          SERVICE_CONFIG_DESCRIPTION,
-          description
+        handle_scs = CreateService(
+          handle_scm,
+          service_name,
+          opts['display_name'],
+          opts['desired_access'],
+          opts['service_type'],
+          opts['start_type'],
+          opts['error_control'],
+          opts['binary_path_name'],
+          opts['load_order_group'],
+          0,
+          dependencies,
+          opts['service_start_name'],
+          opts['password']
         )
 
-        unless bool
-          error = get_last_error
-          CloseServiceHandle(handle_scs)
-          raise Error, error
+        if handle_scs == 0
+          raise Error, get_last_error
         end
-      end
-         
-      if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
-         opts['failure_command'] || opts['failure_actions']
-      then
-        Service.configure_failure_actions(handle_scs, opts)
-      end         
 
-      CloseServiceHandle(handle_scs)
-      CloseServiceHandle(handle_scm)
+        if opts['description']
+          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
+          description[0,4] = [opts['description']].pack('p*')
+
+          bool = ChangeServiceConfig2(
+            handle_scs,
+            SERVICE_CONFIG_DESCRIPTION,
+            description
+          )
+
+          unless bool
+            raise Error, get_last_error
+          end
+        end
+         
+        if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
+           opts['failure_command'] || opts['failure_actions']
+        then
+          Service.configure_failure_actions(handle_scs, opts)
+        end         
+      ensure
+        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+      end
 
       self
     end
@@ -1240,180 +1274,180 @@ module Win32
          block_given? ? nil : services_array
       end
       
-      private
+    private
       
-      # Configures failure actions for a given service.
-      #
-      def self.configure_failure_actions(handle_scs, opts)
-         if opts['failure_actions']
-            token_handle = 0.chr * 4
-                           
-            bool = OpenProcessToken(
-               GetCurrentProcess(),
-               TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-               token_handle
-            )
-                           
-            unless bool
-               error = get_last_error
-               CloseServiceHandle(handle_scs)
-               raise Error, error            
-            end
-                           
-            token_handle = token_handle.unpack('L').first
-                     
-            # Get the LUID for shutdown privilege.
-            luid = 0.chr * 8
-                     
-            unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
-               error = get_last_error
-               CloseServiceHandle(handle_scs)
-               raise Error, error                
-            end
-                     
-            tkp = [1].pack('L') + luid + [SE_PRIVILEGE_ENABLED].pack('L')
+    # Configures failure actions for a given service.
+    #
+    def self.configure_failure_actions(handle_scs, opts)
+      if opts['failure_actions']
+        token_handle = 0.chr * 4
                         
-            # Enable shutdown privilege in access token of this process
-            bool = AdjustTokenPrivileges(
-               token_handle,
-               0,
-               tkp,
-               tkp.size,
-               nil,
-               nil
-            )
+        bool = OpenProcessToken(
+          GetCurrentProcess(),
+          TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+          token_handle
+        )
+                           
+        unless bool
+          error = get_last_error
+          CloseServiceHandle(handle_scs)
+          raise Error, error            
+        end
+                           
+        token_handle = token_handle.unpack('L').first
+                     
+        # Get the LUID for shutdown privilege.
+        luid = 0.chr * 8
+                     
+        unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
+          error = get_last_error
+          CloseServiceHandle(handle_scs)
+          raise Error, error                
+        end
+                     
+        tkp = [1].pack('L') + luid + [SE_PRIVILEGE_ENABLED].pack('L')
                         
-            unless bool
-               error = get_last_error
-               CloseServiceHandle(handle_scs)
-               raise Error, error                
-            end                              
-         end             
+        # Enable shutdown privilege in access token of this process
+        bool = AdjustTokenPrivileges(
+          token_handle,
+          0,
+          tkp,
+          tkp.size,
+          nil,
+          nil
+        )
+                        
+        unless bool
+          error = get_last_error
+          CloseServiceHandle(handle_scs)
+          raise Error, error                
+        end                              
+      end             
                               
-         fail_buf = 0.chr * 20 # sizeof(SERVICE_FAILURE_ACTIONS)
+      fail_buf = 0.chr * 20 # sizeof(SERVICE_FAILURE_ACTIONS)
 
-         if opts['failure_reset_period']
-            fail_buf[0,4] = [opts['failure_reset_period']].pack('L')
-         end
+      if opts['failure_reset_period']
+        fail_buf[0,4] = [opts['failure_reset_period']].pack('L')
+      end
          
-         if opts['failure_reboot_message']
-            fail_buf[4,4] = [opts['failure_reboot_message']].pack('p*')
-         end
+      if opts['failure_reboot_message']
+        fail_buf[4,4] = [opts['failure_reboot_message']].pack('p*')
+      end
          
-         if opts['failure_command']
-            fail_buf[8,4] = [opts['failure_command']].pack('p*')
-         end
+      if opts['failure_command']
+        fail_buf[8,4] = [opts['failure_command']].pack('p*')
+      end
          
-         if opts['failure_actions']
-            actions = []
-         
-            opts['failure_actions'].each{ |action|
-               action_buf = 0.chr * 8
-               action_buf[0, 4] = [action].pack('L')
-               action_buf[4, 4] = [opts['failure_delay']].pack('L')
-               actions << action_buf
-            }
+      if opts['failure_actions']
+        actions = []
+        
+        opts['failure_actions'].each{ |action|
+          action_buf = 0.chr * 8
+          action_buf[0, 4] = [action].pack('L')
+          action_buf[4, 4] = [opts['failure_delay']].pack('L')
+          actions << action_buf
+        }
                         
-            actions = actions.join
+        actions = actions.join
+       
+        fail_buf[12,4] = [opts['failure_actions'].length].pack('L')
+        fail_buf[16,4] = [actions].pack('p*')
+      end
          
-            fail_buf[12,4] = [opts['failure_actions'].length].pack('L')
-            fail_buf[16,4] = [actions].pack('p*')
-         end
+      bool = ChangeServiceConfig2(
+        handle_scs,
+        SERVICE_CONFIG_FAILURE_ACTIONS,
+        fail_buf
+      )
          
-         bool = ChangeServiceConfig2(
-            handle_scs,
-            SERVICE_CONFIG_FAILURE_ACTIONS,
-            fail_buf
-         )
-         
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle_scs)
-            raise Error, error
-         end         
+      unless bool
+        error = get_last_error
+        CloseServiceHandle(handle_scs)
+        raise Error, error
+      end         
+    end
+
+    # Unravels a pointer to an array of dependencies. Takes the address
+    # that points the array as an argument.
+    #
+    def self.get_dependencies(address)
+      dep_buf = "" 
+
+      while address != 0
+        char_buf = 0.chr
+        memcpy(char_buf, address, 1)
+        address += 1             
+        dep_buf += char_buf
+        break if dep_buf[-2,2] == "\0\0"             
       end
 
-      # Unravels a pointer to an array of dependencies. Takes the address
-      # that points the array as an argument.
-      #
-      def self.get_dependencies(address)
-         dep_buf = "" 
+      dependencies = []
 
-         while address != 0
-            char_buf = 0.chr
-            memcpy(char_buf, address, 1)
-            address += 1             
-            dep_buf += char_buf
-            break if dep_buf[-2,2] == "\0\0"             
-         end
-
-         dependencies = []
-
-         if dep_buf != "\0\0"
-            dependencies = dep_buf.split("\000\000").first.split(0.chr)
-         end
-
-         dependencies
+      if dep_buf != "\0\0"
+        dependencies = dep_buf.split("\000\000").first.split(0.chr)
       end
+
+      dependencies
+    end
       
-      # Returns a human readable string indicating the action type.
-      #
-      def self.get_action_type(action_type)
-         case action_type
-            when SC_ACTION_NONE
-               'none'
-            when SC_ACTION_REBOOT
-               'reboot'
-            when SC_ACTION_RESTART
-               'restart'
-            when SC_ACTION_RUN_COMMAND
-               'command'
-            else
-               'unknown'
-         end
+    # Returns a human readable string indicating the action type.
+    #
+    def self.get_action_type(action_type)
+      case action_type
+        when SC_ACTION_NONE
+          'none'
+        when SC_ACTION_REBOOT
+          'reboot'
+        when SC_ACTION_RESTART
+          'restart'
+        when SC_ACTION_RUN_COMMAND
+          'command'
+        else
+          'unknown'
+       end
+    end
+
+    # Shortcut for QueryServiceConfig. Returns the buffer. In rare cases
+    # the underlying registry entry may have been deleted, but the service
+    # still exists. In that case, the ERROR_FILE_NOT_FOUND value is returned
+    # instead.
+    #
+    def self.get_config_info(handle)
+      bytes_needed = [0].pack('L')
+
+      # First attempt at QueryServiceConfig is to get size needed
+      bool = QueryServiceConfig(handle, 0, 0, bytes_needed)
+
+      err_num = GetLastError()
+
+      if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
+        config_buf = 0.chr * bytes_needed.unpack('L').first
+      elsif err_num == ERROR_FILE_NOT_FOUND
+        return err_num
+      else
+        error = get_last_error(err_num)
+        CloseServiceHandle(handle)
+        raise Error, error
       end
 
-      # Shortcut for QueryServiceConfig. Returns the buffer. In rare cases
-      # the underlying registry entry may have been deleted, but the service
-      # still exists. In that case, the ERROR_FILE_NOT_FOUND value is returned
-      # instead.
-      #
-      def self.get_config_info(handle)
-         bytes_needed = [0].pack('L')
+      bytes_needed = [0].pack('L')
 
-         # First attempt at QueryServiceConfig is to get size needed
-         bool = QueryServiceConfig(handle, 0, 0, bytes_needed)
+      # Second attempt at QueryServiceConfig gets the actual info
+      begin
+        bool = QueryServiceConfig(
+          handle,
+          config_buf,
+          config_buf.size,
+          bytes_needed
+        )
 
-         err_num = GetLastError()
-
-         if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
-            config_buf = 0.chr * bytes_needed.unpack('L').first
-         elsif err_num == ERROR_FILE_NOT_FOUND
-            return err_num
-         else
-            error = get_last_error(err_num)
-            CloseServiceHandle(handle)
-            raise Error, error
-         end
-
-         bytes_needed = [0].pack('L')
-
-         # Second attempt at QueryServiceConfig gets the actual info
-         bool = QueryServiceConfig(
-            handle,
-            config_buf,
-            config_buf.size,
-            bytes_needed
-         )
-
-         unless bool
-            error = get_last_error
-            CloseServiceHandle(handle)
-            raise Error, error
-         end
-
-         config_buf
+        raise Error, get_last_error unless bool
+      ensure
+        CloseServiceHandle(handle) unless bool
       end
+
+      config_buf
+    end
       
     # Shortcut for QueryServiceConfig2. Returns the buffer.
     # 
@@ -1437,18 +1471,18 @@ module Win32
       bytes_needed = [0].pack('L')
 
       # Second attempt at QueryServiceConfig2 gets the actual info
-      bool = QueryServiceConfig2(
-        handle,
-        info_level,
-        config2_buf,
-        config2_buf.size,
-        bytes_needed
-      )
+      begin
+        bool = QueryServiceConfig2(
+          handle,
+          info_level,
+          config2_buf,
+          config2_buf.size,
+          bytes_needed
+        )
 
-      unless bool
-        error = GetLastError()
-        CloseServiceHandle(handle)
-        raise Error, get_last_error(error)
+        raise Error, get_last_error unless bool
+      ensure
+        CloseServiceHandle(handle) unless bool
       end
        
       config2_buf
