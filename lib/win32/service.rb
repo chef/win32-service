@@ -9,398 +9,395 @@ require 'windows/msvcrt/buffer'
 # The Win32 module serves as a namespace only.
 module Win32
 
-   # The Service class encapsulates services controller actions, such as
-   # creating, starting, configuring or deleting services.
-   class Service
+  # The Service class encapsulates services controller actions, such as
+  # creating, starting, configuring or deleting services.
+  class Service
 
-      # This is the error typically raised if one of the Service methods
-      # should fail for any reason.
-      class Error < StandardError; end
+    # This is the error typically raised if one of the Service methods
+    # should fail for any reason.
+    class Error < StandardError; end
       
-      include Windows::Error
-      include Windows::Service
-      include Windows::File
-      include Windows::Process
-      include Windows::Security
-      include Windows::MSVCRT::String
-      include Windows::MSVCRT::Buffer
+    include Windows::Error
+    include Windows::Service
+    include Windows::File
+    include Windows::Process
+    include Windows::Security
+    include Windows::MSVCRT::String
+    include Windows::MSVCRT::Buffer
            
-      extend Windows::Error
-      extend Windows::Service
-      extend Windows::File
-      extend Windows::Process
-      extend Windows::Security
-      extend Windows::MSVCRT::String
-      extend Windows::MSVCRT::Buffer
+    extend Windows::Error
+    extend Windows::Service
+    extend Windows::File
+    extend Windows::Process
+    extend Windows::Security
+    extend Windows::MSVCRT::String
+    extend Windows::MSVCRT::Buffer
       
-      # The version of the win32-service library
-      VERSION = '0.7.1'
+    # The version of the win32-service library
+    VERSION = '0.7.1'
       
-      # SCM security and access rights
+    # SCM security and access rights
       
-      # Includes STANDARD_RIGHTS_REQUIRED, in addition to all other rights
-      MANAGER_ALL_ACCESS = SC_MANAGER_ALL_ACCESS
+    # Includes STANDARD_RIGHTS_REQUIRED, in addition to all other rights
+    MANAGER_ALL_ACCESS = SC_MANAGER_ALL_ACCESS
 
-      # Required to call the CreateService function
-      MANAGER_CREATE_SERVICE = SC_MANAGER_CREATE_SERVICE
+    # Required to call the CreateService function
+    MANAGER_CREATE_SERVICE = SC_MANAGER_CREATE_SERVICE
 
-      # Required to connect to the service control manager.
-      MANAGER_CONNECT = SC_MANAGER_CONNECT
+    # Required to connect to the service control manager.
+    MANAGER_CONNECT = SC_MANAGER_CONNECT
 
-      # Required to call the EnumServicesStatusEx function to list services
-      MANAGER_ENUMERATE_SERVICE = SC_MANAGER_ENUMERATE_SERVICE
+    # Required to call the EnumServicesStatusEx function to list services
+    MANAGER_ENUMERATE_SERVICE = SC_MANAGER_ENUMERATE_SERVICE
 
-      # Required to call the LockServiceDatabase function
-      MANAGER_LOCK = SC_MANAGER_LOCK
+    # Required to call the LockServiceDatabase function
+    MANAGER_LOCK = SC_MANAGER_LOCK
 
-      # Required to call the NotifyBootConfigStatus function
-      MANAGER_MODIFY_BOOT_CONFIG = SC_MANAGER_MODIFY_BOOT_CONFIG
+    # Required to call the NotifyBootConfigStatus function
+    MANAGER_MODIFY_BOOT_CONFIG = SC_MANAGER_MODIFY_BOOT_CONFIG
 
-      # Required to call the QueryServiceLockStatus function
-      MANAGER_QUERY_LOCK_STATUS = SC_MANAGER_QUERY_LOCK_STATUS
+    # Required to call the QueryServiceLockStatus function
+    MANAGER_QUERY_LOCK_STATUS = SC_MANAGER_QUERY_LOCK_STATUS
 
-      # Includes STANDARD_RIGHTS_REQUIRED in addition to all access rights
-      ALL_ACCESS = SERVICE_ALL_ACCESS
+    # Includes STANDARD_RIGHTS_REQUIRED in addition to all access rights
+    ALL_ACCESS = SERVICE_ALL_ACCESS
 
-      # Required to call functions that configure existing services
-      CHANGE_CONFIG = SERVICE_CHANGE_CONFIG
+    # Required to call functions that configure existing services
+    CHANGE_CONFIG = SERVICE_CHANGE_CONFIG
 
-      # Required to enumerate all the services dependent on the service
-      ENUMERATE_DEPENDENTS = SERVICE_ENUMERATE_DEPENDENTS
+    # Required to enumerate all the services dependent on the service
+    ENUMERATE_DEPENDENTS = SERVICE_ENUMERATE_DEPENDENTS
 
-      # Required to make a service report its status immediately
-      INTERROGATE = SERVICE_INTERROGATE
+    # Required to make a service report its status immediately
+    INTERROGATE = SERVICE_INTERROGATE
 
-      # Required to control a service with a pause or resume
-      PAUSE_CONTINUE = SERVICE_PAUSE_CONTINUE
+    # Required to control a service with a pause or resume
+    PAUSE_CONTINUE = SERVICE_PAUSE_CONTINUE
 
-      # Required to be able to gather configuration information about a service
-      QUERY_CONFIG = SERVICE_QUERY_CONFIG
+    # Required to be able to gather configuration information about a service
+    QUERY_CONFIG = SERVICE_QUERY_CONFIG
 
-      # Required to be ask the SCM about the status of a service
-      QUERY_STATUS = SERVICE_QUERY_STATUS
+    # Required to be ask the SCM about the status of a service
+    QUERY_STATUS = SERVICE_QUERY_STATUS
 
-      # Required to call the StartService function to start the service.
-      START = SERVICE_START
+    # Required to call the StartService function to start the service.
+    START = SERVICE_START
 
-      # Required to call the ControlService function to stop the service.
-      STOP = SERVICE_STOP
+    # Required to call the ControlService function to stop the service.
+    STOP = SERVICE_STOP
 
-      # Required to call ControlService with a user defined control code
-      USER_DEFINED_CONTROL = SERVICE_USER_DEFINED_CONTROL
+    # Required to call ControlService with a user defined control code
+    USER_DEFINED_CONTROL = SERVICE_USER_DEFINED_CONTROL
       
-      # Service Types
+    # Service Types
 
-      # Driver service
-      KERNEL_DRIVER = SERVICE_KERNEL_DRIVER
+    # Driver service
+    KERNEL_DRIVER = SERVICE_KERNEL_DRIVER
 
-      # File system driver service
-      FILE_SYSTEM_DRIVER  = SERVICE_FILE_SYSTEM_DRIVER
+    # File system driver service
+    FILE_SYSTEM_DRIVER  = SERVICE_FILE_SYSTEM_DRIVER
 
-      # Service that runs in its own process
-      WIN32_OWN_PROCESS   = SERVICE_WIN32_OWN_PROCESS
+    # Service that runs in its own process
+    WIN32_OWN_PROCESS   = SERVICE_WIN32_OWN_PROCESS
 
-      # Service that shares a process with one or more other services.
-      WIN32_SHARE_PROCESS = SERVICE_WIN32_SHARE_PROCESS
+    # Service that shares a process with one or more other services.
+    WIN32_SHARE_PROCESS = SERVICE_WIN32_SHARE_PROCESS
 
-      # The service can interact with the desktop
-      INTERACTIVE_PROCESS = SERVICE_INTERACTIVE_PROCESS
+    # The service can interact with the desktop
+    INTERACTIVE_PROCESS = SERVICE_INTERACTIVE_PROCESS
 
-      DRIVER = SERVICE_DRIVER
-      TYPE_ALL = SERVICE_TYPE_ALL
+    DRIVER = SERVICE_DRIVER
+    TYPE_ALL = SERVICE_TYPE_ALL
       
-      # Service start options
+    # Service start options
 
-      # A service started automatically by the SCM during system startup
-      BOOT_START = SERVICE_BOOT_START
+    # A service started automatically by the SCM during system startup
+    BOOT_START = SERVICE_BOOT_START
 
-      # A device driver started by the IoInitSystem function. Drivers only
-      SYSTEM_START = SERVICE_SYSTEM_START
+    # A device driver started by the IoInitSystem function. Drivers only
+    SYSTEM_START = SERVICE_SYSTEM_START
 
-      # A service started automatically by the SCM during system startup
-      AUTO_START = SERVICE_AUTO_START
+    # A service started automatically by the SCM during system startup
+    AUTO_START = SERVICE_AUTO_START
 
-      # A service started by the SCM when a process calls StartService
-      DEMAND_START = SERVICE_DEMAND_START
+    # A service started by the SCM when a process calls StartService
+    DEMAND_START = SERVICE_DEMAND_START
 
-      # A service that cannot be started
-      DISABLED = SERVICE_DISABLED
+    # A service that cannot be started
+    DISABLED = SERVICE_DISABLED
       
-      # Error control
+    # Error control
 
-      # Error logged, startup continues
-      ERROR_IGNORE = SERVICE_ERROR_IGNORE
+    # Error logged, startup continues
+    ERROR_IGNORE = SERVICE_ERROR_IGNORE
 
-      # Error logged, pop up message, startup continues
-      ERROR_NORMAL   = SERVICE_ERROR_NORMAL
+    # Error logged, pop up message, startup continues
+    ERROR_NORMAL   = SERVICE_ERROR_NORMAL
 
-      # Error logged, startup continues, system restarted last known good config
-      ERROR_SEVERE   = SERVICE_ERROR_SEVERE
+    # Error logged, startup continues, system restarted last known good config
+    ERROR_SEVERE   = SERVICE_ERROR_SEVERE
 
-      # Error logged, startup fails, system restarted last known good config
-      ERROR_CRITICAL = SERVICE_ERROR_CRITICAL
+    # Error logged, startup fails, system restarted last known good config
+    ERROR_CRITICAL = SERVICE_ERROR_CRITICAL
       
-      # Current state
+    # Current state
  
-      # Service is not running
-      STOPPED = SERVICE_STOPPED
+    # Service is not running
+    STOPPED = SERVICE_STOPPED
 
-      # Service has received a start signal but is not yet running
-      START_PENDING = SERVICE_START_PENDING
+    # Service has received a start signal but is not yet running
+    START_PENDING = SERVICE_START_PENDING
 
-      # Service has received a stop signal but is not yet stopped
-      STOP_PENDING  = SERVICE_STOP_PENDING
+    # Service has received a stop signal but is not yet stopped
+    STOP_PENDING  = SERVICE_STOP_PENDING
 
-      # Service is running
-      RUNNING = SERVICE_RUNNING
+    # Service is running
+    RUNNING = SERVICE_RUNNING
 
-      # Service has received a signal to resume but is not yet running
-      CONTINUE_PENDING = SERVICE_CONTINUE_PENDING
+    # Service has received a signal to resume but is not yet running
+    CONTINUE_PENDING = SERVICE_CONTINUE_PENDING
 
-      # Service has received a signal to pause but is not yet paused
-      PAUSE_PENDING = SERVICE_PAUSE_PENDING
+    # Service has received a signal to pause but is not yet paused
+    PAUSE_PENDING = SERVICE_PAUSE_PENDING
 
-      # Service is paused
-      PAUSED = SERVICE_PAUSED
+    # Service is paused
+    PAUSED = SERVICE_PAUSED
+    
+    # Service controls
+
+    # Notifies service that it should stop
+    CONTROL_STOP = SERVICE_CONTROL_STOP
+
+    # Notifies service that it should pause
+    CONTROL_PAUSE = SERVICE_CONTROL_PAUSE
+
+    # Notifies service that it should resume
+    CONTROL_CONTINUE = SERVICE_CONTROL_CONTINUE
+
+    # Notifies service that it should return its current status information
+    CONTROL_INTERROGATE = SERVICE_CONTROL_INTERROGATE
+
+    # Notifies a service that its parameters have changed
+    CONTROL_PARAMCHANGE = SERVICE_CONTROL_PARAMCHANGE
+
+    # Notifies a service that there is a new component for binding
+    CONTROL_NETBINDADD = SERVICE_CONTROL_NETBINDADD
+
+    # Notifies a service that a component for binding has been removed
+    CONTROL_NETBINDREMOVE = SERVICE_CONTROL_NETBINDREMOVE
+
+    # Notifies a service that a component for binding has been enabled
+    CONTROL_NETBINDENABLE = SERVICE_CONTROL_NETBINDENABLE
+
+    # Notifies a service that a component for binding has been disabled
+    CONTROL_NETBINDDISABLE = SERVICE_CONTROL_NETBINDDISABLE
+
+    # Failure actions
+
+    # No action
+    ACTION_NONE = SC_ACTION_NONE
+
+    # Reboot the computer
+    ACTION_REBOOT = SC_ACTION_REBOOT
+
+    # Restart the service
+    ACTION_RESTART = SC_ACTION_RESTART
+
+    # Run a command
+    ACTION_RUN_COMMAND = SC_ACTION_RUN_COMMAND
       
-      # Service controls
+    # :stopdoc: #
  
-      # Notifies service that it should stop
-      CONTROL_STOP = SERVICE_CONTROL_STOP
+    StatusStruct = Struct.new('ServiceStatus', :service_type,
+      :current_state, :controls_accepted, :win32_exit_code,
+      :service_specific_exit_code, :check_point, :wait_hint, :interactive,
+      :pid, :service_flags
+    )
 
-      # Notifies service that it should pause
-      CONTROL_PAUSE = SERVICE_CONTROL_PAUSE
-
-      # Notifies service that it should resume
-      CONTROL_CONTINUE = SERVICE_CONTROL_CONTINUE
-
-      # Notifies service that it should return its current status information
-      CONTROL_INTERROGATE = SERVICE_CONTROL_INTERROGATE
-
-      # Notifies a service that its parameters have changed
-      CONTROL_PARAMCHANGE = SERVICE_CONTROL_PARAMCHANGE
-
-      # Notifies a service that there is a new component for binding
-      CONTROL_NETBINDADD = SERVICE_CONTROL_NETBINDADD
-
-      # Notifies a service that a component for binding has been removed
-      CONTROL_NETBINDREMOVE = SERVICE_CONTROL_NETBINDREMOVE
-
-      # Notifies a service that a component for binding has been enabled
-      CONTROL_NETBINDENABLE = SERVICE_CONTROL_NETBINDENABLE
-
-      # Notifies a service that a component for binding has been disabled
-      CONTROL_NETBINDDISABLE = SERVICE_CONTROL_NETBINDDISABLE
-
-      # Failure actions
-
-      # No action
-      ACTION_NONE = SC_ACTION_NONE
-
-      # Reboot the computer
-      ACTION_REBOOT = SC_ACTION_REBOOT
-
-      # Restart the service
-      ACTION_RESTART = SC_ACTION_RESTART
-
-      # Run a command
-      ACTION_RUN_COMMAND = SC_ACTION_RUN_COMMAND
+    ConfigStruct = Struct.new('ServiceConfigInfo', :service_type,
+      :start_type, :error_control, :binary_path_name, :load_order_group,
+      :tag_id, :dependencies, :service_start_name, :display_name
+    )
       
-      # :stopdoc: #
-      StatusStruct = Struct.new('ServiceStatus', :service_type,
-         :current_state, :controls_accepted, :win32_exit_code,
-         :service_specific_exit_code, :check_point, :wait_hint, :interactive,
-         :pid, :service_flags
-      )
+    ServiceStruct = Struct.new('ServiceInfo', :service_name,
+      :display_name, :service_type, :current_state, :controls_accepted,
+      :win32_exit_code, :service_specific_exit_code, :check_point,
+      :wait_hint, :binary_path_name, :start_type, :error_control,
+      :load_order_group, :tag_id, :start_name, :dependencies,
+      :description, :interactive, :pid, :service_flags, :reset_period,
+      :reboot_message, :command, :num_actions, :actions
+    )
 
-      ConfigStruct = Struct.new('ServiceConfigInfo', :service_type,
-         :start_type, :error_control, :binary_path_name, :load_order_group,
-         :tag_id, :dependencies, :service_start_name, :display_name
-      )
-      
-      ServiceStruct = Struct.new('ServiceInfo', :service_name,
-         :display_name, :service_type, :current_state, :controls_accepted,
-         :win32_exit_code, :service_specific_exit_code, :check_point,
-         :wait_hint, :binary_path_name, :start_type, :error_control,
-         :load_order_group, :tag_id, :start_name, :dependencies,
-         :description, :interactive, :pid, :service_flags, :reset_period,
-         :reboot_message, :command, :num_actions, :actions
-      )
+    # :startdoc: #
+     
+    # Creates a new service with the specified +options+. A +service_name+
+    # must be specified or an ArgumentError is raised. A +host+ option may
+    # be specified. If no host is specified the local machine is used.
+    #
+    # Possible Options:
+    #
+    # * service_name           => nil (you must specify)
+    # * host                   => nil (optional)
+    # * display_name           => service_name
+    # * desired_access         => Service::ALL_ACCESS
+    # * service_type           => Service::WIN32_OWN_PROCESS |
+    #                             Service::INTERACTIVE_PROCESS
+    # * start_type             => Service::DEMAND_START
+    # * error_control          => Service::ERROR_NORMAL
+    # * binary_path_name       => nil
+    # * load_order_group       => nil
+    # * dependencies           => nil
+    # * service_start_name     => nil
+    # * password               => nil
+    # * description            => nil
+    # * failure_reset_period   => nil,
+    # * failure_reboot_message => nil,
+    # * failure_command        => nil,
+    # * failure_actions        => nil,
+    # * failure_delay          => 0
+    #
+    # Example:
+    #
+    #    # Configure everything
+    #    Service.new(
+    #       :service_name       => 'some_service',
+    #       :host               => 'localhost',
+    #       :service_type       => Service::WIN32_OWN_PROCESS,
+    #       :description        => 'A custom service I wrote just for fun',
+    #       :start_type         => Service::AUTO_START,
+    #       :error_control      => Service::ERROR_NORMAL,
+    #       :binary_path_name   => 'C:\path\to\some_service.exe',
+    #       :load_order_group   => 'Network',
+    #       :dependencies       => ['W32Time','Schedule'],
+    #       :service_start_name => 'SomeDomain\\User',
+    #       :password           => 'XXXXXXX',
+    #       :display_name       => 'This is some service',
+    #    )
+    #
+    def initialize(options={})        
+      unless options.is_a?(Hash)
+        raise ArgumentError, 'options parameter must be a hash'
+      end
 
-      # :startdoc: #
-      
-      # Creates a new service with the specified +options+. A +service_name+
-      # must be specified or an ArgumentError is raised. A +host+ option may
-      # be specified. If no host is specified the local machine is used.
-      #
-      # Possible Options:
-      #
-      # * service_name           => nil (you must specify)
-      # * host                   => nil (optional)
-      # * display_name           => service_name
-      # * desired_access         => Service::ALL_ACCESS
-      # * service_type           => Service::WIN32_OWN_PROCESS |
-      #                             Service::INTERACTIVE_PROCESS
-      # * start_type             => Service::DEMAND_START
-      # * error_control          => Service::ERROR_NORMAL
-      # * binary_path_name       => nil
-      # * load_order_group       => nil
-      # * dependencies           => nil
-      # * service_start_name     => nil
-      # * password               => nil
-      # * description            => nil
-      # * failure_reset_period   => nil,
-      # * failure_reboot_message => nil,
-      # * failure_command        => nil,
-      # * failure_actions        => nil,
-      # * failure_delay          => 0
-      #
-      # Example:
-      #
-      #    # Configure everything
-      #    Service.new(
-      #       :service_name       => 'some_service',
-      #       :host               => 'localhost',
-      #       :service_type       => Service::WIN32_OWN_PROCESS,
-      #       :description        => 'A custom service I wrote just for fun',
-      #       :start_type         => Service::AUTO_START,
-      #       :error_control      => Service::ERROR_NORMAL,
-      #       :binary_path_name   => 'C:\path\to\some_service.exe',
-      #       :load_order_group   => 'Network',
-      #       :dependencies       => ['W32Time','Schedule'],
-      #       :service_start_name => 'SomeDomain\\User',
-      #       :password           => 'XXXXXXX',
-      #       :display_name       => 'This is some service',
-      #    )
-      #
-      def initialize(options={})        
-         unless options.is_a?(Hash)
-            raise ArgumentError, 'options parameter must be a hash'
-         end
+      if options.empty?
+        raise ArgumentError, 'no options provided'
+      end
 
-         if options.empty?
-            raise ArgumentError, 'no options provided'
-         end
+      opts = {
+        'display_name'           => nil,
+        'desired_access'         => SERVICE_ALL_ACCESS,
+        'service_type'           => SERVICE_WIN32_OWN_PROCESS |
+                                    SERVICE_INTERACTIVE_PROCESS,
+        'start_type'             => SERVICE_DEMAND_START,
+        'error_control'          => SERVICE_ERROR_NORMAL,
+        'binary_path_name'       => nil,
+        'load_order_group'       => nil,
+        'dependencies'           => nil,
+        'service_start_name'     => nil,
+        'password'               => nil,
+        'description'            => nil,
+        'failure_reset_period'   => nil,
+        'failure_reboot_message' => nil,
+        'failure_command'        => nil,
+        'failure_actions'        => nil,
+        'failure_delay'          => 0,
+        'host'                   => nil,
+        'service_name'           => nil            
+      }
 
-         opts = {
-            'display_name'           => nil,
-            'desired_access'         => SERVICE_ALL_ACCESS,
-            'service_type'           => SERVICE_WIN32_OWN_PROCESS |
-                                        SERVICE_INTERACTIVE_PROCESS,
-            'start_type'             => SERVICE_DEMAND_START,
-            'error_control'          => SERVICE_ERROR_NORMAL,
-            'binary_path_name'       => nil,
-            'load_order_group'       => nil,
-            'dependencies'           => nil,
-            'service_start_name'     => nil,
-            'password'               => nil,
-            'description'            => nil,
-            'failure_reset_period'   => nil,
-            'failure_reboot_message' => nil,
-            'failure_command'        => nil,
-            'failure_actions'        => nil,
-            'failure_delay'          => 0,
-            'host'                   => nil,
-            'service_name'           => nil            
-         }
-
-         # Validate the hash options
-         options.each{ |key, value|
-            key = key.to_s.downcase
-            unless opts.include?(key)
-               raise ArgumentError, "Invalid option '#{key}'"
-            end
-            opts[key] = value
-         }
+      # Validate the hash options
+      options.each{ |key, value|
+        key = key.to_s.downcase
+        unless opts.include?(key)
+          raise ArgumentError, "Invalid option '#{key}'"
+        end
+        opts[key] = value
+      }
          
-         unless opts['service_name']
-            raise ArgumentError, 'No service_name specified'            
-         end
+      unless opts['service_name']
+        raise ArgumentError, 'No service_name specified'            
+      end
          
-         service_name = opts.delete('service_name')
-         host = opts.delete('host')
+      service_name = opts.delete('service_name')
+      host = opts.delete('host')
          
-         raise TypeError unless service_name.is_a?(String)
-         raise TypeError if host && !host.is_a?(String)
+      raise TypeError unless service_name.is_a?(String)
+      raise TypeError if host && !host.is_a?(String)
 
-         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
 
-         if handle_scm == 0
-            raise Error, get_last_error
-         end
+      if handle_scm == 0
+        raise Error, get_last_error
+      end
 			
 			# Display name defaults to service_name
 			opts['display_name'] ||= service_name
 
-         dependencies = opts['dependencies']
+      dependencies = opts['dependencies']
 
-         if dependencies && !dependencies.empty?
-            unless dependencies.is_a?(Array) || dependencies.is_a?(String)
-               raise TypeError, 'dependencies must be a string or array'
-            end
+      if dependencies && !dependencies.empty?
+        unless dependencies.is_a?(Array) || dependencies.is_a?(String)
+          raise TypeError, 'dependencies must be a string or array'
+        end
          
-            if dependencies.is_a?(Array)
-               dependencies = dependencies.join("\000")
-            end
+        if dependencies.is_a?(Array)
+          dependencies = dependencies.join("\000")
+        end
             
-            dependencies += "\000"
-         end
+        dependencies += "\000"
+      end
 
-         handle_scs = CreateService(
-            handle_scm,
-            service_name,
-            opts['display_name'],
-            opts['desired_access'],
-            opts['service_type'],
-            opts['start_type'],
-            opts['error_control'],
-            opts['binary_path_name'],
-            opts['load_order_group'],
-            0,
-            dependencies,
-            opts['service_start_name'],
-            opts['password']
-         )
+      handle_scs = CreateService(
+        handle_scm,
+        service_name,
+        opts['display_name'],
+        opts['desired_access'],
+        opts['service_type'],
+        opts['start_type'],
+        opts['error_control'],
+        opts['binary_path_name'],
+        opts['load_order_group'],
+        0,
+        dependencies,
+        opts['service_start_name'],
+        opts['password']
+      )
 
-         if handle_scs == 0
-            error = get_last_error
-            CloseServiceHandle(handle_scm)
-            CloseServiceHandle(handle_scs)
-            raise Error, error
-         end
+      if handle_scs == 0
+        error = get_last_error
+        CloseServiceHandle(handle_scm)
+        CloseServiceHandle(handle_scs)
+        raise Error, error
+      end
 
-         if opts['description']
-            description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-            description[0,4] = [opts['description']].pack('p*')
+      if opts['description']
+        description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
+        description[0,4] = [opts['description']].pack('p*')
 
-            bool = ChangeServiceConfig2(
-               handle_scs,
-               SERVICE_CONFIG_DESCRIPTION,
-               description
-            )
+        bool = ChangeServiceConfig2(
+          handle_scs,
+          SERVICE_CONFIG_DESCRIPTION,
+          description
+        )
 
-            unless bool
-               error = get_last_error
-               CloseServiceHandle(handle_scs)
-               raise Error, error
-            end
-         end
+        unless bool
+          error = get_last_error
+          CloseServiceHandle(handle_scs)
+          raise Error, error
+        end
+      end
          
-         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
-            opts['failure_command'] || opts['failure_actions']
-         then
-            Service.configure_failure_actions(handle_scs, opts)
-         end         
+      if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
+         opts['failure_command'] || opts['failure_actions']
+      then
+        Service.configure_failure_actions(handle_scs, opts)
+      end         
 
-         CloseServiceHandle(handle_scs)
-         CloseServiceHandle(handle_scm)
+      CloseServiceHandle(handle_scs)
+      CloseServiceHandle(handle_scm)
 
-         self
-      end
-      
-      class << self
-         alias create new
-      end
+      self
+    end
 
       # Configures the named +service+ on +host+, or the local host if no host
       # is specified. The +options+ parameter is a hash that can contain any
@@ -1602,6 +1599,10 @@ module Win32
          CloseServiceHandle(handle_scm)
          
          status
+      end
+
+      class << self
+         alias create new
       end
    end
 end
