@@ -15,7 +15,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
   end
    
   def setup
-    @service_info = @@services[0]
+    @service_info = @@services.find{ |s| s.service_name == 'W32Time' }
 
     @error_controls = [
       'critical',
@@ -63,12 +63,13 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
       'netbind change',
       'param change',
       'pause continue',
+      'pre-shutdown',
       'shutdown',
       'stop',
       'hardware profile change',
       'power event',
       'session change',
-      nil
+      'interrogate'
     ]
   end
 
@@ -94,7 +95,11 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   def test_service_info_controls_accepted
     assert_respond_to(@service_info, :controls_accepted)
-    assert(@controls.include?(@service_info.controls_accepted))
+    assert_kind_of(Array, @service_info.controls_accepted)
+    assert_false(@service_info.controls_accepted.empty?)
+    @service_info.controls_accepted.each{ |control|
+      assert_true(@controls.include?(control))
+    }
   end
 
   def test_service_info_win32_exit_code
