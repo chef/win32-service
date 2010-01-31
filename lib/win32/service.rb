@@ -1508,23 +1508,46 @@ module Win32
     #
     def self.get_controls_accepted(controls)
       array = []
-      case controls
-        when controls & SERVICE_ACCEPT_NETBINDCHANGE > 0
-          array.push('netbind change')
-        when controls & SERVICE_ACCEPT_PARAMCHANGE > 0
-          array.push('param change')
-        when controls & SERVICE_PAUSE_CONTINUE > 0
-          array.push('pause continue')
-        when controls & SERVICE_ACCEPT_SHUTDOWN > 0
-          array.push('shutdown')
-        when controls & SERVICE_ACCEPT_STOP > 0
-          array.push('stop')
-        when controls & SERVICE_ACCEPT_HARDWAREPROFILECHANGE > 0
-          array.push('hardware profile change')
-        when controls & SERVICE_ACCEPT_POWEREVENT > 0
-          array.push('power event')
-        when controls & SERVICE_ACCEPT_SESSIONCHANGE > 0
-          array.push('session change')
+
+      if controls & SERVICE_ACCEPT_NETBINDCHANGE > 0
+        array << 'netbind change'
+      end
+
+      if controls & SERVICE_ACCEPT_PARAMCHANGE > 0
+        array << 'param change'
+      end
+
+      if controls & SERVICE_PAUSE_CONTINUE > 0
+        array << 'pause continue'
+      end
+
+      if controls & SERVICE_ACCEPT_SHUTDOWN > 0
+        array << 'shutdown'
+      end
+
+      # SERVICE_ACCEPT_PRESHUTDOWN
+      if controls & 0x00000100 > 0
+        array << 'pre-shutdown'
+      end
+
+      if controls & SERVICE_ACCEPT_STOP > 0
+        array << 'stop'
+      end
+
+      if controls & SERVICE_ACCEPT_HARDWAREPROFILECHANGE > 0
+        array << 'hardware profile change'
+      end
+
+      if controls & SERVICE_ACCEPT_POWEREVENT > 0
+        array << 'power event'
+      end
+
+      if controls & SERVICE_ACCEPT_SESSIONCHANGE > 0
+        array << 'session change'
+      end
+
+      if controls & SERVICE_CONTROL_INTERROGATE > 0
+        array << 'interrogate'
       end
          
       array.empty? ? nil : array
