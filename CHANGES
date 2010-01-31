@@ -1,5 +1,7 @@
 == 0.7.1 - ???
 * Compatibility fixes for 1.9.x.
+* Fixed a bug where the controls_accepted struct member was always nil. This
+  has been fixed and now always returns an array.
 * Changed test-unit from a runtime dependency to a development dependency.
 * Refactored the Rakefile and gemspec.
 

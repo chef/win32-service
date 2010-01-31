@@ -1550,7 +1550,7 @@ module Win32
         array << 'interrogate'
       end
          
-      array.empty? ? nil : array
+      array
     end
       
     # Converts a service state numeric constant into a readable string.
