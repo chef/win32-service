@@ -1,8 +1,11 @@
 require 'win32ole'
 require 'socket'
+require 'windows/error'
 
 module Win32
   class Service
+    include Windows::Error
+    extend Windows::Error
 
     # Our base connection string
     @@bcs = "winmgmts:{impersonationLevel=impersonate}"
@@ -92,6 +95,27 @@ module Win32
         wmi.execquery(query).each{ |service|
           return service.name
         }
+      end
+    end
+
+    # Service control methods
+
+    # Start the service +name+ on +host+.
+    #--
+    # It doesn't appear that you can pass arguments to a service with WMI.
+    #
+    def self.start(service, host=Socket.gethostname)
+      connect_string = @@bcs + "//#{host}/root/cimv2:Win32_Service='#{service}'"
+
+      begin
+        wmi = WIN32OLE.connect(connect_string)
+      rescue WIN32OLERuntimeError => err
+        raise Error, err
+      else
+        rc = wmi.StartService(service)
+        if rc != 0
+          raise Error, "Failed to start service. Error code #{rc}."
+        end 
       end
     end
   end
