@@ -36,6 +36,56 @@ module Win32
 
     class Error < StandardError; end
 
+    def initialize(options)
+      options.each{ |k,v|
+        k = k.to_s.downcase.capitalize
+        options[k] = v
+      }
+
+      host = options.delete('Host') || Socket.gethostname
+
+      log_deps  = options['LoadOrderGroupDependencies']
+      serv_deps = options['ServiceDependencies']
+
+      if log_deps
+        log_deps = log_deps.join("\0")
+        log_deps << "\000\000"
+      end
+
+      if serv_deps
+        serv_deps = serv_deps.join("\0")
+        serv_deps << "\000\000"
+      end
+
+      connect_string = @@bcs + "//#{host}/root/cimv2:Win32_Service"
+
+      begin
+        wmi = WIN32OLE.connect(connect_string)
+      rescue WIN32OLERuntimeError => err
+        raise Error, err
+      end
+
+      wmi = self.class.connect_to_service(nil, host)
+
+      # TODO: Fix
+      wmi.Create(
+        options['Name'],
+        options['DisplayName'],
+        options['Pathname'],
+        options['ServiceType'],
+        options['ErrorControl'],
+        options['StartMode'],
+        options['DesktopInteract'],
+        options['StartName'],
+        options['StartPassword'],
+        options['LoadOrderGroup'],
+        log_deps,
+        serv_deps
+      )
+
+      @wmi = wmi
+    end
+
     def self.services(host=Socket.gethostname)
       wmi = connect_to_service(nil, host)
       wmi.InstancesOf('Win32_Service').each{ |service|
