@@ -38,14 +38,14 @@ module Win32
 
     def initialize(options)
       options.each{ |k,v|
-        k = k.to_s.downcase.capitalize
+        k = k.to_s.downcase
         options[k] = v
       }
 
-      host = options.delete('Host') || Socket.gethostname
+      host = options.delete('host') || Socket.gethostname
 
-      log_deps  = options['LoadOrderGroupDependencies']
-      serv_deps = options['ServiceDependencies']
+      log_deps  = options['loadordergroupdependencies']
+      serv_deps = options['servicedependencies']
 
       if log_deps
         log_deps = log_deps.join("\0")
@@ -66,16 +66,16 @@ module Win32
       end
 
       rv = wmi.Create(
-        options['Name'],
-        options['DisplayName'],
-        options['Pathname'],
-        options['ServiceType'],
-        options['ErrorControl'],
-        options['StartMode'],
-        options['DesktopInteract'],
-        options['StartName'],
-        options['StartPassword'],
-        options['LoadOrderGroup'],
+        options['name'],
+        options['displayname'],
+        options['pathname'],
+        options['servicetype'],
+        options['errorcontrol'],
+        options['startmode'],
+        options['desktopinteract'],
+        options['startname'],
+        options['startpassword'],
+        options['loadordergroup'],
         log_deps,
         serv_deps
       )
