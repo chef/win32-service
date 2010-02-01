@@ -81,7 +81,7 @@ module Win32
     #
     def self.start(service, host=Socket.gethostname)
       wmi = connect_to_service(service, host)
-      rc  = wmi.StartService(service)
+      rc  = wmi.StartService
 
       if rc != 0
         raise Error, "Failed to start service. Error code #{rc}."
@@ -90,10 +90,28 @@ module Win32
 
     def self.stop(service, host=Socket.gethostname)
       wmi = connect_to_service(service, host)
-      rc  = wmi.StopService(service)
+      rc  = wmi.StopService
 
       if rc != 0
-        raise Error, "Failed to start service. Error code #{rc}."
+        raise Error, "Failed to stop service. Error code #{rc}."
+      end 
+    end
+
+    def self.pause(service, host=Socket.gethostname)
+      wmi = connect_to_service(service, host)
+      rc  = wmi.PauseService
+
+      if rc != 0
+        raise Error, "Failed to pause service. Error code #{rc}."
+      end 
+    end
+
+    def self.resume(service, host=Socket.gethostname)
+      wmi = connect_to_service(service, host)
+      rc  = wmi.ResumeService
+
+      if rc != 0
+        raise Error, "Failed to resume service. Error code #{rc}."
       end 
     end
 
