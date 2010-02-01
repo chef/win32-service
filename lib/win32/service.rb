@@ -65,10 +65,7 @@ module Win32
         raise Error, err
       end
 
-      wmi = self.class.connect_to_service(nil, host)
-
-      # TODO: Fix
-      wmi.Create(
+      rv = wmi.Create(
         options['Name'],
         options['DisplayName'],
         options['Pathname'],
@@ -82,6 +79,10 @@ module Win32
         log_deps,
         serv_deps
       )
+
+      if rv != 0
+        raise Error, "Failed to create service. Error code: #{rv}."
+      end
 
       @wmi = wmi
     end
