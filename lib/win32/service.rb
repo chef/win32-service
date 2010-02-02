@@ -42,6 +42,10 @@ module Win32
         options[k] = v
       }
 
+      name = option.fetch('name'){
+        raise ArgumentError, "service name missing"
+      }
+
       host = options.delete('host') || Socket.gethostname
 
       log_deps  = options['loadordergroupdependencies']
@@ -66,7 +70,7 @@ module Win32
       end
 
       rv = wmi.Create(
-        options['name'],
+        name,
         options['displayname'],
         options['pathname'],
         options['servicetype'],
@@ -85,6 +89,52 @@ module Win32
       end
 
       @wmi = wmi
+    end
+
+    def self.configure(options)
+      options.each{ |k,v|
+        k = k.to_s.downcase
+        options[k] = v
+      }
+
+      name = options.fetch('name'){
+        raise ArgumentError, "service name missing"
+      }
+
+      host = options.delete('host') || Socket.gethostname
+
+      log_deps  = options['loadordergroupdependencies']
+      serv_deps = options['servicedependencies']
+
+      if log_deps && log_deps.is_a?(Array)
+        log_deps = log_deps.join("\0")
+        log_deps << "\000\000"
+      end
+
+      if serv_deps && service_deps.is_a?(Array)
+        serv_deps = serv_deps.join("\0")
+        serv_deps << "\000\000"
+      end
+
+      wmi = connect_to_service(name, host)
+
+      rv = wmi.Change(
+        options['displayname'],
+        options['pathname'],
+        options['servicetype'],
+        options['errorcontrol'],
+        options['startmode'],
+        options['desktopinteract'],
+        options['startname'],
+        options['startpassword'],
+        options['loadordergroup'],
+        log_deps,
+        serv_deps
+      )
+
+      if rv != 0
+        raise Error, "Failed to create service. Error code: #{rv}."
+      end
     end
 
     def self.services(host=Socket.gethostname)
