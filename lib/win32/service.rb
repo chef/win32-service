@@ -47,12 +47,12 @@ module Win32
       log_deps  = options['loadordergroupdependencies']
       serv_deps = options['servicedependencies']
 
-      if log_deps
+      if log_deps && log_deps.is_a?(Array)
         log_deps = log_deps.join("\0")
         log_deps << "\000\000"
       end
 
-      if serv_deps
+      if serv_deps && service_deps.is_a?(Array)
         serv_deps = serv_deps.join("\0")
         serv_deps << "\000\000"
       end
@@ -163,6 +163,15 @@ module Win32
 
       if rc != 0
         raise Error, "Failed to resume service. Error code #{rc}."
+      end 
+    end
+
+    def self.delete(service, host=Socket.gethostname)
+      wmi = connect_to_service(service, host)
+      rc  = wmi.Delete
+
+      if rc != 0
+        raise Error, "Failed to delete service. Error code #{rc}."
       end 
     end
 
