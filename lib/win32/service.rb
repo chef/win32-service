@@ -1525,7 +1525,7 @@ module Win32
         array << 'shutdown'
       end
 
-      if controls & SERVICE_ACCEPT_PRESHUTDOW > 0
+      if controls & SERVICE_ACCEPT_PRESHUTDOWN > 0
         array << 'pre-shutdown'
       end
 
