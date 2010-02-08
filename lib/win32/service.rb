@@ -1517,7 +1517,7 @@ module Win32
         array << 'param change'
       end
 
-      if controls & SERVICE_PAUSE_CONTINUE > 0
+      if controls & SERVICE_ACCEPT_PAUSE_CONTINUE > 0
         array << 'pause continue'
       end
 
@@ -1545,10 +1545,6 @@ module Win32
         array << 'session change'
       end
 
-      if controls & SERVICE_CONTROL_INTERROGATE > 0
-        array << 'interrogate'
-      end
-         
       array
     end
       
