@@ -13,13 +13,34 @@ require 'test/unit'
 class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
     @@host = Socket.gethostname
+    @@service_name = 'stisvc'
   end
 
   def setup
-    @display_name = 'Task Scheduler'
-    @service_name = 'Schedule'
+    @display_name = 'Windows Image Acquisition (WIA)'
+    @service_name = 'stisvc'
     @service_stat = nil
     @services     = []
+  end
+
+  def start_service(service)
+    status = Win32::Service.status(@service_name).current_state
+    if status == 'paused'
+      Win32::Service.resume(service)
+    else
+      unless ['running', 'start pending'].include?(status)
+        Win32::Service.start(service)
+      end
+    end
+    wait_for_status('running')
+  end
+
+  def stop_service(service)
+    status = Win32::Service.status(@service_name).current_state
+    unless ['stopped', 'stop pending'].include?(status)
+      Win32::Service.stop(service)
+    end
+    wait_for_status('stopped')
   end
    
   # Helper method that waits for a status to change its state since state
@@ -96,15 +117,20 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pause and resume work as expected" do
+    start_service(@service_name)
+
     assert_nothing_raised{ Win32::Service.pause(@service_name) }
-    assert_nothing_raised{ wait_for_status('paused') }
+    wait_for_status('paused')
+
     assert_nothing_raised{ Win32::Service.resume(@service_name) }
-    assert_nothing_raised{ wait_for_status('running') }
+    wait_for_status('running')
   end
 
   test "pausing an already paused service is harmless" do
+    start_service(@service_name)
+
     assert_nothing_raised{ Win32::Service.pause(@service_name) }  
-    assert_nothing_raised{ wait_for_status('paused') }
+    wait_for_status('paused')
     assert_nothing_raised{ Win32::Service.pause(@service_name) }  
   end
    
@@ -149,15 +175,22 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "stop and start methods work as expected" do
+    start_service(@service_name)
+
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
-    assert_nothing_raised{ wait_for_status('stopped') }
+    wait_for_status('stopped')
+
     assert_nothing_raised{ Win32::Service.start(@service_name) }
-    assert_nothing_raised{ wait_for_status('running') }
+    wait_for_status('running')
   end
 
   test "attempting to stop a stopped service raises an error" do
+    start_service(@service_name)
+
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
+    wait_for_status('stopped')
     assert_raise(Win32::Service::Error){ Win32::Service.stop(@service_name) }  
+
     assert_nothing_raised{ Win32::Service.start(@service_name) }
   end
    
@@ -363,5 +396,14 @@ class TC_Win32_Service < Test::Unit::TestCase
 
   def self.shutdown
     @@host = nil
+    status = Win32::Service.status(@@service_name).current_state
+
+    if status == 'paused'
+      Win32::Service.resume(@@service_name)
+    end
+
+    unless ['running', 'start pending'].include?(status)
+      Win32::Service.start(@@service_name)
+    end
   end
 end
