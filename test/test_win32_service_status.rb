@@ -47,8 +47,7 @@ class TC_Win32_ServiceStatus_Struct < Test::Unit::TestCase
       'stop',
       'hardware profile change',
       'power event',
-      'session change',
-      nil
+      'session change'
     ]
   end
 
@@ -64,7 +63,10 @@ class TC_Win32_ServiceStatus_Struct < Test::Unit::TestCase
 
   def test_service_status_controls_accepted
     assert_respond_to(@service_stat, :controls_accepted)
-    assert(@controls.include?(@service_stat.controls_accepted))
+    assert_kind_of(Array, @service_stat.controls_accepted)
+    @service_stat.controls_accepted.each{ |control|
+      assert_true(@controls.include?(control))
+    }
   end
 
   def test_service_status_win32_exit_code
