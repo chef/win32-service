@@ -1,10 +1,10 @@
-== 0.7.1 - ???
+== 0.7.1 - 9-Feb-2010
 * Compatibility fixes for 1.9.x.
 * Fixed a bug where the controls_accepted struct member was always nil. This
   has been fixed and now always returns an array.
-* Added 'interrogate' and 'pre-shutdown' as possible values for the list of
-  controls accepted. Almost all services will include 'interrogate'.
+* Added 'pre-shutdown' as possible values for the list of controls accepted.
 * Changed test-unit from a runtime dependency to a development dependency.
+* Some tests were refactored to be more reliable.
 * Refactored the Rakefile and gemspec.
 
 == 0.7.0 - 30-Jun-2009
