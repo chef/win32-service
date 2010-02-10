@@ -45,7 +45,7 @@ end
 namespace 'gem' do
   desc 'Build the gem'
   task :build => [:clean] do
-    spec = evan(IO.read('win32-open3.gemspec')) 
+    spec = eval(IO.read('win32-service.gemspec')) 
     Gem::Builder.new(spec).build
   end
 
@@ -64,9 +64,7 @@ namespace 'gem' do
     spec.extensions = nil
     spec.platform = Gem::Platform::CURRENT
 
-    spec.files = spec.files.reject{ |f|
-      f.include?('ext') || f.include?('git')
-    }
+    spec.files = spec.files.reject{ |f| f.include?('ext') }
 
     Gem::Builder.new(spec).build
   end
