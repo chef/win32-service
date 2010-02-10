@@ -12,6 +12,7 @@ task :clean do
     end
     File.delete('win32/daemon.so') if File.exists?('win32/daemon.so')
   end
+  Dir['*.gem'].each{ |f| File.delete(f) }
 end
 
 desc "Builds, but does not install, the win32-service library"
@@ -44,13 +45,13 @@ end
 
 namespace 'gem' do
   desc 'Build the gem'
-  task :build => [:clean] do
+  task :create => [:clean] do
     spec = eval(IO.read('win32-service.gemspec')) 
     Gem::Builder.new(spec).build
   end
 
   desc 'Install the gem'
-  task :install => [:build] do
+  task :install => [:create] do
     file = Dir['*.gem'].first
     sh "gem install #{file}"
   end
