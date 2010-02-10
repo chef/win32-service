@@ -13,6 +13,7 @@ task :clean do
     File.delete('win32/daemon.so') if File.exists?('win32/daemon.so')
   end
   Dir['*.gem'].each{ |f| File.delete(f) }
+  File.delete('lib/win32/daemon.so') if File.exists?('lib/win32/daemon.so')
 end
 
 desc "Builds, but does not install, the win32-service library"
