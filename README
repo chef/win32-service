@@ -2,7 +2,8 @@
   The win32-service library allows you to control or create MS Windows services.
 
 == Installation
-  gem install win32-service
+  gem install win32-service                        # Build from source
+  gem install win32-service --platform x86-mswin32 # Install binary
 
 == Synopsis
   require 'win32/service'
@@ -46,10 +47,6 @@
   'c:\ruby\bin\ruby' instead of just 'ruby'.
 
   * You've got a syntax error in your code somewhere.
-
-== Possible test failures
-  The 'test_service_start_stop' test in the test_win32_service.rb file may
-  fail. This will happen if your W32Time service isn't running.
 
 == See Also
   ruby-wmi
