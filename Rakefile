@@ -1,28 +1,23 @@
-require 'rake'
-require 'rake/clean'
 require 'rake/testtask'
-require 'rbconfig'
-include Config
+require 'rake/extensiontask'
 
-desc "Cleans up the C related files created during the build"
-task :clean do
-  Dir.chdir('ext') do
-    if File.exists?('daemon.o') || File.exists?('daemon.so')
-       sh 'nmake distclean'
-    end
-    File.delete('win32/daemon.so') if File.exists?('win32/daemon.so')
-  end
-  Dir['*.gem'].each{ |f| File.delete(f) }
-  File.delete('lib/win32/daemon.so') if File.exists?('lib/win32/daemon.so')
+gem_spec = eval(File.read('win32-service.gemspec'))
+
+Rake::GemPackageTask.new(gem_spec) do |pkg|
 end
 
-desc "Builds, but does not install, the win32-service library"
-task :build => [:clean] do
-  Dir.chdir('ext') do
-    ruby 'extconf.rb'
-    sh 'nmake'
-    FileUtils.cp('daemon.so', 'win32/daemon.so')      
-  end  
+Rake::ExtensionTask.new('daemon', gem_spec) do |ext|
+  ext.lib_dir = 'lib/win32'
+  ext.ext_dir = 'ext/win32'
+
+  unless RUBY_PLATFORM =~ /mswin|mingw/
+    ext.cross_compile = true
+    ext.cross_compiling do |gemspec|
+      gemspec.post_install_message = <<-MSG
+message
+MSG
+    end
+  end
 end
 
 desc "Install the win32-service library (non-gem)"
@@ -45,37 +40,16 @@ task :uninstall do
 end
 
 namespace 'gem' do
-  desc 'Build the gem'
-  task :create => [:clean] do
-    spec = eval(IO.read('win32-service.gemspec')) 
-    Gem::Builder.new(spec).build
-  end
-
   desc 'Install the gem'
-  task :install => [:create] do
-    file = Dir['*.gem'].first
-    sh "gem install #{file}"
-  end
-
-  desc 'Build a binary gem'
-  task :binary => [:build] do
-    mkdir_p 'lib/win32'
-    mv 'ext/win32/daemon.so', 'lib/win32/daemon.so'
-
-    spec = eval(IO.read('win32-service.gemspec'))
-    spec.extensions = nil
-    spec.platform = Gem::Platform::CURRENT
-
-    spec.files = spec.files.reject{ |f| f.include?('ext') }
-
-    Gem::Builder.new(spec).build
+  task :install do
+    sh "gem install #{Dir['pkg/*.gem'].grep(/mingw/)}"
   end
 end
 
 namespace 'test' do
   desc 'Run all tests for the win32-service library'
   Rake::TestTask.new('all') do |t|
-    task :all => :build
+    task :all => :compile
     t.libs << 'ext'
     t.verbose = true
     t.warning = true
@@ -83,7 +57,7 @@ namespace 'test' do
 
   desc 'Run the tests for the Win32::Daemon class'
   Rake::TestTask.new('daemon') do |t|
-    task :daemon => :build
+    task :daemon => :compile
     t.libs << 'ext'
     t.verbose = true
     t.warning = true
@@ -129,11 +103,6 @@ namespace 'test' do
     end
   end
 
-  task :all do
-    Rake.application[:clean].execute
-  end
-
-  task :daemon do
-    Rake.application[:clean].execute
-  end
+  task :all => [:clobber]
+  task :daemon => [:clobber]
 end

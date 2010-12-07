@@ -138,8 +138,10 @@ VALUE Ruby_Service_Ctrl(VALUE self)
 {
    while (WaitForSingleObject(hStopEvent,0) == WAIT_TIMEOUT)
     {
+#ifndef __GNUC__
       __try
       {
+#endif
          EnterCriticalSection(&csControlCode);
 
          // Check to see if anything interesting has been signaled
@@ -164,12 +166,13 @@ VALUE Ruby_Service_Ctrl(VALUE self)
             }
             waiting_control_code = IDLE_CONTROL_CODE;
          }
+#ifndef __GNUC__
       }
       __finally
       {
          LeaveCriticalSection(&csControlCode);
       }
-
+#endif
       // This is an ugly polling loop, be as polite as possible
       rb_thread_polling();
    }
@@ -196,15 +199,19 @@ void WINAPI Service_Ctrl(DWORD dwCtrlCode)
 
    // hard to image this code ever failing, so we probably
    // don't need the __try/__finally wrapper
+#ifndef __GNUC__
    __try
    {
+#endif
       EnterCriticalSection(&csControlCode);
       waiting_control_code = dwCtrlCode;
+#ifndef __GNUC__
    }
    __finally
    {
       LeaveCriticalSection(&csControlCode);
    }
+#endif
 
    switch(dwCtrlCode)
    {

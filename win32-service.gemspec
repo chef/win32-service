@@ -1,5 +1,3 @@
-require 'rubygems'
-
 Gem::Specification.new do |spec|
   spec.name       = 'win32-service'
   spec.version    = '0.7.1'
@@ -11,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
   spec.has_rdoc   = true
-  spec.extensions = ['ext/extconf.rb']
+  spec.extensions = ['ext/win32/extconf.rb']
    
   spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
 
@@ -29,6 +27,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency('windows-pr', '>= 1.0.8')
   spec.add_development_dependency('test-unit', '>= 2.0.2')
+  spec.add_development_dependency('rake-compiler', '~> 0.7.0')
 
   spec.description = <<-EOF
     The win32-service library provides a Ruby interface to services on
