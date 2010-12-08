@@ -14,15 +14,16 @@ Rake::ExtensionTask.new('daemon', gem_spec) do |ext|
     ext.cross_compile = true
     ext.cross_compiling do |gemspec|
       gemspec.post_install_message = <<-MSG
-message
+Cross compiled under:
+  #{RUBY_DESCRIPTION}
 MSG
     end
   end
 end
 
 desc "Install the win32-service library (non-gem)"
-task :install => [:build] do
-  Dir.chdir('ext') do
+task :install => [:compile] do
+  Dir.chdir('ext/win32') do
     sh 'nmake install'
   end
   install_dir = File.join(CONFIG['sitelibdir'], 'win32')
@@ -40,9 +41,14 @@ task :uninstall do
 end
 
 namespace 'gem' do
-  desc 'Install the gem'
-  task :install do
-    sh "gem install #{Dir['pkg/*.gem'].grep(/mingw/)}"
+  desc 'Install the mingw binary gem'
+  task :install_mingw do
+    sh "gem install #{Dir['pkg/*.gem'].grep(/mingw/).join}"
+  end
+
+  desc 'Install the mswin binary gem'
+  task :install_mswin do
+    sh "gem install #{Dir['pkg/*.gem'].grep(/mswin/).join}"
   end
 end
 
@@ -50,7 +56,6 @@ namespace 'test' do
   desc 'Run all tests for the win32-service library'
   Rake::TestTask.new('all') do |t|
     task :all => :compile
-    t.libs << 'ext'
     t.verbose = true
     t.warning = true
   end
@@ -58,7 +63,6 @@ namespace 'test' do
   desc 'Run the tests for the Win32::Daemon class'
   Rake::TestTask.new('daemon') do |t|
     task :daemon => :compile
-    t.libs << 'ext'
     t.verbose = true
     t.warning = true
     t.test_files = FileList['test/test_win32_daemon.rb']
@@ -103,6 +107,4 @@ namespace 'test' do
     end
   end
 
-  task :all => [:clobber]
-  task :daemon => [:clobber]
 end
