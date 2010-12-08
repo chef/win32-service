@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.has_rdoc   = true
   spec.extensions = ['ext/win32/extconf.rb']
    
-  spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
+  spec.files = `git ls-files`.split("\n")
 
   spec.extra_rdoc_files = [
     'CHANGES',
