@@ -21,25 +21,6 @@ MSG
   end
 end
 
-desc "Install the win32-service library (non-gem)"
-task :install => [:compile] do
-  Dir.chdir('ext/win32') do
-    sh 'nmake install'
-  end
-  install_dir = File.join(CONFIG['sitelibdir'], 'win32')
-  Dir.mkdir(install_dir) unless File.exists?(install_dir)
-  FileUtils.cp('lib/win32/service.rb', install_dir, :verbose => true)
-end
-
-desc 'Uninstall the win32-service library (non-gem)'
-task :uninstall do
-  service = File.join(CONFIG['sitelibdir'], 'win32', 'service.rb')
-  FileUtils.rm(service, :verbose => true) if File.exists?(service)
-
-  daemon = File.join(CONFIG['sitearchdir'], 'win32', 'daemon.so')
-  FileUtils.rm(daemon, :verbose => true) if File.exists?(daemon)
-end
-
 namespace 'gem' do
   desc 'Install the mingw binary gem'
   task :install_mingw do
@@ -108,3 +89,5 @@ namespace 'test' do
   end
 
 end
+
+task :default => 'test:all'
