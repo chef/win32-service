@@ -4,44 +4,22 @@ require 'rake/testtask'
 require 'rbconfig'
 include Config
 
-desc "Cleans up the C related files created during the build"
-task :clean do
-  Dir.chdir('ext') do
-    if File.exists?('daemon.o') || File.exists?('daemon.so')
-       sh 'nmake distclean'
-    end
-    File.delete('win32/daemon.so') if File.exists?('win32/daemon.so')
-  end
-  Dir['*.gem'].each{ |f| File.delete(f) }
-  File.delete('lib/win32/daemon.so') if File.exists?('lib/win32/daemon.so')
-end
+CLEAN.include(
+  '**/*.gem',    # Gem files
+  '**/*.rbc',    # Rubinius
+  '**/*.o',      # C object file
+  '**/*.log',    # Ruby extension build log
+  '**/Makefile', # C Makefile
+  "**/*.so"      # C shared object
+)
 
-desc "Builds, but does not install, the win32-service library"
+desc "Build the win32-service library"
 task :build => [:clean] do
   Dir.chdir('ext') do
     ruby 'extconf.rb'
     sh 'nmake'
     FileUtils.cp('daemon.so', 'win32/daemon.so')      
   end  
-end
-
-desc "Install the win32-service library (non-gem)"
-task :install => [:build] do
-  Dir.chdir('ext') do
-    sh 'nmake install'
-  end
-  install_dir = File.join(CONFIG['sitelibdir'], 'win32')
-  Dir.mkdir(install_dir) unless File.exists?(install_dir)
-  FileUtils.cp('lib/win32/service.rb', install_dir, :verbose => true)
-end
-
-desc 'Uninstall the win32-service library (non-gem)'
-task :uninstall do
-  service = File.join(CONFIG['sitelibdir'], 'win32', 'service.rb')
-  FileUtils.rm(service, :verbose => true) if File.exists?(service)
-
-  daemon = File.join(CONFIG['sitearchdir'], 'win32', 'daemon.so')
-  FileUtils.rm(daemon, :verbose => true) if File.exists?(daemon)
 end
 
 namespace 'gem' do
@@ -137,3 +115,5 @@ namespace 'test' do
     Rake.application[:clean].execute
   end
 end
+
+task :default => 'test:all'
