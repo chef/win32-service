@@ -15,9 +15,12 @@ CLEAN.include(
 
 desc "Build the win32-service library"
 task :build => [:clean] do
+  make = "nmake"
+  make = "make" if CONFIG['host_os'] =~ /mingw|cygwin/i
+
   Dir.chdir('ext') do
     ruby 'extconf.rb'
-    sh 'nmake'
+    sh "#{make}"
     FileUtils.cp('daemon.so', 'win32/daemon.so')      
   end  
 end
