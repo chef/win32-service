@@ -53,6 +53,13 @@ namespace 'gem' do
   end
 end
 
+namespace :example do
+  desc "Run the services example program."
+  task :services do
+    sh "ruby -Ilib examples/demo_services.rb"
+  end
+end
+
 namespace 'test' do
   desc 'Run all tests for the win32-service library'
   Rake::TestTask.new('all') do |t|
