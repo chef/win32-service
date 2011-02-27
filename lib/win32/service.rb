@@ -35,7 +35,7 @@ module Win32
     extend Windows::MSVCRT::Buffer
       
     # The version of the win32-service library
-    VERSION = '0.7.1'
+    VERSION = '0.7.2'
       
     # SCM security and access rights
       
@@ -456,7 +456,10 @@ module Win32
     # Examples:
     #
     #    # Configure only the display name
-    #    Service.configure(:service_name => 'some_service', :display_name => 'Test 33')
+    #    Service.configure(
+    #      :service_name => 'some_service',
+    #      :display_name => 'Test 33'
+    #    )
     #
     #    # Configure everything
     #    Service.configure(

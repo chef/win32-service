@@ -50,7 +50,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "version number is expected value" do
-    assert_equal('0.7.1', Win32::Service::VERSION)
+    assert_equal('0.7.2', Win32::Service::VERSION)
   end
    
   test "services basic functionality" do
@@ -271,8 +271,8 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_raise(Win32::Service::Error){ Win32::Service.get_service_name('bogus') }
   end
 
-  test "get_service_name raises an error if a bogus service name is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.get_service_name('foo','bogus') }
+  test "get_service_name raises an error if a bogus host is provided" do
+    assert_raise(Win32::Service::Error){ Win32::Service.get_service_name('foo', 'bogus') }
   end
 
   test "get_service_name accepts a maximum of two arguments" do
