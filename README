@@ -2,8 +2,8 @@
   The win32-service library allows you to control or create MS Windows services.
 
 == Installation
-  gem install win32-service                      # Build from source
-  gem install win32-service --platform x86-mingw # Install binary
+  gem install win32-service                        # Build from source
+  gem install win32-service --platform x86-mingw32 # Install binary
 
 == Synopsis
   require 'win32/service'
