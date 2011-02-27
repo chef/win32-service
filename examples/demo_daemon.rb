@@ -1,6 +1,7 @@
-LOG_FILE = 'C:\\test.log'
+LOG_FILE = 'C:\\win32_deamon_test.log'
 
 begin  
+  require 'rubygems'
   require 'win32/daemon'
   include Win32
 
