@@ -10,7 +10,11 @@ CLEAN.include(
   '**/*.o',      # C object file
   '**/*.log',    # Ruby extension build log
   '**/Makefile', # C Makefile
-  "**/*.so"      # C shared object
+  "**/*.so",     # C shared object
+  "**/*.lib",    # C build file
+  "**/*.def",    # C build file
+  "**/*.pdb",    # C build file
+  "**/*.exp"     # C build file
 )
 
 desc "Build the win32-service library"
