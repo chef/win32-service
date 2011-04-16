@@ -14,7 +14,9 @@ CLEAN.include(
   "**/*.lib",    # C build file
   "**/*.def",    # C build file
   "**/*.pdb",    # C build file
-  "**/*.exp"     # C build file
+  "**/*.exp",    # C build file
+  "**/*.obj",    # C build file
+  "**/*.log"     # C build file
 )
 
 desc "Build the win32-service library"
