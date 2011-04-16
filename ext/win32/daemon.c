@@ -5,6 +5,10 @@
 #include <malloc.h>
 #include <tchar.h>
 
+#ifdef HAVE_SEH_H
+#include <seh.h>
+#endif
+
 #define WIN32_SERVICE_VERSION "0.7.2"
 
 // Ruby 1.9.x
@@ -138,7 +142,7 @@ VALUE Service_Event_Dispatch(VALUE val)
 
 VALUE Ruby_Service_Ctrl(VALUE self){
   while(WaitForSingleObject(hStopEvent,0) == WAIT_TIMEOUT){
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
     __try{
 #endif
       EnterCriticalSection(&csControlCode);
@@ -168,12 +172,12 @@ VALUE Ruby_Service_Ctrl(VALUE self){
 
         waiting_control_code = IDLE_CONTROL_CODE;
       }
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
     }
     __finally {
 #endif
       LeaveCriticalSection(&csControlCode);
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
     }
 #endif
     // This is an ugly polling loop, be as polite as possible
@@ -200,17 +204,17 @@ void WINAPI Service_Ctrl(DWORD dwCtrlCode)
 {
   DWORD dwState = SERVICE_RUNNING;
 
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
   __try{
 #endif
     EnterCriticalSection(&csControlCode);
     waiting_control_code = dwCtrlCode;
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
   }
   __finally{
 #endif
     LeaveCriticalSection(&csControlCode);
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(HAVE_SEH_H)
   }
 #endif
 
