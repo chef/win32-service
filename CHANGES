@@ -1,3 +1,8 @@
+== 0.7.2 - ???
+* Now works with mingw compiler by skipping __try and __finally if using
+  mingw, or using them with mingw if the seh.h header is found.
+* Updated some Rake tasks.
+
 == 0.7.1 - 9-Feb-2010
 * Compatibility fixes for 1.9.x.
 * Fixed a bug where the controls_accepted struct member was always nil. This
