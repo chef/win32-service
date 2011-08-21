@@ -10,7 +10,6 @@ Gem::Specification.new do |spec|
   spec.platform   = Gem::Platform::RUBY
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
-  spec.has_rdoc   = true
   spec.extensions = ['ext/extconf.rb']
    
   spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
