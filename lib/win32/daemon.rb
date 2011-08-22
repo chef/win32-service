@@ -97,7 +97,7 @@ module Win32
       argv = data.split(';')
       @service_name = argv[0]
 
-      handles = [@stop_event, at pause_event, at resume_event]
+      handles = [@stop_event, @pause_event, @resume_event]
 
       t = Thread.new {
         while(true) do
