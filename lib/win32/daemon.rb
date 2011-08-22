@@ -21,7 +21,7 @@ module Win32
     include Windows::MSVCRT::Buffer
     include Windows::MSVCRT::String
 
-    VERSION = '0.8.1'
+    VERSION = '0.8.0'
 
     # The Daemon has received a resume signal, but is not yet running
     CONTINUE_PENDING = 0x00000005
