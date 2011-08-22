@@ -8,7 +8,6 @@ require 'windows/msvcrt/string'
 require 'win32/api'
 require 'win32/process'
 require 'win32/service'
-require 'socket'
 
 module Win32
   class Daemon
@@ -22,7 +21,7 @@ module Win32
     include Windows::MSVCRT::Buffer
     include Windows::MSVCRT::String
 
-    VERSION = '0.8.0'
+    VERSION = '0.8.1'
 
     # The Daemon has received a resume signal, but is not yet running
     CONTINUE_PENDING = 0x00000005
@@ -51,47 +50,72 @@ module Win32
     # The current state of the service, e.g. RUNNING, PAUSED, etc.
     attr_reader :state
 
-    def mainloop
-      gs = TCPserver.open(0)
+    def initialize
+       @critical_section = [0].pack('L')
+       @service_state    = nil
+       @start_event      = nil
+       @stop_event       = nil
+       @control_code     = 0
+       @event_hooks      = {}
+       @status_handle    = 0
 
-      @end_event = CreateEvent(0, 0, 0, "end_event_#{gs.addr[1]}")
+    end
+
+    def mainloop
+      @arg_event = CreateEvent(0, 0, 0, "arg_event_#{Process.pid}")
+
+      if @arg_event == 0
+        raise Error, get_last_error
+      end       
+
+      @end_event = CreateEvent(0, 0, 0, "end_event_#{Process.pid}")
 
       if @end_event == 0
         raise Error, get_last_error
       end
 
-      @stop_event = CreateEvent(0, 0, 0, "stop_event_#{gs.addr[1]}")
+      @stop_event = CreateEvent(0, 0, 0, "stop_event_#{Process.pid}")
 
       if @stop_event == 0
         raise Error, get_last_error
       end
 
-      @pause_event = CreateEvent(0, 0, 0, "pause_event_#{gs.addr[1]}")
+      @pause_event = CreateEvent(0, 0, 0, "pause_event_#{Process.pid}")
 
       if @pause_event == 0
         raise Error, get_last_error
       end
 
-      @resume_event = CreateEvent(0, 0, 0, "resume_event_#{gs.addr[1]}")
+      @resume_event = CreateEvent(0, 0, 0, "resume_event_#{Process.pid}")
 
       if @resume_event == 0
         raise Error, get_last_error
       end
-
+        
       service_init() if defined?(service_init)
 
+      tmpfile = ENV['TEMP']+"\\daemon#{Process.pid}"
+      File.delete(tmpfile) if File.exist?(tmpfile)
       ruby = File.join(CONFIG['bindir'], 'ruby ').tr('/', '\\')
-      path = File.dirname(__FILE__) + "//daemon0.rb #{gs.addr[1]}"
+      path = File.dirname(__FILE__) + "//daemon0.rb #{Process.pid}"
 
       Process.create(
         :app_name       => ruby + path,
         :creation_flags => Process::CREATE_NO_WINDOW
       )
 
-      nsock = select([gs])
-      s = gs.accept
-      data = s.gets
-      s.close
+      wait_result = WaitForSingleObject(@arg_event, INFINITE)
+
+      if wait_result == WAIT_FAILED
+        error = 'WaitForSingleObject() failed: ' + get_last_error
+        raise Error, error
+      elsif File.exist?(tmpfile) && File.size(tmpfile)>0
+        f = File.open(tmpfile)
+        data = f.gets
+        f.close
+      else
+        data = ''
+      end
 
       data = data || ''
       argv = data.split(';')
@@ -100,7 +124,7 @@ module Win32
       handles = [@stop_event, @pause_event, @resume_event]
 
       t = Thread.new {
-        while(true) do
+        while(true) do    
           wait = WaitForMultipleObjects(
             handles.size,
             handles.pack('L*'),
@@ -118,9 +142,9 @@ module Win32
                 service_pause() if defined?(service_pause)
               when @resume_event
                 service_resume() if defined?(service_resume)
+              end
             end
-          end
-        end
+          end       
       }
 
       service_main(argv) if defined?(service_main)
@@ -143,6 +167,7 @@ module Win32
         when 'paused'
           return PAUSED
       end
+
       return 0
     end
 
