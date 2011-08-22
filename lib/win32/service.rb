@@ -35,7 +35,7 @@ module Win32
     extend Windows::MSVCRT::Buffer
       
     # The version of the win32-service library
-    VERSION = '0.7.2'
+    VERSION = '0.8.0'
       
     # SCM security and access rights
       
