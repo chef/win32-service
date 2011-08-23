@@ -58,35 +58,36 @@ module Win32
        @control_code     = 0
        @event_hooks      = {}
        @status_handle    = 0
-
     end
 
     def mainloop
-      @arg_event = CreateEvent(0, 0, 0, "arg_event_#{Process.pid}")
+      pid = Process.pid
+
+      @arg_event = CreateEvent(0, 0, 0, "arg_event_#{pid}")
 
       if @arg_event == 0
         raise Error, get_last_error
       end       
 
-      @end_event = CreateEvent(0, 0, 0, "end_event_#{Process.pid}")
+      @end_event = CreateEvent(0, 0, 0, "end_event_#{pid}")
 
       if @end_event == 0
         raise Error, get_last_error
       end
 
-      @stop_event = CreateEvent(0, 0, 0, "stop_event_#{Process.pid}")
+      @stop_event = CreateEvent(0, 0, 0, "stop_event_#{pid}")
 
       if @stop_event == 0
         raise Error, get_last_error
       end
 
-      @pause_event = CreateEvent(0, 0, 0, "pause_event_#{Process.pid}")
+      @pause_event = CreateEvent(0, 0, 0, "pause_event_#{pid}")
 
       if @pause_event == 0
         raise Error, get_last_error
       end
 
-      @resume_event = CreateEvent(0, 0, 0, "resume_event_#{Process.pid}")
+      @resume_event = CreateEvent(0, 0, 0, "resume_event_#{pid}")
 
       if @resume_event == 0
         raise Error, get_last_error
@@ -94,10 +95,10 @@ module Win32
         
       service_init() if defined?(service_init)
 
-      tmpfile = ENV['TEMP']+"\\daemon#{Process.pid}"
+      tmpfile = ENV['TEMP']+"\\daemon#{pid}"
       File.delete(tmpfile) if File.exist?(tmpfile)
       ruby = File.join(CONFIG['bindir'], 'ruby ').tr('/', '\\')
-      path = File.dirname(__FILE__) + "//daemon0.rb #{Process.pid}"
+      path = File.dirname(__FILE__) + "//daemon0.rb #{pid}" # Argument picked up by daemon0.rb
 
       Process.create(
         :app_name       => ruby + path,
