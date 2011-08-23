@@ -46,36 +46,37 @@ def set_the_service_status(curr_state, exit_code, check_point, wait_hint)
 end
 
 begin 
-  @arg_event = OpenEvent(EVENT_ALL_ACCESS, 0, "arg_event_#{ARGV[0]}")
+  arg = ARGV[0].chomp # Should be a pid
+
+  @arg_event = OpenEvent(EVENT_ALL_ACCESS, 0, "arg_event_#{arg}")
 
   if @arg_event == 0
     raise Error, get_last_error
   end
 
-  @end_event = OpenEvent(EVENT_ALL_ACCESS, 0, "end_event_#{ARGV[0]}")
+  @end_event = OpenEvent(EVENT_ALL_ACCESS, 0, "end_event_#{arg}")
 
   if @end_event == 0
     raise Error, get_last_error
   end
 
-  @stop_event = OpenEvent(EVENT_ALL_ACCESS, 0, "stop_event_#{ARGV[0]}")
+  @stop_event = OpenEvent(EVENT_ALL_ACCESS, 0, "stop_event_#{arg}")
 
   if @stop_event == 0
     raise Error, get_last_error
   end
 
-  @pause_event = OpenEvent(EVENT_ALL_ACCESS, 0, "pause_event_#{ARGV[0]}")
+  @pause_event = OpenEvent(EVENT_ALL_ACCESS, 0, "pause_event_#{arg}")
 
   if @pause_event == 0
     raise Error, get_last_error
   end
 
-  @resume_event = OpenEvent(EVENT_ALL_ACCESS, 0, "resume_event_#{ARGV[0]}")
+  @resume_event = OpenEvent(EVENT_ALL_ACCESS, 0, "resume_event_#{arg}")
 
   if @resume_event == 0
     raise Error, get_last_error
   end
-  
   
   service_ctrl = Win32::API::Callback.new('L', 'V') do |ctrl_code|
     state = SERVICE_RUNNING
@@ -123,7 +124,7 @@ begin
 
     service_name = argv[0]
     
-    File.open(ENV['TEMP'] + "\\daemon#{ARGV[0]}", "w"){ |fh|
+    File.open(ENV['TEMP'] + "\\daemon#{arg}", "w"){ |fh|
       fh.print(argv.join(';'))
     }
 
