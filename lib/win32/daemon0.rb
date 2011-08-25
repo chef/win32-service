@@ -15,7 +15,6 @@ include Windows::Error
 include Windows::MSVCRT::Buffer
 include Windows::MSVCRT::String
 
-
 # Wraps SetServiceStatus.
 def set_the_service_status(curr_state, exit_code, check_point, wait_hint)
   service_status = 0.chr * 28 # sizeof(SERVICE_STATUS)
@@ -117,8 +116,8 @@ begin
     argc.times do |i|
       ptr = 0.chr * 4
       buf = 0.chr * 256
-      memcpy(ptr,lpszargv+i*4,4)
-      strcpy(buf,ptr.unpack('L').first)
+      memcpy(ptr, lpszargv+i*4, 4)
+      strcpy(buf, [ptr].pack('p*').unpack('L').first)
       argv << buf.strip
     end
 
