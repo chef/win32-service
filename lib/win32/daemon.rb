@@ -97,11 +97,14 @@ module Win32
 
       tmpfile = ENV['TEMP']+"\\daemon#{pid}"
       File.delete(tmpfile) if File.exist?(tmpfile)
-      ruby = File.join(CONFIG['bindir'], 'ruby ').tr('/', '\\')
-      path = File.dirname(__FILE__) + "//daemon0.rb #{pid}" # Argument picked up by daemon0.rb
+
+      ruby = File.join(CONFIG['bindir'], 'ruby ')
+      path = File.join(File.dirname(__FILE__), "/daemon0.rb #{pid}")
+
+      app_name = (ruby + path).tr("/", "\\")
 
       Process.create(
-        :app_name       => ruby + path,
+        :app_name       => app_name,
         :creation_flags => Process::CREATE_NO_WINDOW
       )
 
