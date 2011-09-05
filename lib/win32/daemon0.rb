@@ -18,7 +18,7 @@ include Windows::MSVCRT::String
 
 
 # Wraps SetServiceStatus.
-def set_the_service_statue(curr_state, exit_code, check_point, wait_hint)
+def set_the_service_status(curr_state, exit_code, check_point, wait_hint)
   service_status = 0.chr * 28 # sizeof(SERVICE_STATUS)
 
   # Disable control requests until the service is started.
@@ -86,15 +86,15 @@ begin
     end
 
     # Set the status of the service.
-    set_the_service_statue(state, NO_ERROR, 0, 0)
+    set_the_service_status(state, NO_ERROR, 0, 0)
 
     # Tell service_main thread to stop.
     if [SERVICE_CONTROL_STOP].include?(ctrl_code)
       wait_result = WaitForSingleObject(@end_event, INFINITE)
       if wait_result != WAIT_OBJECT_0
-        set_the_service_statue(SERVICE_STOPPED,GetLastError(),0,0)
+        set_the_service_status(SERVICE_STOPPED,GetLastError(),0,0)
       else
-        set_the_service_statue(SERVICE_STOPPED,NO_ERROR,0,0)
+        set_the_service_status(SERVICE_STOPPED,NO_ERROR,0,0)
       end
       SetEvent(@stop_event)
       sleep 3
@@ -127,7 +127,7 @@ begin
     return false if @status_handle == 0
 
     #The service has started.
-    set_the_service_statue(SERVICE_RUNNING, NO_ERROR, 0, 0)
+    set_the_service_status(SERVICE_RUNNING, NO_ERROR, 0, 0)
 
     true
   end
