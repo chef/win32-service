@@ -74,7 +74,7 @@ namespace 'gem' do
       sh "#{make} distclean"
 
       # Ruby 1.9
-      sh "C:\\ruby19\\bin\\ruby extconf.rb"
+      sh "C:\\ruby192\\bin\\ruby extconf.rb"
       sh "#{make}"
       mv 'daemon.so', '../lib/win32/ruby19'
     end
