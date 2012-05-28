@@ -2,7 +2,7 @@ require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
 require 'rbconfig'
-include Config
+include RbConfig
 
 CLEAN.include(
   '**/*.gem',    # Gem files
