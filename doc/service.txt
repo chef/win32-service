@@ -28,7 +28,7 @@
     :dependencies       => ['W32Time','Schedule']
     :service_start_name => 'SomeDomain\\User',
     :password           => 'XXXXXXX',
-    :display_name       => 'This is some service',
+    :display_name       => 'This is some service'
   )
     
   # Configure a service that already exists
