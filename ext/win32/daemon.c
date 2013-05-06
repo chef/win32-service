@@ -3,7 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
+
+#ifdef HAVE_TCHAR_H
 #include <tchar.h>
+#endif
 
 #ifdef HAVE_SEH_H
 #include <seh.h>
@@ -34,7 +37,11 @@ static HANDLE hStopEvent;
 static HANDLE hStopCompletedEvent;
 static SERVICE_STATUS_HANDLE ssh;
 static DWORD dwServiceState;
+#ifdef HAVE_TCHAR_H
 static TCHAR error[1024];
+#else
+static char error[1024];
+#endif
 static int Argc;
 static VALUE* Argv;
 
@@ -57,7 +64,11 @@ void  SetTheServiceStatus(DWORD dwCurrentState,DWORD dwWin32ExitCode,
 LPTSTR ErrorDescription(DWORD p_dwError)
 {
   HLOCAL hLocal = NULL;
+  #ifdef HAVE_TCHAR_H
   static TCHAR ErrStr[1024];
+  #else
+  static char ErrStr[1024];
+  #endif
   int len;
 
   if (!(len=FormatMessage(
