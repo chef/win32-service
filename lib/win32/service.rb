@@ -17,7 +17,7 @@ module Win32
     # This is the error typically raised if one of the Service methods
     # should fail for any reason.
     class Error < StandardError; end
-      
+
     include Windows::Error
     include Windows::Service
     include Windows::File
@@ -25,7 +25,7 @@ module Win32
     include Windows::Security
     include Windows::MSVCRT::String
     include Windows::MSVCRT::Buffer
-           
+
     extend Windows::Error
     extend Windows::Service
     extend Windows::File
@@ -33,12 +33,12 @@ module Win32
     extend Windows::Security
     extend Windows::MSVCRT::String
     extend Windows::MSVCRT::Buffer
-      
+
     # The version of the win32-service library
     VERSION = '0.7.2'
-      
+
     # SCM security and access rights
-      
+
     # Includes STANDARD_RIGHTS_REQUIRED, in addition to all other rights
     MANAGER_ALL_ACCESS = SC_MANAGER_ALL_ACCESS
 
@@ -89,7 +89,7 @@ module Win32
 
     # Required to call ControlService with a user defined control code
     USER_DEFINED_CONTROL = SERVICE_USER_DEFINED_CONTROL
-      
+
     # Service Types
 
     # Driver service
@@ -109,7 +109,7 @@ module Win32
 
     DRIVER = SERVICE_DRIVER
     TYPE_ALL = SERVICE_TYPE_ALL
-      
+
     # Service start options
 
     # A service started automatically by the SCM during system startup
@@ -126,7 +126,7 @@ module Win32
 
     # A service that cannot be started
     DISABLED = SERVICE_DISABLED
-      
+
     # Error control
 
     # Error logged, startup continues
@@ -140,9 +140,9 @@ module Win32
 
     # Error logged, startup fails, system restarted last known good config
     ERROR_CRITICAL = SERVICE_ERROR_CRITICAL
-      
+
     # Current state
- 
+
     # Service is not running
     STOPPED = SERVICE_STOPPED
 
@@ -163,7 +163,7 @@ module Win32
 
     # Service is paused
     PAUSED = SERVICE_PAUSED
-    
+
     # Service controls
 
     # Notifies service that it should stop
@@ -206,9 +206,9 @@ module Win32
 
     # Run a command
     ACTION_RUN_COMMAND = SC_ACTION_RUN_COMMAND
-      
+
     # :stopdoc: #
- 
+
     StatusStruct = Struct.new(
       'ServiceStatus',
       :service_type,
@@ -235,7 +235,7 @@ module Win32
       :service_start_name,
       :display_name
     )
-      
+
     ServiceStruct = Struct.new(
       'ServiceInfo',
       :service_name,
@@ -266,7 +266,7 @@ module Win32
     )
 
     # :startdoc: #
-     
+
     # Creates a new service with the specified +options+. A +service_name+
     # must be specified or an ArgumentError is raised. A +host+ option may
     # be specified. If no host is specified the local machine is used.
@@ -311,7 +311,7 @@ module Win32
     #      :display_name       => 'This is some service',
     #    )
     #
-    def initialize(options={})        
+    def initialize(options={})
       unless options.is_a?(Hash)
         raise ArgumentError, 'options parameter must be a hash'
       end
@@ -339,7 +339,7 @@ module Win32
         'failure_actions'        => nil,
         'failure_delay'          => 0,
         'host'                   => nil,
-        'service_name'           => nil            
+        'service_name'           => nil
       }
 
       # Validate the hash options
@@ -350,14 +350,14 @@ module Win32
         end
         opts[key] = value
       }
-         
+
       unless opts['service_name']
-        raise ArgumentError, 'No service_name specified'            
+        raise ArgumentError, 'No service_name specified'
       end
-         
+
       service_name = opts.delete('service_name')
       host = opts.delete('host')
-         
+
       raise TypeError unless service_name.is_a?(String)
       raise TypeError if host && !host.is_a?(String)
 
@@ -367,7 +367,7 @@ module Win32
         if handle_scm == 0
           raise Error, get_last_error
         end
-        
+
         # Display name defaults to service_name
         opts['display_name'] ||= service_name
 
@@ -377,11 +377,11 @@ module Win32
           unless dependencies.is_a?(Array) || dependencies.is_a?(String)
             raise TypeError, 'dependencies must be a string or array'
           end
-           
+
           if dependencies.is_a?(Array)
             dependencies = dependencies.join("\000")
           end
-              
+
           dependencies += "\000"
         end
 
@@ -419,12 +419,12 @@ module Win32
             raise Error, get_last_error
           end
         end
-         
+
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
            opts['failure_command'] || opts['failure_actions']
         then
           Service.configure_failure_actions(handle_scs, opts)
-        end         
+        end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
@@ -476,7 +476,7 @@ module Win32
     #       :description        => 'A custom service I wrote just for fun'
     #    )
     #
-    def self.configure(options={})    
+    def self.configure(options={})
       unless options.is_a?(Hash)
         raise ArgumentError, 'options parameter must be a hash'
       end
@@ -513,11 +513,11 @@ module Win32
         end
         opts[key] = value
       }
-         
+
       unless opts['service_name']
-        raise ArgumentError, 'No service_name specified'            
+        raise ArgumentError, 'No service_name specified'
       end
-         
+
       service = opts.delete('service_name')
       host = opts.delete('host')
 
@@ -530,9 +530,9 @@ module Win32
         if handle_scm == 0
           raise Error, get_last_error
         end
-         
+
         desired_access = SERVICE_CHANGE_CONFIG
-         
+
         if opts['failure_actions']
           desired_access |= SERVICE_START
         end
@@ -557,7 +557,7 @@ module Win32
           if dependencies.is_a?(Array)
             dependencies = dependencies.join("\000")
           end
-            
+
           dependencies += "\000"
         end
 
@@ -606,24 +606,24 @@ module Win32
 
       self
     end
-      
+
     # Returns whether or not +service+ exists on +host+ or localhost, if
     # no host is specified.
     #
     # Example:
     #
     # Service.exists?('W32Time') => true
-    # 
+    #
     def self.exists?(service, host=nil)
       bool = false
 
       begin
         handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-         
+
         if handle_scm == 0
           raise Error, get_last_error
         end
-         
+
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
@@ -631,9 +631,9 @@ module Win32
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
       end
 
-      bool         
+      bool
     end
-      
+
     # Returns the display name of the specified service name, i.e. the string
     # displayed in the Services GUI. Raises a Service::Error if the service
     # name cannot be found.
@@ -648,11 +648,11 @@ module Win32
     #
     def self.get_display_name(service, host=nil)
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
-        
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-         
+
       display_name = 0.chr * 260
       display_buf  = [display_name.size].pack('L')
 
@@ -673,7 +673,7 @@ module Win32
 
       display_name.unpack('Z*')[0]
     end
-      
+
     # Returns the service name of the specified service from the provided
     # +display_name+. Raises a Service::Error if the +display_name+ cannote
     # be found.
@@ -688,14 +688,14 @@ module Win32
     #
     def self.get_service_name(display_name, host=nil)
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
-       
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-         
+
       service_name = 0.chr * 260
       service_buf  = [service_name.size].pack('L')
-         
+
       begin
         bool = GetServiceKeyName(
           handle_scm,
@@ -725,42 +725,42 @@ module Win32
     #
     #    # Start 'SomeSvc' on host 'foo', passing 'hello' as an argument
     #    Service.start('SomeSvc', 'foo', 'hello') => self
-    #     
+    #
     def self.start(service, host=nil, *args)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
-    
+
       if handle_scm == 0
 	      raise Error, get_last_error
       end
-         
+
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_START)
-                  
+
         if handle_scs == 0
           raise Error, get_last_error
         end
-           
+
         num_args = 0
-         
+
         if args.empty?
           args = nil
         else
           num_args = args.length
           args = args.map{ |x| [x].pack('p*') }.join
-        end     
-           
+        end
+
         unless StartService(handle_scs, num_args, args)
           raise Error, get_last_error
         end
-           
+
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
       end
-        
-      self                          
+
+      self
     end
-      
+
     # Stops a the given +service+ on +host+, or the local host if no host
     # is specified. Returns self.
     #
@@ -770,14 +770,14 @@ module Win32
     # Example:
     #
     #    Service.stop('W32Time') => self
-    #      
+    #
     def self.stop(service, host=nil)
       service_signal = SERVICE_STOP
       control_signal = SERVICE_CONTROL_STOP
       send_signal(service, host, service_signal, control_signal)
       self
     end
-      
+
     # Pauses the given +service+ on +host+, or the local host if no host
     # is specified. Returns self
     #
@@ -791,14 +791,14 @@ module Win32
     # Example:
     #
     #    Service.pause('Schedule') => self
-    #      
+    #
     def self.pause(service, host=nil)
       service_signal = SERVICE_PAUSE_CONTINUE
       control_signal = SERVICE_CONTROL_PAUSE
       send_signal(service, host, service_signal, control_signal)
       self
     end
-      
+
     # Resume the given +service+ on +host+, or the local host if no host
     # is specified. Returns self.
     #
@@ -808,14 +808,14 @@ module Win32
     # Example:
     #
     #    Service.resume('Schedule') => self
-    #    
+    #
     def self.resume(service, host=nil)
       service_signal = SERVICE_PAUSE_CONTINUE
       control_signal = SERVICE_CONTROL_CONTINUE
       send_signal(service, host, service_signal, control_signal)
       self
     end
-      
+
     # Deletes the specified +service+ from +host+, or the local host if
     # no host is specified. Returns self.
     #
@@ -831,18 +831,18 @@ module Win32
     #
     def self.delete(service, host=nil)
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
-       
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-       
+
       begin
         handle_scs = OpenService(handle_scm, service, DELETE)
 
         if handle_scs == 0
           raise Error, get_last_error
         end
-       
+
         unless DeleteService(handle_scs)
           raise Error, get_last_error
         end
@@ -894,7 +894,7 @@ module Win32
         buf = 0.chr * bytes_needed.unpack('L')[0]
         bytes = [0].pack('L')
 
-        bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes_needed)
+        bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes)
 
         unless bool
           raise Error, get_last_error
@@ -936,7 +936,7 @@ module Win32
         display_name
       )
     end
-      
+
     # Returns a ServiceStatus struct indicating the status of service +name+
     # on +host+, or the localhost if none is provided.
     #
@@ -946,26 +946,26 @@ module Win32
     #
     def self.status(service, host=nil)
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-          
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-           
+
       begin
         handle_scs = OpenService(
           handle_scm,
           service,
           SERVICE_QUERY_STATUS
         )
-           
+
         if handle_scs == 0
           raise Error, get_last_error
         end
-           
+
         # SERVICE_STATUS_PROCESS struct
         status = [0,0,0,0,0,0,0,0,0].pack('LLLLLLLLL')
         bytes  = [0].pack('L')
-           
+
         bool = QueryServiceStatusEx(
           handle_scs,
           SC_STATUS_PROCESS_INFO,
@@ -973,22 +973,22 @@ module Win32
           status.size,
           bytes
         )
-           
+
         unless bool
           raise Error, get_last_error
         end
-           
+
         dw_service_type = status[0,4].unpack('L').first
-           
+
         service_type  = get_service_type(dw_service_type)
         current_state = get_current_state(status[4,4].unpack('L').first)
         controls      = get_controls_accepted(status[8,4].unpack('L').first)
         interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
-           
+
         # Note that the pid and service flags will always return 0 if you're
         # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
         # or earlier.
-        # 
+        #
         status_struct = StatusStruct.new(
           service_type,
           current_state,
@@ -1001,12 +1001,12 @@ module Win32
           status[28,4].unpack('L').first, # ProcessId
           status[32,4].unpack('L').first  # ServiceFlags
         )
-           
+
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
       end
-       
+
       status_struct
     end
 
@@ -1030,22 +1030,22 @@ module Win32
     #
     #    # Enumerate over all 'network' services locally
     #    Service.services(nil, 'network'){ |service| p service }
-    #  
+    #
     def self.services(host=nil, group=nil)
       unless host.nil?
         raise TypeError unless host.is_a?(String) # Avoid strange errors
       end
-         
+
       unless group.nil?
         raise TypeError unless group.is_a?(String) # Avoid strange errors
       end
-                       
+
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
-         
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-          
+
       bytes_needed      = [0].pack('L')
       services_returned = [0].pack('L')
       resume_handle     = [0].pack('L')
@@ -1072,7 +1072,7 @@ module Win32
         else
           raise Error, get_last_error(err_num)
         end
-          
+
         bool = EnumServicesStatusEx(
           handle_scm,
           SC_ENUM_PROCESS_INFO,
@@ -1085,13 +1085,13 @@ module Win32
           resume_handle,
           group
         )
-         
+
         unless bool
           raise Error, get_last_error
         end
 
         num_services = services_returned.unpack('L').first
-           
+
         index = 0
         services_array = [] unless block_given?
 
@@ -1106,9 +1106,9 @@ module Win32
 
           service_name = service_name.unpack('Z*')[0]
           display_name = display_name.unpack('Z*')[0]
-             
+
           dw_service_type = info[8,4].unpack('L').first
-       
+
           service_type  = get_service_type(dw_service_type)
           current_state = get_current_state(info[12,4].unpack('L').first)
           controls      = get_controls_accepted(info[16,4].unpack('L').first)
@@ -1126,7 +1126,7 @@ module Win32
               service_name,
               SERVICE_QUERY_CONFIG
             )
-               
+
             if handle_scs == 0
               raise Error, get_last_error
             end
@@ -1141,11 +1141,11 @@ module Win32
               load_order = 0.chr * 1024
               strcpy(load_order, config_buf[16,4].unpack('L').first)
               load_order = load_order.unpack('Z*')[0]
-           
+
               start_name = 0.chr * 1024
               strcpy(start_name, config_buf[28,4].unpack('L').first)
               start_name = start_name.unpack('Z*')[0]
-            
+
               start_type = get_start_type(config_buf[4,4].unpack('L').first)
               error_ctrl = get_error_control(config_buf[8,4].unpack('L').first)
 
@@ -1154,7 +1154,7 @@ module Win32
               deps = get_dependencies(config_buf[24,4].unpack('L').first)
 
               description = 0.chr * 2048
-              buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION) 
+              buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
 
               strcpy(description, buf[0,4].unpack('L').first)
               description = description.unpack('Z*')[0]
@@ -1162,7 +1162,7 @@ module Win32
               msg = "WARNING: The registry entry for the #{service_name} "
               msg += "service could not be found."
               warn msg
-             
+
               binary_path = nil
               load_order  = nil
               start_name  = nil
@@ -1172,28 +1172,28 @@ module Win32
               deps        = nil
               description = nil
             end
-            
+
             buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
-            
+
             if buf2 != ERROR_FILE_NOT_FOUND
               reset_period = buf2[0,4].unpack('L').first
-            
+
               reboot_msg = 0.chr * 260
               strcpy(reboot_msg, buf2[4,4].unpack('L').first)
               reboot_msg = reboot_msg.unpack('Z*')[0]
-            
+
               command = 0.chr * 260
               strcpy(command, buf2[8,4].unpack('L').first)
               command = command.unpack('Z*')[0]
-            
+
               num_actions = buf2[12,4].unpack('L').first
               actions = nil
-            
+
               if num_actions > 0
                 action_ptr = buf2[16,4].unpack('L').first
                 action_buf = [0,0].pack('LL') * num_actions
                 memcpy(action_buf, action_ptr, action_buf.size)
-               
+
                 i = 0
                 actions = {}
                 num_actions.times{ |n|
@@ -1204,15 +1204,15 @@ module Win32
                 }
               end
             else
-              reset_period   = nil
-              reboot_message = nil
-              command        = nil
-              actions        = nil
+              reset_period = nil
+              reboot_msg   = nil
+              command      = nil
+              actions      = nil
             end
           ensure
             CloseServiceHandle(handle_scs) if handle_scs > 0
           end
-          
+
           struct = ServiceStruct.new(
             service_name,
             display_name,
@@ -1240,7 +1240,7 @@ module Win32
             num_actions,
             actions
           )
-          
+
           if block_given?
              yield struct
           else
@@ -1252,43 +1252,43 @@ module Win32
       ensure
         CloseServiceHandle(handle_scm)
       end
-       
+
       block_given? ? nil : services_array
     end
-      
+
     private
-      
+
     # Configures failure actions for a given service.
     #
     def self.configure_failure_actions(handle_scs, opts)
       if opts['failure_actions']
         token_handle = 0.chr * 4
-                        
+
         bool = OpenProcessToken(
           GetCurrentProcess(),
           TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
           token_handle
         )
-                           
+
         unless bool
           error = get_last_error
           CloseServiceHandle(handle_scs)
-          raise Error, error            
+          raise Error, error
         end
-                           
+
         token_handle = token_handle.unpack('L').first
-                     
+
         # Get the LUID for shutdown privilege.
         luid = 0.chr * 8
-                     
+
         unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
           error = get_last_error
           CloseServiceHandle(handle_scs)
-          raise Error, error                
+          raise Error, error
         end
-                     
+
         tkp = [1].pack('L') + luid + [SE_PRIVILEGE_ENABLED].pack('L')
-                        
+
         # Enable shutdown privilege in access token of this process
         bool = AdjustTokenPrivileges(
           token_handle,
@@ -1298,69 +1298,69 @@ module Win32
           nil,
           nil
         )
-                        
+
         unless bool
           error = get_last_error
           CloseServiceHandle(handle_scs)
-          raise Error, error                
-        end                              
-      end             
-                              
+          raise Error, error
+        end
+      end
+
       fail_buf = 0.chr * 20 # sizeof(SERVICE_FAILURE_ACTIONS)
 
       if opts['failure_reset_period']
         fail_buf[0,4] = [opts['failure_reset_period']].pack('L')
       end
-         
+
       if opts['failure_reboot_message']
         fail_buf[4,4] = [opts['failure_reboot_message']].pack('p*')
       end
-         
+
       if opts['failure_command']
         fail_buf[8,4] = [opts['failure_command']].pack('p*')
       end
-         
+
       if opts['failure_actions']
         actions = []
-        
+
         opts['failure_actions'].each{ |action|
           action_buf = 0.chr * 8
           action_buf[0, 4] = [action].pack('L')
           action_buf[4, 4] = [opts['failure_delay']].pack('L')
           actions << action_buf
         }
-                        
+
         actions = actions.join
-       
+
         fail_buf[12,4] = [opts['failure_actions'].length].pack('L')
         fail_buf[16,4] = [actions].pack('p*')
       end
-         
+
       bool = ChangeServiceConfig2(
         handle_scs,
         SERVICE_CONFIG_FAILURE_ACTIONS,
         fail_buf
       )
-         
+
       unless bool
         error = get_last_error
         CloseServiceHandle(handle_scs)
         raise Error, error
-      end         
+      end
     end
 
     # Unravels a pointer to an array of dependencies. Takes the address
     # that points the array as an argument.
     #
     def self.get_dependencies(address)
-      dep_buf = "" 
+      dep_buf = ""
 
       while address != 0
         char_buf = 0.chr
         memcpy(char_buf, address, 1)
-        address += 1             
+        address += 1
         dep_buf += char_buf
-        break if dep_buf[-2,2] == "\0\0"             
+        break if dep_buf[-2,2] == "\0\0"
       end
 
       dependencies = []
@@ -1371,7 +1371,7 @@ module Win32
 
       dependencies
     end
-      
+
     # Returns a human readable string indicating the action type.
     #
     def self.get_action_type(action_type)
@@ -1386,7 +1386,7 @@ module Win32
           'command'
         else
           'unknown'
-       end
+      end
     end
 
     # Shortcut for QueryServiceConfig. Returns the buffer. In rare cases
@@ -1430,12 +1430,12 @@ module Win32
 
       config_buf
     end
-      
+
     # Shortcut for QueryServiceConfig2. Returns the buffer.
-    # 
-    def self.get_config2_info(handle, info_level)     
+    #
+    def self.get_config2_info(handle, info_level)
       bytes_needed = [0].pack('L')
-         
+
       # First attempt at QueryServiceConfig2 is to get size needed
       bool = QueryServiceConfig2(handle, info_level, 0, 0, bytes_needed)
 
@@ -1449,7 +1449,7 @@ module Win32
         CloseServiceHandle(handle)
         raise Error, get_last_error(err_num)
       end
-         
+
       bytes_needed = [0].pack('L')
 
       # Second attempt at QueryServiceConfig2 gets the actual info
@@ -1466,10 +1466,10 @@ module Win32
       ensure
         CloseServiceHandle(handle) unless bool
       end
-       
+
       config2_buf
     end
-      
+
     # Returns a human readable string indicating the error control
     #
     def self.get_error_control(error_control)
@@ -1486,7 +1486,7 @@ module Win32
           nil
       end
     end
-      
+
     # Returns a human readable string indicating the start type.
     #
     def self.get_start_type(start_type)
@@ -1505,7 +1505,7 @@ module Win32
           nil
       end
     end
-      
+
     # Returns an array of human readable strings indicating the controls
     # that the service accepts.
     #
@@ -1550,9 +1550,9 @@ module Win32
 
       array
     end
-      
+
     # Converts a service state numeric constant into a readable string.
-    # 
+    #
     def self.get_current_state(state)
       case state
         when SERVICE_CONTINUE_PENDING
@@ -1573,9 +1573,9 @@ module Win32
           nil
       end
     end
-      
+
     # Converts a service type numeric constant into a human readable string.
-    # 
+    #
     def self.get_service_type(service_type)
       case service_type
         when SERVICE_FILE_SYSTEM_DRIVER
@@ -1602,33 +1602,33 @@ module Win32
           nil
       end
     end
-      
+
     # A shortcut method that simplifies the various service control methods.
-    # 
+    #
     def self.send_signal(service, host, service_signal, control_signal)
       handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
-         
+
       if handle_scm == 0
         raise Error, get_last_error
       end
-         
+
       begin
         handle_scs = OpenService(handle_scm, service, service_signal)
-         
+
         if handle_scs == 0
           raise Error, get_last_error
         end
-         
+
         status = [0,0,0,0,0,0,0].pack('LLLLLLL')
-         
+
         unless ControlService(handle_scs, control_signal, status)
           raise Error, get_last_error
-        end        
+        end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
       end
-         
+
       status
     end
 
