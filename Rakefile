@@ -25,7 +25,11 @@ task :build => [:clean] do
   make = CONFIG['host_os'] =~ /mingw|cygwin/i ? "make" : "nmake"
 
   Dir.chdir('ext') do
-    ruby 'extconf.rb'
+    if RUBY_PLATFORM =~ /mingw32/i
+      sh "ruby -rdevkit extconf.rb"
+    else
+      ruby 'extconf.rb'
+    end
     sh "#{make}"
     FileUtils.cp('daemon.so', 'win32/daemon.so')      
   end  
