@@ -1,3 +1,9 @@
+== 0.7.3 - ???
+* Use char.h instead of tchar.h on cygwin. Thanks go to John Eckersberg
+  for the patch.
+* Cleaned up some unused and/or misnamed variables.
+* Automatically require devkit in Rakefile if mingw.
+
 == 0.7.2 - 7-Sep-2011
 * Now works with mingw compiler by skipping __try and __finally if using
   mingw, or using them with mingw if the seh.h header is found.
