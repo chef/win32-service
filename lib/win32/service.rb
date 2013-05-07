@@ -1,11 +1,6 @@
-require 'rubygems'
-require 'windows/error'
-require 'windows/service'
-require 'windows/file'
-require 'windows/process'
-require 'windows/security'
-require 'windows/msvcrt/string'
-require 'windows/msvcrt/buffer'
+require File.join(File.dirname(__FILE__), 'windows', 'constants')
+require File.join(File.dirname(__FILE__), 'windows', 'structs')
+require File.join(File.dirname(__FILE__), 'windows', 'functions')
 
 # The Win32 module serves as a namespace only.
 module Win32
@@ -13,29 +8,15 @@ module Win32
   # The Service class encapsulates services controller actions, such as
   # creating, starting, configuring or deleting services.
   class Service
+    include Windows::Constants
+    include Windows::Structs
+    include Windows::Functions
 
-    # This is the error typically raised if one of the Service methods
-    # should fail for any reason.
-    class Error < StandardError; end
-
-    include Windows::Error
-    include Windows::Service
-    include Windows::File
-    include Windows::Process
-    include Windows::Security
-    include Windows::MSVCRT::String
-    include Windows::MSVCRT::Buffer
-
-    extend Windows::Error
-    extend Windows::Service
-    extend Windows::File
-    extend Windows::Process
-    extend Windows::Security
-    extend Windows::MSVCRT::String
-    extend Windows::MSVCRT::Buffer
+    extend Windows::Structs
+    extend Windows::Functions
 
     # The version of the win32-service library
-    VERSION = '0.7.2'
+    VERSION = '0.8.0'
 
     # SCM security and access rights
 
@@ -209,6 +190,7 @@ module Win32
 
     # :stopdoc: #
 
+=begin
     StatusStruct = Struct.new(
       'ServiceStatus',
       :service_type,
@@ -606,6 +588,7 @@ module Win32
 
       self
     end
+=end
 
     # Returns whether or not +service+ exists on +host+ or localhost, if
     # no host is specified.
@@ -618,10 +601,10 @@ module Win32
       bool = false
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
         if handle_scm == 0
-          raise Error, get_last_error
+          raise SystemCallError.new('OpenSCManager', FFI.errno)
         end
 
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
@@ -634,6 +617,7 @@ module Win32
       bool
     end
 
+=begin
     # Returns the display name of the specified service name, i.e. the string
     # displayed in the Services GUI. Raises a Service::Error if the service
     # name cannot be found.
@@ -1637,5 +1621,6 @@ module Win32
       alias getdisplayname get_display_name
       alias getservicename get_service_name
     end
+=end
   end
 end
