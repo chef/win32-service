@@ -37,11 +37,6 @@ static HANDLE hStopEvent;
 static HANDLE hStopCompletedEvent;
 static SERVICE_STATUS_HANDLE ssh;
 static DWORD dwServiceState;
-#ifdef HAVE_TCHAR_H
-static TCHAR error[1024];
-#else
-static char error[1024];
-#endif
 static int Argc;
 static VALUE* Argv;
 
@@ -54,7 +49,6 @@ CRITICAL_SECTION csControlCode;
 #define IDLE_CONTROL_CODE 0
 static int waiting_control_code = IDLE_CONTROL_CODE;
 
-static VALUE service_close(VALUE);
 void  WINAPI Service_Main(DWORD dwArgc, LPTSTR *lpszArgv);
 void  WINAPI Service_Ctrl(DWORD dwCtrlCode);
 void  SetTheServiceStatus(DWORD dwCurrentState,DWORD dwWin32ExitCode,
@@ -593,7 +587,7 @@ void Init_daemon()
 
   // Constants
 
-  /* 0.7.2: The version of this library */
+  /* 0.7.3: The version of this library */
   rb_define_const(cDaemon, "VERSION", rb_str_new2(WIN32_SERVICE_VERSION));
 
   /* Service has received a signal to resume but is not yet running */
