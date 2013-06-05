@@ -1154,10 +1154,15 @@ module Win32
               deps = get_dependencies(config_buf[24,4].unpack('L').first)
 
               description = 0.chr * 2048
-              buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
+              begin
+                buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION, false)
 
-              strcpy(description, buf[0,4].unpack('L').first)
-              description = description.unpack('Z*')[0]
+                strcpy(description, buf[0,4].unpack('L').first)
+                description = description.unpack('Z*')[0]
+              rescue
+                warn "WARNING: Failed to retrieve description for the #{service_name} service"
+                description = nil
+              end
             else
               msg = "WARNING: The registry entry for the #{service_name} "
               msg += "service could not be found."
@@ -1173,7 +1178,12 @@ module Win32
               description = nil
             end
 
-            buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
+            begin
+              buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS, false)
+            rescue
+              warn "WARNING: Failed to retrieve failure actions for the #{service_name} service"
+              buf2 = ERROR_FILE_NOT_FOUND
+            end
 
             if buf2 != ERROR_FILE_NOT_FOUND
               reset_period = buf2[0,4].unpack('L').first
@@ -1433,7 +1443,7 @@ module Win32
 
     # Shortcut for QueryServiceConfig2. Returns the buffer.
     #
-    def self.get_config2_info(handle, info_level)
+    def self.get_config2_info(handle, info_level, close_handle = true)
       bytes_needed = [0].pack('L')
 
       # First attempt at QueryServiceConfig2 is to get size needed
@@ -1446,7 +1456,7 @@ module Win32
       elsif err_num == ERROR_FILE_NOT_FOUND
         return err_num
       else
-        CloseServiceHandle(handle)
+        CloseServiceHandle(handle) if close_handle
         raise Error, get_last_error(err_num)
       end
 
@@ -1464,7 +1474,7 @@ module Win32
 
         raise Error, get_last_error unless bool
       ensure
-        CloseServiceHandle(handle) unless bool
+        CloseServiceHandle(handle) if close_handle and not bool
       end
 
       config2_buf
