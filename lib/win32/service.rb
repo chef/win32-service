@@ -617,7 +617,6 @@ module Win32
       bool
     end
 
-=begin
     # Returns the display name of the specified service name, i.e. the string
     # displayed in the Services GUI. Raises a Service::Error if the service
     # name cannot be found.
@@ -631,32 +630,32 @@ module Win32
     # Service.get_display_name('W32Time') => 'Windows Time'
     #
     def self.get_display_name(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       if handle_scm == 0
-        raise Error, get_last_error
+        raise SystemCallError.new('OpenSCManager', FFI.errno)
       end
 
-      display_name = 0.chr * 260
-      display_buf  = [display_name.size].pack('L')
+      display_name = FFI::MemoryPointer.new(260)
+      display_size  = FFI::MemoryPointer.new(:ulong)
+      display_size.write_ulong(display_name.size)
 
       begin
         bool = GetServiceDisplayName(
           handle_scm,
           service,
           display_name,
-          display_buf
+          display_size
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenSCMManager', FFI.errno) unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      display_name.unpack('Z*')[0]
+      display_name.read_string
     end
+=begin
 
     # Returns the service name of the specified service from the provided
     # +display_name+. Raises a Service::Error if the +display_name+ cannote
@@ -1616,11 +1615,11 @@ module Win32
       status
     end
 
-    class << self
-      alias create new
-      alias getdisplayname get_display_name
-      alias getservicename get_service_name
-    end
 =end
+    class << self
+      #alias create new
+      alias getdisplayname get_display_name
+      #alias getservicename get_service_name
+    end
   end
 end

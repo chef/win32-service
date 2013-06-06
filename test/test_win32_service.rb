@@ -278,6 +278,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   test "get_service_name accepts a maximum of two arguments" do
     assert_raise(ArgumentError){ Win32::Service.get_service_name('x', 'y', 'z') }
   end
+=end
 
   test "get_display_name basic functionality" do
     assert_respond_to(Win32::Service, :get_display_name)
@@ -299,17 +300,16 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_display_name raises an error if the service does not exist" do
-    assert_raise(Win32::Service::Error){ Win32::Service.get_display_name('bogus') }
+    assert_raise(SystemCallError){ Win32::Service.get_display_name('bogus') }
   end
 
   test "get_display_name raises an error if a bad host name is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.get_display_name('W32Time', 'bogus') }
+    assert_raise(SystemCallError){ Win32::Service.get_display_name('W32Time', 'bogus') }
   end
 
   test "get_display_name takes a maximum of two arguments" do
     assert_raise(ArgumentError){ Win32::Service.get_display_name('x', 'y', 'z') }
   end
-=end
 
   test "exists method basic functionality" do
     assert_respond_to(Win32::Service, :exists?)
