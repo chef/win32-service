@@ -248,6 +248,7 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_kind_of(Struct::ServiceStatus, Win32::Service.status(@service_name))
   end
 
+=end
   test "get_service_name basic functionality" do
     assert_respond_to(Win32::Service, :get_service_name)
     assert_nothing_raised{ Win32::Service.get_service_name(@display_name) }
@@ -268,17 +269,16 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_service_name raises an error if a bogus service name is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.get_service_name('bogus') }
+    assert_raise(SystemCallError){ Win32::Service.get_service_name('bogus') }
   end
 
   test "get_service_name raises an error if a bogus host is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.get_service_name('foo', 'bogus') }
+    assert_raise(SystemCallError){ Win32::Service.get_service_name('foo', 'bogus') }
   end
 
   test "get_service_name accepts a maximum of two arguments" do
     assert_raise(ArgumentError){ Win32::Service.get_service_name('x', 'y', 'z') }
   end
-=end
 
   test "get_display_name basic functionality" do
     assert_respond_to(Win32::Service, :get_display_name)

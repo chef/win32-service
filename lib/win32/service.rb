@@ -655,7 +655,6 @@ module Win32
 
       display_name.read_string
     end
-=begin
 
     # Returns the service name of the specified service from the provided
     # +display_name+. Raises a Service::Error if the +display_name+ cannote
@@ -670,32 +669,30 @@ module Win32
     # Service.get_service_name('Windows Time') => 'W32Time'
     #
     def self.get_service_name(display_name, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
-      service_name = 0.chr * 260
-      service_buf  = [service_name.size].pack('L')
+      service_name = FFI::MemoryPointer.new(260)
+      service_size = FFI::MemoryPointer.new(:ulong)
+      service_size.write_ulong(service_name.size)
 
       begin
         bool = GetServiceKeyName(
           handle_scm,
           display_name,
           service_name,
-          service_buf
+          service_size
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('GetServiceKeyName', FFI.errno) unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      service_name.unpack('Z*')[0]
+      service_name.read_string
     end
+=begin
 
     # Attempts to start the named +service+ on +host+, or the local machine
     # if no host is provided. If +args+ are provided, they are passed to the
@@ -1619,7 +1616,7 @@ module Win32
     class << self
       #alias create new
       alias getdisplayname get_display_name
-      #alias getservicename get_service_name
+      alias getservicename get_service_name
     end
   end
 end
