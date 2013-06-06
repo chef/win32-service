@@ -337,7 +337,6 @@ class TC_Win32_Service < Test::Unit::TestCase
       Win32::Service.exists?('foo', 'bar', 'baz')
     }
   end
-=begin
 
   test "scm security constants are defined" do
     assert_not_nil(Win32::Service::MANAGER_ALL_ACCESS)
@@ -400,7 +399,6 @@ class TC_Win32_Service < Test::Unit::TestCase
     @service_stat = nil
     @services     = nil
   end
-=end
 
   def self.shutdown
     @@host = nil
