@@ -15,5 +15,6 @@ module Windows
     attach_function :GetServiceKeyName, :GetServiceKeyNameA, [:handle, :string, :ptr, :ptr], :bool
     attach_function :OpenSCManager, :OpenSCManagerA, [:ptr, :ptr, :dword], :handle
     attach_function :OpenService, :OpenServiceA, [:handle, :string, :dword], :handle
+    attach_function :QueryServiceStatusEx, [:handle, :int, :ptr, :dword, :pointer], :bool
   end
 end

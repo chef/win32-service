@@ -190,7 +190,6 @@ module Win32
 
     # :stopdoc: #
 
-=begin
     StatusStruct = Struct.new(
       'ServiceStatus',
       :service_type,
@@ -204,6 +203,7 @@ module Win32
       :pid,
       :service_flags
     )
+=begin
 
     ConfigStruct = Struct.new(
       'ServiceConfigInfo',
@@ -916,6 +916,7 @@ module Win32
         display_name
       )
     end
+=end
 
     # Returns a ServiceStatus struct indicating the status of service +name+
     # on +host+, or the localhost if none is provided.
@@ -925,11 +926,9 @@ module Win32
     # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
     #
     def self.status(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
       begin
         handle_scs = OpenService(
@@ -938,13 +937,11 @@ module Win32
           SERVICE_QUERY_STATUS
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
         # SERVICE_STATUS_PROCESS struct
-        status = [0,0,0,0,0,0,0,0,0].pack('LLLLLLLLL')
-        bytes  = [0].pack('L')
+        status = SERVICE_STATUS_PROCESS.new
+        bytes  = FFI::MemoryPointer.new(:ulong)
 
         bool = QueryServiceStatusEx(
           handle_scs,
@@ -954,16 +951,12 @@ module Win32
           bytes
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('QueryServiceStatusEx', FFI.errno) unless bool
 
-        dw_service_type = status[0,4].unpack('L').first
-
-        service_type  = get_service_type(dw_service_type)
-        current_state = get_current_state(status[4,4].unpack('L').first)
-        controls      = get_controls_accepted(status[8,4].unpack('L').first)
-        interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
+        service_type  = get_service_type(status[:dwServiceType])
+        current_state = get_current_state(status[:dwCurrentState])
+        controls      = get_controls_accepted(status[:dwControlsAccepted])
+        interactive   = status[:dwServiceType] & SERVICE_INTERACTIVE_PROCESS > 0
 
         # Note that the pid and service flags will always return 0 if you're
         # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
@@ -973,15 +966,14 @@ module Win32
           service_type,
           current_state,
           controls,
-          status[12,4].unpack('L').first, # Win32ExitCode
-          status[16,4].unpack('L').first, # ServiceSpecificExitCode
-          status[20,4].unpack('L').first, # CheckPoint
-          status[24,4].unpack('L').first, # WaitHint
+          status[:dwWin32ExitCode],
+          status[:dwServiceSpecificExitCode],
+          status[:dwCheckPoint],
+          status[:dwWaitHint],
           interactive,
-          status[28,4].unpack('L').first, # ProcessId
-          status[32,4].unpack('L').first  # ServiceFlags
+          status[:dwProcessId],
+          status[:dwServiceFlags]
         )
-
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
@@ -989,6 +981,8 @@ module Win32
 
       status_struct
     end
+
+=begin
 
     # Enumerates over a list of service types on +host+, or the local
     # machine if no host is specified, yielding a ServiceInfo struct for
@@ -1449,6 +1443,7 @@ module Win32
 
       config2_buf
     end
+=end
 
     # Returns a human readable string indicating the error control
     #
@@ -1583,6 +1578,7 @@ module Win32
       end
     end
 
+=begin
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)

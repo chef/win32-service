@@ -4,6 +4,8 @@ module Windows
   module Structs
     extend FFI::Library
 
+    typedef :ulong, :dword
+
     class SERVICE_STATUS < FFI::Struct
       layout(
         :dwServiceType, :ulong,
@@ -13,6 +15,20 @@ module Windows
         :dwServiceSpecificExitCode, :ulong,
         :dwCheckPoint, :ulong,
         :dwWaitHint, :ulong
+      )
+    end
+
+    class SERVICE_STATUS_PROCESS < FFI::Struct
+      layout(
+        :dwServiceType, :dword,
+        :dwCurrentState, :dword,
+        :dwControlsAccepted, :dword,
+        :dwWin32ExitCode, :dword,
+        :dwServiceSpecificExitCode, :dword,
+        :dwCheckPoint, :dword,
+        :dwWaitHint, :dword,
+        :dwProcessId, :dword,
+        :dwServiceFlags, :dword
       )
     end
   end

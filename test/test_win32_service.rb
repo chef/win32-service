@@ -241,6 +241,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   test "stop accepts a maximum of 2 arguments" do
     assert_raise(ArgumentError){ Win32::Service.stop('a', 'b', 'c') }
   end
+=end
 
   test "status basic functionality" do
     assert_respond_to(Win32::Service, :status)
@@ -248,7 +249,6 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_kind_of(Struct::ServiceStatus, Win32::Service.status(@service_name))
   end
 
-=end
   test "get_service_name basic functionality" do
     assert_respond_to(Win32::Service, :get_service_name)
     assert_nothing_raised{ Win32::Service.get_service_name(@display_name) }
@@ -402,7 +402,7 @@ class TC_Win32_Service < Test::Unit::TestCase
 
   def self.shutdown
     @@host = nil
-    #status = Win32::Service.status(@@service_name).current_state
+    status = Win32::Service.status(@@service_name).current_state
 
     #if status == 'paused'
     #  Win32::Service.resume(@@service_name)
