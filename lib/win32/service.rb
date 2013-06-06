@@ -692,7 +692,6 @@ module Win32
 
       service_name.read_string
     end
-=begin
 
     # Attempts to start the named +service+ on +host+, or the local machine
     # if no host is provided. If +args+ are provided, they are passed to the
@@ -709,28 +708,39 @@ module Win32
     def self.start(service, host=nil, *args)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-	      raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_START)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
         num_args = 0
 
         if args.empty?
           args = nil
-        else
-          num_args = args.length
-          args = args.map{ |x| [x].pack('p*') }.join
+        else # TODO: Verify that this works
+          str_ptrs = []
+          num_args = args.size
+
+          # First arg must be service name
+          str_ptrs << FFI::MemoryPointer.from_string(service)
+
+          args.each{ |string|
+            str_ptrs << FFI::MemoryPointer.from_string(string)
+          }
+
+          str_ptrs << nil
+
+          vector = FFI::MemoryPointer.new(:pointer, str_ptrs.size)
+
+          str_ptrs.each_with_index{ |p, i|
+            vector[i].put_pointer(0, p)
+          }
         end
 
-        unless StartService(handle_scs, num_args, args)
-          raise Error, get_last_error
+        unless StartService(handle_scs, num_args, vector)
+          raise SystemCallError.new('StartService', FFI.errno)
         end
 
       ensure
@@ -795,6 +805,8 @@ module Win32
       send_signal(service, host, service_signal, control_signal)
       self
     end
+
+=begin
 
     # Deletes the specified +service+ from +host+, or the local host if
     # no host is specified. Returns self.
@@ -1578,27 +1590,22 @@ module Win32
       end
     end
 
-=begin
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, service_signal)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
-        status = [0,0,0,0,0,0,0].pack('LLLLLLL')
+        status = SERVICE_STATUS.new
 
         unless ControlService(handle_scs, control_signal, status)
-          raise Error, get_last_error
+          raise SystemCallError.new('ControlService', FFI.errno)
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
@@ -1608,7 +1615,6 @@ module Win32
       status
     end
 
-=end
     class << self
       #alias create new
       alias getdisplayname get_display_name
