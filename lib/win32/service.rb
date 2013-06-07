@@ -203,7 +203,6 @@ module Win32
       :pid,
       :service_flags
     )
-=begin
 
     ConfigStruct = Struct.new(
       'ServiceConfigInfo',
@@ -588,7 +587,6 @@ module Win32
 
       self
     end
-=end
 
     # Returns whether or not +service+ exists on +host+ or localhost, if
     # no host is specified.
@@ -806,8 +804,6 @@ module Win32
       self
     end
 
-=begin
-
     # Deletes the specified +service+ from +host+, or the local host if
     # no host is specified. Returns self.
     #
@@ -822,21 +818,17 @@ module Win32
     #   Service.delete('SomeService') => self
     #
     def self.delete(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, DELETE)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
         unless DeleteService(handle_scs)
-          raise Error, get_last_error
+          raise SystemCallError.new('DeleteService', FFI.errno)
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
@@ -928,7 +920,6 @@ module Win32
         display_name
       )
     end
-=end
 
     # Returns a ServiceStatus struct indicating the status of service +name+
     # on +host+, or the localhost if none is provided.
@@ -993,8 +984,6 @@ module Win32
 
       status_struct
     end
-
-=begin
 
     # Enumerates over a list of service types on +host+, or the local
     # machine if no host is specified, yielding a ServiceInfo struct for
@@ -1455,7 +1444,6 @@ module Win32
 
       config2_buf
     end
-=end
 
     # Returns a human readable string indicating the error control
     #

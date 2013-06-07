@@ -87,6 +87,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   test "a valid hostname must be provided or an error is raised" do
     assert_raise(Win32::Service::Error){ Win32::Service.services('bogus') }
   end
+=end
 
   test "delete method basic functionality" do
     assert_respond_to(Win32::Service, :delete)
@@ -97,17 +98,16 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "delete method raises an error if a bogus service name is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.delete('bogus') }
+    assert_raise(SystemCallError){ Win32::Service.delete('bogus') }
   end
 
   test "delete method raises an error if a bogus host name is provided" do
-    assert_raise(Win32::Service::Error){ Win32::Service.delete('bogus', 'bogus') }
+    assert_raise(SystemCallError){ Win32::Service.delete('bogus', 'bogus') }
   end
 
   test "delete method only accepts up to two arguments" do
     assert_raise(ArgumentError){ Win32::Service.delete('x', 'y', 'z') }
   end
-=end
 
   test "pause basic functionality" do
     assert_respond_to(Win32::Service, :pause)

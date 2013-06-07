@@ -100,5 +100,8 @@ module Windows
 
     # Configuration
     SERVICE_NO_CHANGE = 0xffffffff
+
+    # Misc
+    DELETE = 0x00010000
   end
 end
