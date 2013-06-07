@@ -345,9 +345,7 @@ module Win32
       begin
         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
 
-        if handle_scm == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
         # Display name defaults to service_name
         opts['display_name'] ||= service_name
@@ -382,13 +380,11 @@ module Win32
           opts['password']
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('CreateService', FFI.errno) if handle_scs == 0
 
         if opts['description']
-          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-          description[0,4] = [opts['description']].pack('p*')
+          description = SERVICE_DESCRIPTION.new
+          description[:lpDescription] = opts['description']
 
           bool = ChangeServiceConfig2(
             handle_scs,
@@ -396,9 +392,7 @@ module Win32
             description
           )
 
-          unless bool
-            raise Error, get_last_error
-          end
+          raise SystemCallError.new('ChangeServiceConfig2', FFI.errno) unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||

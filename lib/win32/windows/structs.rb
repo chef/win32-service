@@ -31,5 +31,9 @@ module Windows
         :dwServiceFlags, :dword
       )
     end
+
+    class SERVICE_DESCRIPTION < FFI::Struct
+      layout(:lpDescription, :string)
+    end
   end
 end

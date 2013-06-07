@@ -10,7 +10,14 @@ module Windows
 
     ffi_lib :advapi32
 
+    attach_function :ChangeServiceConfig2, [:handle, :dword, :ptr], :bool
     attach_function :CloseServiceHandle, [:handle], :bool
+
+    attach_function :CreateService, :CreateServiceA,
+      [:handle, :string, :string, :dword, :dword, :dword, :dword,
+       :string, :string, :ptr, :string, :string, :string],
+       :handle
+
     attach_function :ControlService, [:handle, :dword, :ptr], :bool
     attach_function :DeleteService, [:handle], :bool
     attach_function :GetServiceDisplayName, :GetServiceDisplayNameA, [:handle, :string, :ptr, :ptr], :bool
