@@ -35,5 +35,19 @@ module Windows
     class SERVICE_DESCRIPTION < FFI::Struct
       layout(:lpDescription, :string)
     end
+
+    class QUERY_SERVICE_CONFIG < FFI::Struct
+      layout(
+        :dwServiceType, :dword,
+        :dwStartType, :dword,
+        :dwErrorControl, :dword,
+        :lpBinaryPathName, :pointer,
+        :lpLoadOrderGroup, :pointer,
+        :dwTagId, :dword,
+        :lpDependencies, :pointer,
+        :lpServiceStartName, :pointer,
+        :lpDisplayName, :pointer
+      )
+    end
   end
 end

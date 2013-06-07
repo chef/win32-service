@@ -103,5 +103,8 @@ module Windows
 
     # Misc
     DELETE = 0x00010000
+
+    # Errors
+    ERROR_INSUFFICIENT_BUFFER = 122
   end
 end

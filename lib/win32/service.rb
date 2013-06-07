@@ -841,69 +841,47 @@ module Win32
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
         # First, get the buf size needed
-        bytes_needed = [0].pack('L')
+        bytes = FFI::MemoryPointer.new(:ulong)
 
-        bool = QueryServiceConfig(handle_scs, nil, 0, bytes_needed)
+        bool = QueryServiceConfig(handle_scs, nil, 0, bytes)
 
-        if !bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER
-          raise Error, get_last_error
+        if !bool && FFI.errno != ERROR_INSUFFICIENT_BUFFER
+          raise SystemCallError.new('QueryServiceConfig', FFI.errno)
         end
 
-        buf = 0.chr * bytes_needed.unpack('L')[0]
-        bytes = [0].pack('L')
+        buf = FFI::MemoryPointer.new(:char, bytes.read_ulong)
+
+        bytes = FFI::MemoryPointer.new(:ulong)
 
         bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes)
 
-        unless bool
-          raise Error, get_last_error
-        end
+        # Cast the buffer
+        struct = QUERY_SERVICE_CONFIG.new(buf)
+
+        raise SystemCallError.new('QueryServiceConfig', FFI.errno) unless bool
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
       end
 
-      binary_path_name   = 0.chr * 1024
-      load_order_group   = 0.chr * 1024
-      dependencies       = 0.chr * 1024
-      service_start_name = 0.chr * 260
-      display_name       = 0.chr * 260
-
-      strcpy(binary_path_name, buf[12,4].unpack('L')[0])
-      binary_path_name = binary_path_name.unpack('Z*')[0]
-
-      strcpy(load_order_group, buf[16,4].unpack('L')[0])
-      load_order_group = load_order_group.unpack('Z*')[0]
-
-      dependencies = get_dependencies(buf[24,4].unpack('L').first)
-
-      strcpy(service_start_name, buf[28,4].unpack('L')[0])
-      service_start_name = service_start_name.unpack('Z*')[0]
-
-      strcpy(display_name, buf[32,4].unpack('L')[0])
-      display_name = display_name.unpack('Z*')[0]
-
       ConfigStruct.new(
-        get_service_type(buf[0,4].unpack('L')[0]),
-        get_start_type(buf[4,4].unpack('L')[0]),
-        get_error_control(buf[8,4].unpack('L')[0]),
-        binary_path_name,
-        load_order_group,
-        buf[20,4].unpack('L')[0],
-        dependencies,
-        service_start_name,
-        display_name
+        get_service_type(struct[:dwServiceType]),
+        get_start_type(struct[:dwStartType]),
+        get_error_control(struct[:dwErrorControl]),
+        struct[:lpBinaryPathName].read_string,
+        struct[:lpLoadOrderGroup].read_string,
+        struct[:dwTagId],
+        struct[:lpDependencies].read_string,
+        struct[:lpServiceStartName].read_string,
+        struct[:lpDisplayName].read_string
       )
     end
 
@@ -1590,7 +1568,7 @@ module Win32
     end
 
     class << self
-      #alias create new
+      alias create new
       alias getdisplayname get_display_name
       alias getservicename get_service_name
     end
