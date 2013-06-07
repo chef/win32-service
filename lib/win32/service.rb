@@ -502,9 +502,7 @@ module Win32
       begin
         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
 
-        if handle_scm == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
 
         desired_access = SERVICE_CHANGE_CONFIG
 
@@ -518,9 +516,7 @@ module Win32
           desired_access
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
 
         dependencies = opts['dependencies']
 
@@ -543,20 +539,18 @@ module Win32
           opts['error_control'],
           opts['binary_path_name'],
           opts['load_order_group'],
-          0,
+          nil,
           dependencies,
           opts['service_start_name'],
           opts['password'],
           opts['display_name']
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        raise SystemCallError.new('ChangeServiceConfig', FFI.errno) unless bool
 
         if opts['description']
-          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-          description[0,4] = [opts['description']].pack('p*')
+          description = SERVICE_DESCRIPTION.new
+          description[:lpDescription] = opts['description']
 
           bool = ChangeServiceConfig2(
             handle_scs,
@@ -564,9 +558,7 @@ module Win32
             description
           )
 
-          unless bool
-            raise Error, get_last_error
-          end
+          raise SystemCallError.new('ChangeServiceConfig2', FFI.errno) unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
