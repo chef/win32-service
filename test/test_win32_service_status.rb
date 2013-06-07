@@ -3,9 +3,7 @@
 #
 # Test case for the Struct::ServiceStatus struct.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
+require 'test-unit'
 require 'win32/service'
 require 'test/unit'
 
@@ -39,7 +37,7 @@ class TC_Win32_ServiceStatus_Struct < Test::Unit::TestCase
       nil
     ]
 
-    @controls = [ 
+    @controls = [
       'netbind change',
       'param change',
       'pause continue',

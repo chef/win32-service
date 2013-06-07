@@ -3,17 +3,15 @@
 #
 # Test case for the Struct::ServiceInfo structure.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
+require 'test-unit'
 require 'win32/service'
 require 'test/unit'
 
 class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
   def self.startup
-    @@services = Win32::Service.services      
+    @@services = Win32::Service.services
   end
-   
+
   def setup
     @service_info = @@services.find{ |s| s.service_name == 'W32Time' }
 
@@ -59,7 +57,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
        nil
     ]
 
-    @controls = [ 
+    @controls = [
       'netbind change',
       'param change',
       'pause continue',
@@ -177,7 +175,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
     @states   = nil
     @controls = nil
   end
-   
+
   def self.shutdown
     @@services = nil
   end
