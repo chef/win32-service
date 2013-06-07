@@ -3,6 +3,8 @@
   for the patch.
 * Cleaned up some unused and/or misnamed variables.
 * Automatically require devkit in Rakefile if mingw.
+* Added a patch that warns, instead of fails, if a resource is misconfigured
+  in the Service.services method. Thanks go to Josh Cooper for the patch.
 
 == 0.7.2 - 7-Sep-2011
 * Now works with mingw compiler by skipping __try and __finally if using
