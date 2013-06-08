@@ -33,7 +33,7 @@ module Windows
     end
 
     class SERVICE_DESCRIPTION < FFI::Struct
-      layout(:lpDescription, :string)
+      layout(:lpDescription, :pointer)
     end
 
     class QUERY_SERVICE_CONFIG < FFI::Struct
@@ -47,6 +47,28 @@ module Windows
         :lpDependencies, :pointer,
         :lpServiceStartName, :pointer,
         :lpDisplayName, :pointer
+      )
+    end
+
+    class SERVICE_STATUS_PROCESS < FFI::Struct
+      layout(
+        :dwServiceType, :dword,
+        :dwCurrentState, :dword,
+        :dwControlsAccepted, :dword,
+        :dwWin32ExitCode, :dword,
+        :dwServiceSpecificExitCode, :dword,
+        :dwCheckPoint, :dword,
+        :dwWaitHint, :dword,
+        :dwProcessId, :dword,
+        :dwServiceFlags, :dword
+      )
+    end
+
+    class ENUM_SERVICE_STATUS_PROCESS < FFI::Struct
+      layout(
+        :lpServiceName, :pointer,
+        :lpDisplayName, :pointer,
+        :ServiceStatusProcess, SERVICE_STATUS_PROCESS
       )
     end
   end

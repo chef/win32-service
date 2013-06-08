@@ -106,5 +106,7 @@ module Windows
 
     # Errors
     ERROR_INSUFFICIENT_BUFFER = 122
+    ERROR_MORE_DATA = 234
+    ERROR_FILE_NOT_FOUND = 2
   end
 end
