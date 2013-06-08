@@ -1064,9 +1064,8 @@ module Win32
               start_type = get_start_type(config_struct[:dwStartType])
               error_ctrl = get_error_control(config_struct[:dwErrorControl])
 
+              # TODO: Need to unravel this properly
               dependencies = config_struct[:lpDependencies].read_string
-
-              #deps = get_dependencies(config_buf[24,4].unpack('L').first)
 
               buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
               description = buf.read_string
@@ -1084,33 +1083,31 @@ module Win32
               deps        = nil
               description = nil
             end
-=begin
 
             buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
 
-            if buf2 != ERROR_FILE_NOT_FOUND
-              reset_period = buf2[0,4].unpack('L').first
+            if buf2.is_a?(FFI::MemoryPointer)
+              fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
 
-              reboot_msg = 0.chr * 260
-              strcpy(reboot_msg, buf2[4,4].unpack('L').first)
-              reboot_msg = reboot_msg.unpack('Z*')[0]
+              # TODO: Failure here
+              reset_period = fail_struct[:dwResetPeriod]
+              reboot_msg   = fail_struct[:lpRebootMsg].read_string
+              command      = fail_struct[:lpCommand].read_string
+              num_actions  = fail_struct[:cActions]
 
-              command = 0.chr * 260
-              strcpy(command, buf2[8,4].unpack('L').first)
-              command = command.unpack('Z*')[0]
-
-              num_actions = buf2[12,4].unpack('L').first
               actions = nil
 
               if num_actions > 0
-                action_ptr = buf2[16,4].unpack('L').first
-                action_buf = [0,0].pack('LL') * num_actions
-                memcpy(action_buf, action_ptr, action_buf.size)
+                action_ptr = fail_struct[:lpsaActions]
+                action_buf = SC_ACTION.size * num_actions
 
                 i = 0
                 actions = {}
+
                 num_actions.times{ |n|
-                  action_type, delay = action_buf[i, 8].unpack('LL')
+                  sc_action = SC_ACTION.new(action_buf[i,8])
+                  action_type = sc_action[:Type]
+                  delay = sc_action[:Delay]
                   action_type = get_action_type(action_type)
                   actions[n+1] = {:action_type => action_type, :delay => delay}
                   i += 8
@@ -1122,12 +1119,10 @@ module Win32
               command      = nil
               actions      = nil
             end
-=end
           ensure
             CloseServiceHandle(handle_scs) if handle_scs > 0
           end
 
-=begin
           struct = ServiceStruct.new(
             service_name,
             display_name,
@@ -1162,8 +1157,7 @@ module Win32
              services_array << struct
           end
 
-          index += 44 # sizeof(SERVICE_STATUS_PROCESS)
-=end
+          index += SERVICE_STATUS_PROCESS.size # 44 # sizeof(SERVICE_STATUS_PROCESS)
         }
       ensure
         CloseServiceHandle(handle_scm)
@@ -1550,4 +1544,4 @@ module Win32
   end
 end
 
-Win32::Service.services
+Win32::Service.services.each{ |s| p s; puts }

@@ -71,5 +71,19 @@ module Windows
         :ServiceStatusProcess, SERVICE_STATUS_PROCESS
       )
     end
+
+    class SC_ACTION < FFI::Struct
+      layout(:Type, :int, :Delay, :dword)
+    end
+
+    class SERVICE_FAILURE_ACTIONS < FFI::Struct
+      layout(
+        :dwResetPeriod, :dword,
+        :lpRebootMsg, :pointer,
+        :lpCommand, :pointer,
+        :cActions, :dword,
+        :lpsaActions, :pointer # Array of SC_ACTION structs
+      )
+    end
   end
 end
