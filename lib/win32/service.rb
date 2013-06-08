@@ -1023,12 +1023,12 @@ module Win32
 
         num_services = services_returned.read_ulong
 
-        index = 0
         services_array = [] unless block_given?
 
-        struct = ENUM_SERVICE_STATUS_PROCESS.new(service_buf) # cast the buffer
-
         1.upto(num_services){ |num|
+          # Cast the buffer
+          struct = ENUM_SERVICE_STATUS_PROCESS.new(service_buf)
+
           service_name = struct[:lpServiceName].read_string
           display_name = struct[:lpDisplayName].read_string
 
@@ -1086,6 +1086,7 @@ module Win32
 
             buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
 
+=begin
             if buf2.is_a?(FFI::MemoryPointer)
               fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
 
@@ -1119,6 +1120,7 @@ module Win32
               command      = nil
               actions      = nil
             end
+=end
           ensure
             CloseServiceHandle(handle_scs) if handle_scs > 0
           end
@@ -1144,11 +1146,12 @@ module Win32
             interactive,
             pid,
             service_flags,
-            reset_period,
-            reboot_msg,
-            command,
-            num_actions,
-            actions
+            #reset_period,
+            #reboot_msg,
+            #command,
+            #num_actions,
+            #actions
+            nil, nil, nil, nil, nil
           )
 
           if block_given?
@@ -1157,7 +1160,7 @@ module Win32
              services_array << struct
           end
 
-          index += SERVICE_STATUS_PROCESS.size # 44 # sizeof(SERVICE_STATUS_PROCESS)
+          service_buf += ENUM_SERVICE_STATUS_PROCESS.size
         }
       ensure
         CloseServiceHandle(handle_scm)
