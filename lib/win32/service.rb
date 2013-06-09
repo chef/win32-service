@@ -1086,32 +1086,36 @@ module Win32
 
             buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
 
-=begin
             if buf2.is_a?(FFI::MemoryPointer)
               fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
 
-              # TODO: Failure here
               reset_period = fail_struct[:dwResetPeriod]
-              reboot_msg   = fail_struct[:lpRebootMsg].read_string
-              command      = fail_struct[:lpCommand].read_string
               num_actions  = fail_struct[:cActions]
+
+              if fail_struct[:lpRebootMsg].null?
+                reboot_msg = nil
+              else
+                reboot_msg = fail_struct[:lpRebootMsg].read_string
+              end
+
+              if fail_struct[:lpCommand].null?
+                command = nil
+              else
+                command = fail_struct[:lpCommand].read_string
+              end
 
               actions = nil
 
               if num_actions > 0
                 action_ptr = fail_struct[:lpsaActions]
-                action_buf = SC_ACTION.size * num_actions
 
-                i = 0
                 actions = {}
 
                 num_actions.times{ |n|
-                  sc_action = SC_ACTION.new(action_buf[i,8])
-                  action_type = sc_action[:Type]
+                  sc_action = SC_ACTION.new(action_ptr[n])
                   delay = sc_action[:Delay]
-                  action_type = get_action_type(action_type)
+                  action_type = get_action_type(sc_action[:Type])
                   actions[n+1] = {:action_type => action_type, :delay => delay}
-                  i += 8
                 }
               end
             else
@@ -1120,7 +1124,6 @@ module Win32
               command      = nil
               actions      = nil
             end
-=end
           ensure
             CloseServiceHandle(handle_scs) if handle_scs > 0
           end
@@ -1146,12 +1149,11 @@ module Win32
             interactive,
             pid,
             service_flags,
-            #reset_period,
-            #reboot_msg,
-            #command,
-            #num_actions,
-            #actions
-            nil, nil, nil, nil, nil
+            reset_period,
+            reboot_msg,
+            command,
+            num_actions,
+            actions
           )
 
           if block_given?
@@ -1546,5 +1548,3 @@ module Win32
     end
   end
 end
-
-Win32::Service.services.each{ |s| p s; puts }
