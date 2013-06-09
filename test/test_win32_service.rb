@@ -52,7 +52,6 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_equal('0.8.0', Win32::Service::VERSION)
   end
 
-=begin
   test "services basic functionality" do
     assert_respond_to(Win32::Service, :services)
     assert_nothing_raised{ Win32::Service.services }
@@ -85,9 +84,8 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "a valid hostname must be provided or an error is raised" do
-    assert_raise(Win32::Service::Error){ Win32::Service.services('bogus') }
+    assert_raise(SystemCallError){ Win32::Service.services('bogus') }
   end
-=end
 
   test "delete method basic functionality" do
     assert_respond_to(Win32::Service, :delete)
