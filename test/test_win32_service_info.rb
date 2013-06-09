@@ -13,7 +13,8 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
   end
 
   def setup
-    @service_info = @@services.find{ |s| s.service_name == 'W32Time' }
+    @service_name = "Dhcp"
+    @service_info = @@services.find{ |s| s.service_name == @service_name }
 
     @error_controls = [
       'critical',
@@ -174,6 +175,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
     @types    = nil
     @states   = nil
     @controls = nil
+    @service_name = nil
   end
 
   def self.shutdown
