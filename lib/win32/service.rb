@@ -1,3 +1,4 @@
+require File.join(File.dirname(__FILE__), 'windows', 'helper')
 require File.join(File.dirname(__FILE__), 'windows', 'constants')
 require File.join(File.dirname(__FILE__), 'windows', 'structs')
 require File.join(File.dirname(__FILE__), 'windows', 'functions')
@@ -877,7 +878,7 @@ module Win32
         struct[:lpBinaryPathName].read_string,
         struct[:lpLoadOrderGroup].read_string,
         struct[:dwTagId],
-        struct[:lpDependencies].read_string,
+        struct[:lpDependencies].read_array_of_null_separated_strings,
         struct[:lpServiceStartName].read_string,
         struct[:lpDisplayName].read_string
       )
@@ -1064,8 +1065,7 @@ module Win32
               start_type = get_start_type(config_struct[:dwStartType])
               error_ctrl = get_error_control(config_struct[:dwErrorControl])
 
-              # TODO: Need to unravel this properly
-              dependencies = config_struct[:lpDependencies].read_string
+              dependencies = config_struct[:lpDependencies].read_array_of_null_separated_strings
 
               buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
               description = buf.read_string
