@@ -8,6 +8,16 @@ module Windows
     typedef :uintptr_t, :handle
     typedef :pointer, :ptr
 
+    ffi_lib :kernel32
+
+    attach_function :CreateEvent, [:pointer, :bool, :bool, :string], :handle
+    attach_function :EnterCriticalSection, [:pointer], :void
+    attach_function :InitializeCriticalSection, [:pointer], :void
+    attach_function :LeaveCriticalSection, [:pointer], :void
+    attach_function :RegisterServiceCtrlHandler, [:string, :pointer], :handle
+    attach_function :SetEvent, [:handle], :bool
+    attach_function :WaitForSingleObject, [:handle, :dword], :dword
+
     ffi_lib :advapi32
 
     attach_function :CloseServiceHandle, [:handle], :bool
