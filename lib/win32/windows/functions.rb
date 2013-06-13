@@ -10,12 +10,15 @@ module Windows
 
     ffi_lib :kernel32
 
+    callback :service_ctrl_func, [:dword], :void
+
     attach_function :CreateEvent, [:pointer, :bool, :bool, :string], :handle
     attach_function :EnterCriticalSection, [:pointer], :void
     attach_function :InitializeCriticalSection, [:pointer], :void
     attach_function :LeaveCriticalSection, [:pointer], :void
-    attach_function :RegisterServiceCtrlHandler, [:string, :pointer], :handle
+    attach_function :RegisterServiceCtrlHandler, [:string, :service_ctrl_func], :handle
     attach_function :SetEvent, [:handle], :bool
+    attach_function :SetServiceStatus, [:handle, :pointer], :bool
     attach_function :WaitForSingleObject, [:handle, :dword], :dword
 
     ffi_lib :advapi32
