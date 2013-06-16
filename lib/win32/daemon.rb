@@ -3,7 +3,12 @@ require File.join(File.dirname(__FILE__), 'windows', 'constants')
 require File.join(File.dirname(__FILE__), 'windows', 'structs')
 require File.join(File.dirname(__FILE__), 'windows', 'functions')
 
+require 'ffi'
+
+# The Win32 module serves as a namespace only.
 module Win32
+
+  # The Daemon class
   class Daemon
     include Windows::Constants
     include Windows::Structs
@@ -12,110 +17,277 @@ module Win32
     extend Windows::Structs
     extend Windows::Functions
 
-    def initialize
-      @service_state = nil
-      @service_status_handle = nil
-      @stop_event = nil
-      @start_event = nil
-      @event_hooks
-      @critical_section = FFI::MemoryPointer.new(:uintptr_t)
-    end
-
-    def mainloop
-      STDIN.reopen("NUL") if STDIN.isatty
-      STDOUT.reopen("NUL") if STDOUT.isatty
-      STDERR.reopen("NUL") if STDOUT.isatty
-
-      service_state = 0
-    end
+    # The version of this library
+    VERSION = '0.8.0'
 
     private
 
-    def service_ctrl(ctrl_code)
-      state = SERVICE_RUNNING
+    # Wraps SetServiceStatus.
+    SetTheServiceStatus = Proc.new do |dwCurrentState, dwWin32ExitCode,dwCheckPoint,  dwWaitHint|
+      ss = SERVICE_STATUS.new  # Current status of the service.
 
-      begin
-        EnterCriticalSection(@critical_section)
-        waiting_control_code = ctrl_code
-      ensure
-        LeaveCriticalSection(@critical_section)
+      # Disable control requests until the service is started.
+      if dwCurrentState == SERVICE_START_PENDING
+        ss[:dwControlsAccepted] = 0
+      else
+        ss[:dwControlsAccepted] =
+        SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN|
+        SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_SHUTDOWN
       end
 
-      case ctrl_code
+      # Initialize ss structure.
+      ss[:dwServiceType]             = SERVICE_WIN32_OWN_PROCESS
+      ss[:dwServiceSpecificExitCode] = 0
+      ss[:dwCurrentState]            = dwCurrentState
+      ss[:dwWin32ExitCode]           = dwWin32ExitCode
+      ss[:dwCheckPoint]              = dwCheckPoint
+      ss[:dwWaitHint]                = dwWaitHint
+
+      @@dwServiceState = dwCurrentState
+
+      # Send status of the service to the Service Controller.
+      if !SetServiceStatus(@@ssh, ss)
+        SetEvent(@@hStopEvent)
+      end
+    end
+
+    # Handles control signals from the service control manager.
+    Service_Ctrl_ex = Proc.new do |dwCtrlCode,dwEventType,lpEventData,lpContext|
+      @@waiting_control_code = dwCtrlCode;
+
+      dwState = SERVICE_RUNNING
+
+      case dwCtrlCode
         when SERVICE_CONTROL_STOP
-          state = SERVICE_STOP_PENDING
+          dwState = SERVICE_STOP_PENDING
         when SERVICE_CONTROL_SHUTDOWN
-          state = SERVICE_STOP_PENDING
+          dwState = SERVICE_STOP_PENDING
         when SERVICE_CONTROL_PAUSE
-          state = SERVICE_PAUSED
+          dwState = SERVICE_PAUSED
         when SERVICE_CONTROL_CONTINUE
-          state = SERVICE_RUNNING
+          dwState = SERVICE_RUNNING
       end
 
-      set_service_status(state, NO_ERROR, 0, 0)
+      # Set the status of the service.
+      SetTheServiceStatus.call(dwState, NO_ERROR, 0, 0)
 
-      if ctrl_code = SERVICE_CONTROL_STOP || SERVICE_CONTROL_SHUTDOWN
-        unless SetEvent(@stop_event)
-          set_service_status(SERVICE_STOPPED, FFI.errno, 0, 0)
+      # Tell service_main thread to stop.
+      if dwCtrlCode == SERVICE_CONTROL_STOP || dwCtrlCode == SERVICE_CONTROL_SHUTDOWN
+        if !SetEvent(@@hStopEvent)
+          SetTheServiceStatus.call(SERVICE_STOPPED, FFI.errno, 0, 0)
         end
       end
     end
 
-    def service_main(name, *args)
-      @service_status_handle = RegisterServiceCtrlHandler(name, service_ctrl_func)
-
-      strptrs = []
-
-      args.each{ |str| strptrs << FFI::MemoryPointer.from_string(str) }
-
-      strptrs << nil
-
-      argv = FFI::MemoryPointer.new(:pointer, :strptrs.size)
-
-      strptrs.each_with_index do |p, i|
-        argv[i].put_pointer(0, p)
-      end
-
-      return if @service_status_handle == 0
-
-      set_service_status(SERVICE_RUNNING, NO_ERROR, 0, 0)
-
-      SetEvent(@start_event)
-
-      while WaitForSingleObject(@stop_event, 1000) != WAIT_OBJECT_0
-        # Do nothing
-      end
-
-      set_service_status(SERVICE_STOPPED, NO_ERROR, 0, 0)
-    end
-
-    # Create and initialize a SERVICE_STATUS struct and pass it to
-    # the SetServiceStatus function. If that should fail for any reason,
-    # then call the stop event.
-    #
-    def set_service_status(current_state, exit_code, check_point, wait_hint)
-      status = SERVICE_STATUS.new
-
-      if current_state == SERVICE_START_PENDING
-        status[:dwControlsAccepted] = 0
+    # Called by the service control manager after the call to StartServiceCtrlDispatcher.
+    Service_Main = FFI::Function.new(:void, [:ulong, :pointer], :blocking => false) do |dwArgc,lpszArgv|
+      # Obtain the name of the service.
+      if lpszArgv.address!=0
+        argv = lpszArgv.get_array_of_string(0,dwArgc)
+        lpszServiceName = argv[0]
       else
-        status[:dwControlsAccepted] =
-          SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN |
-          SERVICE_ACCEPT_PAUSE_CONTINUE | SERVICE_ACCEPT_SHUTDOWN
+        lpszServiceName = ''
       end
 
-      status[:dwServiceType] = SERVICE_WIN32_OWN_PROCESS
-      status[:dwServiceSpecificExitCode] = 0
-      status[:dwCurrentState]  = current_state
-      status[:dwWin32ExitCode] = exit_code
-      status[:dwCheckPoint]    = check_point
-      status[:dwWaitHint]      = wait_hint
-
-      @service_state = current_state
-
-      unless SetServiceStatus(@service_status_handle, status)
-        SetEvent(@stop_event)
+      # Args passed to Service.start
+      if(dwArgc > 1)
+        @@Argv = argv[1..-1]
+      else
+        @@Argv = nil
       end
+
+      # Register the service ctrl handler.
+      @@ssh = RegisterServiceCtrlHandlerEx(
+        lpszServiceName,
+        Service_Ctrl_ex,
+        nil
+      )
+
+      # No service to stop, no service handle to notify, nothing to do but exit.
+      return if @@ssh == 0
+
+      # The service has started.
+      SetTheServiceStatus.call(SERVICE_RUNNING, NO_ERROR, 0, 0)
+
+      SetEvent(@@hStartEvent)
+
+      # Main loop for the service.
+      while(WaitForSingleObject(@@hStopEvent, 1000) != WAIT_OBJECT_0) do
+      end
+
+      # Main loop for the service.
+      while(WaitForSingleObject(@@hStopCompletedEvent, 1000) != WAIT_OBJECT_0) do
+      end
+
+      # Stop the service.
+      SetTheServiceStatus.call(SERVICE_STOPPED, NO_ERROR, 0, 0)
     end
-  end
-end
+
+    ThreadProc = FFI::Function.new(:ulong,[:pointer]) do |lpParameter|
+      ste = FFI::MemoryPointer.new(SERVICE_TABLE_ENTRY, 2)
+
+      s = SERVICE_TABLE_ENTRY.new(ste[0])
+      s[:lpServiceName] = FFI::MemoryPointer.from_string('')
+      s[:lpServiceProc] = Service_Main
+
+      s = SERVICE_TABLE_ENTRY.new(ste[1])
+      s[:lpServiceName] = nil
+      s[:lpServiceProc] = nil
+
+      # No service to step, no service handle, no ruby exceptions, just terminate the thread..
+      if !StartServiceCtrlDispatcher(ste)
+        return 1
+      end
+
+      return 0
+    end
+
+    public
+
+    # This is a shortcut for Daemon.new + Daemon#mainloop.
+    #
+    def self.mainloop
+      self.new.mainloop
+    end
+
+    # This is the method that actually puts your code into a loop and allows it
+    # to run as a service.  The code that is actually run while in the mainloop
+    # is what you defined in your own Daemon#service_main method.
+    #
+    def mainloop
+      @@waiting_control_code = IDLE_CONTROL_CODE
+      @@dwServiceState = 0
+
+      # Redirect STDIN, STDOUT and STDERR to the NUL device if they're still
+      # associated with a tty. This helps newbs avoid Errno::EBADF errors.
+      STDIN.reopen('NUL') if STDIN.isatty
+      STDOUT.reopen('NUL') if STDOUT.isatty
+      STDERR.reopen('NUL') if STDERR.isatty
+
+      # Calling init here so that init failures never even tries to start the
+      # service. Of course that means that init methods must be very quick
+      # because the SCM will be receiving no START_PENDING messages while
+      # init's running.
+      #
+      # TODO: Fix?
+      service_init() if respond_to?('service_init')
+
+      # Create the event to signal the service to start.
+      @@hStartEvent = CreateEvent(nil, true, false, nil)
+
+      if @@hStartEvent == 0
+        raise SystemCallError.new('CreateEvent', FFI.errno)
+      end
+
+      # Create the event to signal the service to stop.
+      @@hStopEvent = CreateEvent(nil, true, false, nil)
+
+      if @@hStopEvent == 0
+        raise SystemCallError.new('CreateEvent', FFI.errno)
+      end
+
+      # Create the event to signal the service that stop has completed
+      @@hStopCompletedEvent = CreateEvent(nil, true, false, nil)
+
+      if @@hStopCompletedEvent == 0
+        raise SystemCallError.new('CreateEvent', FFI.errno)
+      end
+
+      hThread = CreateThread(nil, 0, ThreadProc, nil, 0, nil)
+
+      if hThread == 0
+        raise SystemCallError.new('CreateThread', FFI.errno)
+      end
+
+      events = FFI::MemoryPointer.new(:pointer, FFI::Pointer.size*2)
+      events.put_pointer(0, FFI::Pointer.new(hThread))
+      events.put_pointer(FFI::Pointer.size, FFI::Pointer.new(@@hStartEvent))
+
+      while ((index = WaitForMultipleObjects(2, events, false, 1000)) == WAIT_TIMEOUT) do
+      end
+
+      if index == WAIT_FAILED
+        raise SystemCallError.new('WaitForMultipleObjects', FFI.errno)
+      end
+
+      # The thread exited, so the show is off.
+      if index == WAIT_OBJECT_0
+        raise "Service_Main thread exited abnormally"
+      end
+
+      thr = Thread.new do
+        while(WaitForSingleObject(@@hStopEvent, 10) == WAIT_TIMEOUT)
+          # Check to see if anything interesting has been signaled
+          case @@waiting_control_code
+            when SERVICE_CONTROL_PAUSE
+              service_pause() if respond_to?('service_pause')
+            when SERVICE_CONTROL_CONTINUE
+              service_resume() if respond_to?('service_resume')
+            when SERVICE_CONTROL_INTERROGATE
+              service_interrogate() if respond_to?('service_interrogate')
+            when SERVICE_CONTROL_SHUTDOWN
+              service_shutdown() if respond_to?('service_shutdown')
+            when SERVICE_CONTROL_PARAMCHANGE
+              service_paramchange() if respond_to?('service_paramchange')
+            when SERVICE_CONTROL_NETBINDADD
+              service_netbindadd() if respond_to?('service_netbindadd')
+            when SERVICE_CONTROL_NETBINDREMOVE
+              service_netbindremove() if respond_to?('service_netbindremove')
+            when SERVICE_CONTROL_NETBINDENABLE
+              service_netbindenable() if respond_to?('service_netbindenable')
+            when SERVICE_CONTROL_NETBINDDISABLE
+              service_netbinddisable() if respond_to?('service_netbinddisable')
+          end
+          @@waiting_control_code = IDLE_CONTROL_CODE
+        end
+
+        service_stop() if respond_to?('service_stop')
+      end
+
+      if respond_to?('service_main')
+        service_main(*@@Argv)
+      end
+
+      thr.join
+    end
+
+    # Returns the state of the service (as an constant integer) which can be any
+    # of the service status constants, e.g. RUNNING, PAUSED, etc.
+    #
+    # This method is typically used within your service_main method to setup the
+    # loop. For example:
+    #
+    #   class MyDaemon < Daemon
+    #     def service_main
+    #       while state == RUNNING || state == PAUSED || state == IDLE
+    #         # Your main loop here
+    #       end
+    #     end
+    #   end
+    #
+    # See the Daemon#running? method for an abstraction of the above code.
+    #
+    def state
+      @@dwServiceState
+    end
+
+    #
+    # Returns whether or not the service is in a running state, i.e. the service
+    # status is either RUNNING, PAUSED or IDLE.
+    #
+    # This is typically used within your service_main method to setup the main
+    # loop. For example:
+    #
+    #    class MyDaemon < Daemon
+    #       def service_main
+    #          while running?
+    #             # Your main loop here
+    #          end
+    #       end
+    #    end
+    #
+    def running?
+      [SERVICE_RUNNING, SERVICE_PAUSED, 0].include?(@@dwServiceState)
+    end
+  end # Daemon
+end # Win32

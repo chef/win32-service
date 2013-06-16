@@ -85,5 +85,12 @@ module Windows
         :lpsaActions, :pointer # Array of SC_ACTION structs
       )
     end
+
+    class SERVICE_TABLE_ENTRY < FFI::Struct
+      layout(
+        :lpServiceName, :pointer,
+        :lpServiceProc, :pointer
+      )
+    end
   end
 end
