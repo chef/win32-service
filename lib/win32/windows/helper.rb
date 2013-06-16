@@ -23,13 +23,13 @@ module FFI
   attach_function :FormatMessage, :FormatMessageA,
     [:ulong, :pointer, :ulong, :ulong, :pointer, :ulong, :pointer], :ulong
 
-  def win_error
+  def win_error(function)
     flags = 0x00001000 | 0x00000200
     buf = FFI::MemoryPointer.new(:char, 1024)
 
     FormatMessage(flags, nil, FFI.errno , 0x0409, buf, 1024, nil)
 
-    buf.read_string.strip
+    function + ': ' + buf.read_string.strip
   end
 
   module_function :win_error
