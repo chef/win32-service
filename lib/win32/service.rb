@@ -375,7 +375,7 @@ module Win32
           opts['error_control'],
           opts['binary_path_name'],
           opts['load_order_group'],
-          0,
+          nil,
           dependencies,
           opts['service_start_name'],
           opts['password']
