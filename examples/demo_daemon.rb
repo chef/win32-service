@@ -1,6 +1,6 @@
-LOG_FILE = 'C:\\win32_daemon_test.log'
+LOG_FILE = 'C:\\Tmp\\win32_daemon_test.log'
 
-begin  
+begin
   require 'rubygems'
   require 'win32/daemon'
   include Win32
@@ -17,7 +17,7 @@ begin
         sleep 1
       }
     end
-      
+
     # This is the daemon's mainloop. In other words, whatever runs here
     # is the code that runs while your service is running. Note that the
     # loop is not implicit.
@@ -41,7 +41,7 @@ begin
       # While we're in here the daemon is running.
       while running?
         if state == RUNNING
-          sleep 20 
+          sleep 20
           msg = 'Service is running as of: ' + Time.now.to_s
           File.open(LOG_FILE, 'a'){ |f| f.puts msg }
         else # PAUSED or IDLE
@@ -50,14 +50,14 @@ begin
       end
 
       # We've left the loop, the daemon is about to exit.
-      
+
       File.open(LOG_FILE, 'a'){ |f| f.puts "STATE: #{state}" }
-      
+
       msg = 'service_main left at: ' + Time.now.to_s
 
       File.open(LOG_FILE, 'a'){ |f| f.puts msg }
     end
-   
+
     # This event triggers when the service receives a signal to stop. I've
     # added an explicit "exit!" here to ensure that the Ruby interpreter exits
     # properly. I use 'exit!' instead of 'exit' because otherwise Ruby will
@@ -68,14 +68,14 @@ begin
       File.open(LOG_FILE, 'a'){ |f| f.puts msg }
       exit!
     end
-      
-    # This event triggers when the service receives a signal to pause. 
+
+    # This event triggers when the service receives a signal to pause.
     #
     def service_pause
       msg = 'Received pause signal at: ' + Time.now.to_s
       File.open(LOG_FILE, 'a'){ |f| f.puts msg }
     end
-      
+
     # This event triggers when the service receives a signal to resume
     # from a paused state.
     #
@@ -90,6 +90,6 @@ begin
   #
   DemoDaemon.mainloop
 rescue Exception => err
-  File.open(LOG_FILE, 'a'){ |fh| fh.puts 'Daemon failure: ' + err }
+  File.open(LOG_FILE, 'a'){ |fh| fh.puts "Daemon failure: #{err}" }
   raise
 end
