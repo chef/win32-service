@@ -46,7 +46,7 @@ SERVICE_NAME = 'DemoSvc'
 SERVICE_DISPLAYNAME = 'Demo'
 
 # Quote the full path to deal with possible spaces in the path name.
-ruby = File.join(CONFIG['bindir'], 'ruby').tr('/', '\\')
+ruby = File.join(CONFIG['bindir'], CONFIG['ruby_install_name']).tr('/', '\\')
 path = ' "' + File.dirname(File.expand_path($0)).tr('/', '\\')
 path += '\demo_daemon.rb"'
 cmd = ruby + path
