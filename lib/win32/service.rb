@@ -344,9 +344,9 @@ module Win32
       raise TypeError if host && !host.is_a?(String)
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-        raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         # Display name defaults to service_name
         opts['display_name'] ||= service_name
@@ -381,7 +381,7 @@ module Win32
           opts['password']
         )
 
-        raise SystemCallError.new('CreateService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('CreateService') if handle_scs == 0
 
         if opts['description']
           description = SERVICE_DESCRIPTION.new
@@ -393,7 +393,7 @@ module Win32
             description
           )
 
-          raise SystemCallError.new('ChangeServiceConfig2', FFI.errno) unless bool
+          FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
@@ -503,7 +503,7 @@ module Win32
       begin
         handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
 
-        raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         desired_access = SERVICE_CHANGE_CONFIG
 
@@ -517,7 +517,7 @@ module Win32
           desired_access
         )
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         dependencies = opts['dependencies']
 
@@ -547,7 +547,7 @@ module Win32
           opts['display_name']
         )
 
-        raise SystemCallError.new('ChangeServiceConfig', FFI.errno) unless bool
+        FFI.raise_windows_error('ChangeServiceConfig') unless bool
 
         if opts['description']
           description = SERVICE_DESCRIPTION.new
@@ -559,7 +559,7 @@ module Win32
             description
           )
 
-          raise SystemCallError.new('ChangeServiceConfig2', FFI.errno) unless bool
+          FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
@@ -588,9 +588,7 @@ module Win32
       begin
         handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-        if handle_scm == 0
-          raise SystemCallError.new('OpenSCManager', FFI.errno)
-        end
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
@@ -617,9 +615,7 @@ module Win32
     def self.get_display_name(service, host=nil)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise SystemCallError.new('OpenSCManager', FFI.errno)
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       display_name = FFI::MemoryPointer.new(260)
       display_size  = FFI::MemoryPointer.new(:ulong)
@@ -633,7 +629,8 @@ module Win32
           display_size
         )
 
-        raise SystemCallError.new('OpenSCMManager', FFI.errno) unless bool
+
+        FFI.raise_windows_error('OpenSCManager') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
@@ -656,7 +653,7 @@ module Win32
     def self.get_service_name(display_name, host=nil)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       service_name = FFI::MemoryPointer.new(260)
       service_size = FFI::MemoryPointer.new(:ulong)
@@ -670,7 +667,7 @@ module Win32
           service_size
         )
 
-        raise SystemCallError.new('GetServiceKeyName', FFI.errno) unless bool
+        FFI.raise_windows_error('GetServiceKeyName') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
@@ -693,12 +690,12 @@ module Win32
     def self.start(service, host=nil, *args)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_START)
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         num_args = 0
 
@@ -725,7 +722,7 @@ module Win32
         end
 
         unless StartService(handle_scs, num_args, vector)
-          raise SystemCallError.new('StartService', FFI.errno)
+          FFI.raise_windows_error('StartService')
         end
 
       ensure
@@ -807,15 +804,15 @@ module Win32
     def self.delete(service, host=nil)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, DELETE)
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         unless DeleteService(handle_scs)
-          raise SystemCallError.new('DeleteService', FFI.errno)
+          FFI.raise_windows_error('DeleteService')
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
@@ -842,12 +839,12 @@ module Win32
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         # First, get the buf size needed
         bytes = FFI::MemoryPointer.new(:ulong)
@@ -855,7 +852,7 @@ module Win32
         bool = QueryServiceConfig(handle_scs, nil, 0, bytes)
 
         if !bool && FFI.errno != ERROR_INSUFFICIENT_BUFFER
-          raise SystemCallError.new('QueryServiceConfig', FFI.errno)
+          FFI.raise_windows_error('QueryServiceConfig')
         end
 
         buf = FFI::MemoryPointer.new(:char, bytes.read_ulong)
@@ -865,7 +862,7 @@ module Win32
 
         struct = QUERY_SERVICE_CONFIG.new(buf) # cast the buffer
 
-        raise SystemCallError.new('QueryServiceConfig', FFI.errno) unless bool
+        FFI.raise_windows_error('QueryServiceConfig') unless bool
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
@@ -894,7 +891,7 @@ module Win32
     def self.status(service, host=nil)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(
@@ -903,7 +900,7 @@ module Win32
           SERVICE_QUERY_STATUS
         )
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         # SERVICE_STATUS_PROCESS struct
         status = SERVICE_STATUS_PROCESS.new
@@ -917,7 +914,7 @@ module Win32
           bytes
         )
 
-        raise SystemCallError.new('QueryServiceStatusEx', FFI.errno) unless bool
+        FFI.raise_windows_error('QueryServiceStatusEx') unless bool
 
         service_type  = get_service_type(status[:dwServiceType])
         current_state = get_current_state(status[:dwCurrentState])
@@ -980,7 +977,7 @@ module Win32
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       bytes_needed      = FFI::MemoryPointer.new(:ulong)
       services_returned = FFI::MemoryPointer.new(:ulong)
@@ -1004,7 +1001,7 @@ module Win32
         if !bool && FFI.errno == ERROR_MORE_DATA
           service_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
         else
-          raise SystemCallError.new('EnumServiceStatusEx', FFI.errno)
+          FFI.raise_windows_error('EnumServiceStatusEx')
         end
 
         bool = EnumServicesStatusEx(
@@ -1020,7 +1017,7 @@ module Win32
           group
         )
 
-        raise SystemCallError.new('EnumServiceStatusEx', FFI.errno) unless bool
+        FFI.raise_windows_error('EnumServiceStatusEx') unless bool
 
         num_services = services_returned.read_ulong
 
@@ -1052,7 +1049,7 @@ module Win32
               SERVICE_QUERY_CONFIG
             )
 
-            raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+            FFI.raise_windows_error('OpenService') if handle_scs == 0
 
             config_struct = get_config_info(handle_scs)
 
@@ -1322,7 +1319,7 @@ module Win32
       else
         error = FFI.errno
         CloseServiceHandle(handle)
-        raise SystemCallError.new('QueryServiceConfig', error)
+        FFI.raise_windows_error('QueryServiceConfig', error)
       end
 
       bytes_needed = FFI::MemoryPointer.new(:ulong)
@@ -1336,7 +1333,7 @@ module Win32
           bytes_needed
         )
 
-        raise SystemCallError.new('QueryServiceConfig', FFI.errno) unless bool
+        FFI.raise_windows_error('QueryServiceConfig') unless bool
       ensure
         CloseServiceHandle(handle) unless bool
       end
@@ -1360,7 +1357,7 @@ module Win32
         return err_num
       else
         CloseServiceHandle(handle)
-        raise SystemCallError.new('QueryServiceConfig2', err_num)
+        FFI.raise_windows_error('QueryServiceConfig2', err_num)
       end
 
       bytes_needed = FFI::MemoryPointer.new(:ulong)
@@ -1375,7 +1372,7 @@ module Win32
           bytes_needed
         )
 
-        raise SystemCallError.new('QueryServiceConfig2', FFI.errno) unless bool
+        FFI.raise_windows_error('QueryServiceConfig2') unless bool
       ensure
         CloseServiceHandle(handle) unless bool
       end
@@ -1521,17 +1518,17 @@ module Win32
     def self.send_signal(service, host, service_signal, control_signal)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      raise SystemCallError.new('OpenSCManager', FFI.errno) if handle_scm == 0
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, service_signal)
 
-        raise SystemCallError.new('OpenService', FFI.errno) if handle_scs == 0
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         status = SERVICE_STATUS.new
 
         unless ControlService(handle_scs, control_signal, status)
-          raise SystemCallError.new('ControlService', FFI.errno)
+          FFI.raise_windows_error('ControlService')
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
