@@ -2,15 +2,13 @@ require 'rubygems'
 
 Gem::Specification.new do |spec|
   spec.name       = 'win32-service'
-  spec.version    = '0.7.2'
+  spec.version    = '0.8.0'
   spec.authors    = ['Daniel J. Berger', 'Park Heesob']
   spec.license    = 'Artistic 2.0'
   spec.email      = 'djberg96@gmail.com'
-  spec.homepage   = 'http://www.rubyforge.org/projects/win32utils'
-  spec.platform   = Gem::Platform::RUBY
+  spec.homepage   = 'http://github.com/djberg96/win32-service'
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
-  spec.extensions = ['ext/extconf.rb']
    
   spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
 
@@ -19,15 +17,11 @@ Gem::Specification.new do |spec|
     'README',
     'MANIFEST',
     'doc/service.txt',
-    'doc/daemon.txt',
-    'ext/win32/daemon.c'
+    'doc/daemon.txt'
   ]
 
-  spec.rubyforge_project = 'win32utils'
-  spec.required_ruby_version = '>= 1.8.2'
-
-  spec.add_dependency('windows-pr', '>= 1.0.8')
-  spec.add_development_dependency('test-unit', '>= 2.1.0')
+  spec.add_dependency('ffi')
+  spec.add_development_dependency('test-unit', '>= 2.4.0')
 
   spec.description = <<-EOF
     The win32-service library provides a Ruby interface to services on
