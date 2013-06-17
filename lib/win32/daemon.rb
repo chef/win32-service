@@ -22,6 +22,58 @@ module Win32
 
     private
 
+    # Service is not running
+    STOPPED = SERVICE_STOPPED
+
+    # Service has received a start signal but is not yet running
+    START_PENDING = SERVICE_START_PENDING
+
+    # Service has received a stop signal but is not yet stopped
+    STOP_PENDING  = SERVICE_STOP_PENDING
+
+    # Service is running
+    RUNNING = SERVICE_RUNNING
+
+    # Service has received a signal to resume but is not yet running
+    CONTINUE_PENDING = SERVICE_CONTINUE_PENDING
+
+    # Service has received a signal to pause but is not yet paused
+    PAUSE_PENDING = SERVICE_PAUSE_PENDING
+
+    # Service is paused
+    PAUSED = SERVICE_PAUSED
+
+    # Service controls
+
+    # Notifies service that it should stop
+    CONTROL_STOP = SERVICE_CONTROL_STOP
+
+    # Notifies service that it should pause
+    CONTROL_PAUSE = SERVICE_CONTROL_PAUSE
+
+    # Notifies service that it should resume
+    CONTROL_CONTINUE = SERVICE_CONTROL_CONTINUE
+
+    # Notifies service that it should return its current status information
+    CONTROL_INTERROGATE = SERVICE_CONTROL_INTERROGATE
+
+    # Notifies a service that its parameters have changed
+    CONTROL_PARAMCHANGE = SERVICE_CONTROL_PARAMCHANGE
+
+    # Notifies a service that there is a new component for binding
+    CONTROL_NETBINDADD = SERVICE_CONTROL_NETBINDADD
+
+    # Notifies a service that a component for binding has been removed
+    CONTROL_NETBINDREMOVE = SERVICE_CONTROL_NETBINDREMOVE
+
+    # Notifies a service that a component for binding has been enabled
+    CONTROL_NETBINDENABLE = SERVICE_CONTROL_NETBINDENABLE
+
+    # Notifies a service that a component for binding has been disabled
+    CONTROL_NETBINDDISABLE = SERVICE_CONTROL_NETBINDDISABLE
+
+    IDLE = 0
+
     # Wraps SetServiceStatus.
     SetTheServiceStatus = Proc.new do |dwCurrentState, dwWin32ExitCode,dwCheckPoint,  dwWaitHint|
       ss = SERVICE_STATUS.new  # Current status of the service.
