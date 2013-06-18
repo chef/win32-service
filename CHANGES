@@ -1,8 +1,6 @@
-== 0.7.3 - ???
-* Use char.h instead of tchar.h on cygwin. Thanks go to John Eckersberg
-  for the patch.
-* Cleaned up some unused and/or misnamed variables.
-* Automatically require devkit in Rakefile if mingw.
+== 0.8.0 - ???
+* Converted all code to use FFI. This includes the Daemon code, which means
+  that it also now works with JRuby.
 
 == 0.7.2 - 7-Sep-2011
 * Now works with mingw compiler by skipping __try and __finally if using
