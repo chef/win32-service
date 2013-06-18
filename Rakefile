@@ -33,16 +33,13 @@ end
 namespace 'test' do
   desc 'Run all tests for the win32-service library'
   Rake::TestTask.new('all') do |t|
-    task :all => :build
-    t.libs << 'ext'
     t.verbose = true
     t.warning = true
   end
 
   desc 'Run the tests for the Win32::Daemon class'
   Rake::TestTask.new('daemon') do |t|
-    task :daemon => :build
-    t.libs << 'ext'
+    task :daemon
     t.verbose = true
     t.warning = true
     t.test_files = FileList['test/test_win32_daemon.rb']

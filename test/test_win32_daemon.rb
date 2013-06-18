@@ -18,11 +18,11 @@ class TC_Daemon < Test::Unit::TestCase
   def setup
     @daemon = Daemon.new
   end
-   
+
   test "version number is set properly" do
-    assert_equal('0.7.2', Daemon::VERSION)
+    assert_equal('0.8.0', Daemon::VERSION)
   end
-   
+
   test "constructor basic functionality" do
     assert_respond_to(Daemon, :new)
     assert_nothing_raised{ Daemon.new }
@@ -31,19 +31,19 @@ class TC_Daemon < Test::Unit::TestCase
   test "constructor does not accept any arguments" do
     assert_raises(ArgumentError){ Daemon.new(1) }
   end
-   
+
   test "mainloop basic functionality" do
     assert_respond_to(@daemon, :mainloop)
   end
-   
+
   test "state basic functionality" do
     assert_respond_to(@daemon, :state)
   end
-   
+
   test "is_running basic functionality" do
     assert_respond_to(@daemon, :running?)
   end
-   
+
   test "expected constants are defined" do
     assert_not_nil(Daemon::CONTINUE_PENDING)
     assert_not_nil(Daemon::PAUSE_PENDING)
@@ -52,9 +52,9 @@ class TC_Daemon < Test::Unit::TestCase
     assert_not_nil(Daemon::START_PENDING)
     assert_not_nil(Daemon::STOP_PENDING)
     assert_not_nil(Daemon::STOPPED)
-    assert_not_nil(Daemon::IDLE) 
+    assert_not_nil(Daemon::IDLE)
   end
-   
+
   def teardown
     @daemon = nil
   end
