@@ -2,7 +2,7 @@
   An interface for MS Windows Services.
     
 = Prerequisites
-  Ruby 1.8.2 or later.
+  FFI 1.0 or later
 	
   This library is only supported for the Windows NT family of operating
   systems, e.g. 2000, XP, 2003, etc. It is NOT supported (and won't
@@ -338,27 +338,26 @@ Service::ERROR_CRITICAL
   There may be a failure in the test suite if the W32Time dependency is
   not started.
 
-  If you find any bugs please log them on the bug tracker.  You can find it
-  on the project page at http://www.rubyforge.org/projects/win32utils.
+  If you find any bugs please log them on the github project page at
+  https://github.com/djberg96/win32-service
    
 = Acknowledgements
   Many thanks go to Patrick Hurley for providing the fix for the thread
-  blocking issue. Thanks also go to Kevin Burge for his patch that solved
-  service responsiveness issues.
+  blocking issue in the original C code. Thanks also go to Kevin Burge for
+  his patch that solved service responsiveness issues.
     
 = Future Plans
   Add Tag_ID support.
   Add ability to create or modify service failure actions.
-  Use RegisterServiceCtrlHandlerEx().
     
 = Copyright
-  (C) 2003-2011, Daniel J. Berger, All Rights Reserved
+  (C) 2003-2013, Daniel J. Berger, All Rights Reserved
     
 = Warranty
   This package is provided "as is" and without any express or
   implied warranties, including, without limitation, the implied
   warranties of merchantability and fitness for a particular purpose.
     
-== Author(s)
+== Authors
 * Daniel J. Berger   
 * Park Heesob
