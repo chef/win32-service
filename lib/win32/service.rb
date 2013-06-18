@@ -501,7 +501,7 @@ module Win32
       raise TypeError unless host.is_a?(String) if host
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
         FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 

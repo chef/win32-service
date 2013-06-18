@@ -31,7 +31,7 @@ module Windows
     attach_function :CloseServiceHandle, [:handle], :bool
 
     attach_function :ChangeServiceConfig, :ChangeServiceConfigA,
-      [:handle, :dword, :dword, :dword, :string, :string, :ptr, :string, :string, :string],
+      [:handle, :dword, :dword, :dword, :str, :str, :ptr, :str, :str, :str, :str],
       :bool
 
     attach_function :ChangeServiceConfig2, :ChangeServiceConfig2A, [:handle, :dword, :ptr], :bool
