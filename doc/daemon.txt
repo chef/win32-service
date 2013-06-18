@@ -128,21 +128,21 @@ Daemon::IDLE
 
 = Known Bugs
   None known.  Please report any bugs you find on the Bug tracker at
-  http://rubyforge.org/projects/win32utils.
+  https//github.com/djberg96/win32-service
 
 = Future Plans
-  Rewrite the Daemon class in pure Ruby.
+  None at this time.
 
-  Suggestions welcome. Please log them on the Feature Request tracker at
-  http://rubyforge.org/projects/win32utils
+  Suggestions welcome. Please post them on the github project page at
+  https//github.com/djberg96/win32-service
    
 = Acknowledgements
   Many thanks go to Patrick Hurley for providing the fix for the thread
-  blocking issue. Thanks also go to Kevin Burge for his patch that solved
-  service responsiveness issues.
+  blocking issue for the original C code. Thanks also go to Kevin Burge for
+  his patch that solved service responsiveness issues.
     
 = Copyright
-  (C) 2003-2011 Daniel J. Berger, All Rights Reserved
+  (C) 2003-2013 Daniel J. Berger, All Rights Reserved
 
 = License
   Artistic 2.0
