@@ -21,7 +21,7 @@ module Windows
     attach_function :InitializeCriticalSection, [:ptr], :void
     attach_function :LeaveCriticalSection, [:ptr], :void
     attach_function :SetEvent, [:handle], :bool
-    attach_function :WaitForSingleObject, [:handle, :dword], :dword
+    attach_function :WaitForSingleObject, [:handle, :dword], :dword, :blocking => true
     attach_function :WaitForMultipleObjects, [:dword, :ptr, :bool, :dword], :dword
 
     ffi_lib :advapi32
