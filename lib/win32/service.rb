@@ -363,6 +363,7 @@ module Win32
           end
 
           dependencies += "\000"
+          dependencies = FFI::MemoryPointer.from_string(dependencies)
         end
 
         handle_scs = CreateService(

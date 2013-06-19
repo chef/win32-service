@@ -38,7 +38,7 @@ module Windows
 
     attach_function :CreateService, :CreateServiceA,
       [:handle, :string, :string, :dword, :dword, :dword, :dword,
-       :string, :string, :ptr, :string, :string, :string],
+       :string, :string, :ptr, :pointer, :string, :string],
        :handle
 
     attach_function :ControlService, [:handle, :dword, :ptr], :bool
