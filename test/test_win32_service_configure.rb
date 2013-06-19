@@ -5,7 +5,6 @@
 #######################################################################
 require 'test-unit'
 require 'win32/service'
-require 'test/unit'
 
 class TC_Win32_Service_Configure < Test::Unit::TestCase
   def self.startup

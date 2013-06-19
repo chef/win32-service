@@ -7,11 +7,8 @@
 # These tests are rather limited, since the acid test is to install
 # your daemon as a service and see how it behaves.
 #########################################################################
-require 'rubygems'
-gem 'test-unit'
-
+require 'test-unit'
 require 'win32/daemon'
-require 'test/unit'
 include Win32
 
 class TC_Daemon < Test::Unit::TestCase
