@@ -1065,7 +1065,12 @@ module Win32
               deps = config_struct[:lpDependencies].read_array_of_null_separated_strings
 
               buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
-              description = buf.read_string
+
+              if buf.read_pointer.null?
+                description = ''
+              else
+                description = buf.read_pointer.read_string
+              end
             else
               msg = "WARNING: The registry entry for the #{service_name} "
               msg += "service could not be found."
