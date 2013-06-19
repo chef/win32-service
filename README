@@ -2,8 +2,7 @@
   The win32-service library allows you to control or create MS Windows services.
 
 == Installation
-  gem install win32-service                        # Build from source
-  gem install win32-service --platform x86-mingw32 # Install binary
+  gem install win32-service
 
 == Synopsis
   require 'win32/service'
@@ -52,11 +51,10 @@
   ruby-wmi
 
 == Future Plans
-  Pure Ruby Daemon class
   Add service_session_change hook
 
 == Copyright
-  (C) 2003-2011, Daniel J. Berger, All Rights Reserved
+  (C) 2003-2013, Daniel J. Berger, All Rights Reserved
     
 == License
   Artistic 2.0
