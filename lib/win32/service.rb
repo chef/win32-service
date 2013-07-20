@@ -1180,7 +1180,7 @@ module Win32
     #
     def self.configure_failure_actions(handle_scs, opts)
       if opts['failure_actions']
-        token_handle = 0.chr * 4
+        token_handle = FFI::MemoryPointer.new(:ulong)
 
         bool = OpenProcessToken(
           GetCurrentProcess(),
@@ -1189,28 +1189,34 @@ module Win32
         )
 
         unless bool
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('OpenProcessToken', error)
         end
 
-        token_handle = token_handle.unpack('L').first
+        token_handle = token_handle.read_ulong
 
         # Get the LUID for shutdown privilege.
-        luid = 0.chr * 8
+        luid = LUID.new
 
         unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('LookupPrivilegeValue', error)
         end
 
-        tkp = [1].pack('L') + luid + [SE_PRIVILEGE_ENABLED].pack('L')
+        luid_and_attrs = LUID_AND_ATTRIBUTES.new
+        luid_and_attrs[:Luid] = luid
+        luid_and_attrs[:Attributes] = SE_PRIVILEGE_ENABLED
+
+        tkp = TOKEN_PRIVILEGES.new
+        tkp[:PrivilegeCount] = 1
+        tkp[:Priveleges][0] = luid_and_attrs
 
         # Enable shutdown privilege in access token of this process
         bool = AdjustTokenPrivileges(
           token_handle,
-          0,
+          false,
           tkp,
           tkp.size,
           nil,
@@ -1218,52 +1224,50 @@ module Win32
         )
 
         unless bool
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('AdjustTokenPrivileges', error)
         end
       end
 
-      fail_buf = 0.chr * 20 # sizeof(SERVICE_FAILURE_ACTIONS)
+      sfa = SERVICE_FAILURE_ACTIONS.new
 
       if opts['failure_reset_period']
-        fail_buf[0,4] = [opts['failure_reset_period']].pack('L')
+        sfa[:dwResetPeriod] = opts['failure_reset_period']
       end
 
       if opts['failure_reboot_message']
-        fail_buf[4,4] = [opts['failure_reboot_message']].pack('p*')
+        sfa[:lpRebootMsg] = FFI::MemoryPointer.from_string(opts['failure_reboot_message'])
       end
 
       if opts['failure_command']
-        fail_buf[8,4] = [opts['failure_command']].pack('p*')
+        sfa[:lpCommand] = FFI::MemoryPointer.from_string(opts['failure_command'])
       end
 
       if opts['failure_actions']
-        actions = []
+        actions = FFI::MemoryPointer.new(SC_ACTION, opts['failure_actions'].size)
 
         opts['failure_actions'].each{ |action|
-          action_buf = 0.chr * 8
-          action_buf[0, 4] = [action].pack('L')
-          action_buf[4, 4] = [opts['failure_delay']].pack('L')
-          actions << action_buf
+          sc_action = SC_ACTION.new
+          sc_action[:Type] = action
+          sc_action[:Delay] = opts['failure_delay']
+          actions << sc_action # TODO: Wrong
         }
 
-        actions = actions.join
-
-        fail_buf[12,4] = [opts['failure_actions'].length].pack('L')
-        fail_buf[16,4] = [actions].pack('p*')
+        sfa[:cActions] = actions.size
+        sfa[:lpsaActions] = actions # TODO: Wrong
       end
 
       bool = ChangeServiceConfig2(
         handle_scs,
         SERVICE_CONFIG_FAILURE_ACTIONS,
-        fail_buf
+        sfa
       )
 
       unless bool
-        error = get_last_error
+        error = FFI.errno
         CloseServiceHandle(handle_scs)
-        raise Error, error
+        raise SystemCallError.new('ChangeServiceConfig2', error)
       end
     end
 

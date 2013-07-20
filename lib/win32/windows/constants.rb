@@ -127,6 +127,8 @@ module Windows
 
     NO_ERROR = 0
 
+    SE_PRIVILEGE_ENABLED = 0x00000002
+
     # Errors
 
     ERROR_INSUFFICIENT_BUFFER = 122

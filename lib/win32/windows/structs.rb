@@ -92,5 +92,26 @@ module Windows
         :lpServiceProc, :pointer
       )
     end
+
+    class LUID < FFI::Struct
+      layout(
+        :LowPart, :ulong,
+        :HighPart, :long
+      )
+    end
+
+    class LUID_AND_ATTRIBUTES < FFI::Struct
+      layout(
+        :Luid, LUID,
+        :Attributes, :ulong
+      )
+    end
+
+    class TOKEN_PRIVILEGES < FFI::Struct
+      layout(
+        :PrivilegeCount, :dword,
+        :Privileges, [LUID_AND_ATTRIBUTES, 1]
+      )
+    end
   end
 end

@@ -28,6 +28,7 @@ module Windows
 
     callback :handler_ex, [:ulong, :ulong, :ptr, :ptr], :void
 
+    attach_function :AdjustTokenPrivileges, [:handle, :bool, :ptr, :dword, :ptr, :ptr], :bool
     attach_function :CloseServiceHandle, [:handle], :bool
 
     attach_function :ChangeServiceConfig, :ChangeServiceConfigA,
@@ -50,7 +51,9 @@ module Windows
 
     attach_function :GetServiceDisplayName, :GetServiceDisplayNameA, [:handle, :string, :ptr, :ptr], :bool
     attach_function :GetServiceKeyName, :GetServiceKeyNameA, [:handle, :string, :ptr, :ptr], :bool
+    attach_function :LookupPrivilegeValue, :LookupPrivilegeValueA, [:string, :string, :ptr], :bool
     attach_function :OpenSCManager, :OpenSCManagerA, [:ptr, :ptr, :dword], :handle
+    attach_function :OpenProcessToken, [:handle, :dword, :ptr], :bool
     attach_function :OpenService, :OpenServiceA, [:handle, :string, :dword], :handle
     attach_function :QueryServiceConfig, :QueryServiceConfigA, [:handle, :ptr, :dword, :ptr], :bool
     attach_function :QueryServiceConfig2, :QueryServiceConfig2A, [:handle, :dword, :ptr, :dword, :ptr], :bool
