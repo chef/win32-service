@@ -1267,29 +1267,6 @@ module Win32
       end
     end
 
-    # Unravels a pointer to an array of dependencies. Takes the address
-    # that points the array as an argument.
-    #
-    def self.get_dependencies(address)
-      dep_buf = ""
-
-      while address != 0
-        char_buf = 0.chr
-        memcpy(char_buf, address, 1)
-        address += 1
-        dep_buf += char_buf
-        break if dep_buf[-2,2] == "\0\0"
-      end
-
-      dependencies = []
-
-      if dep_buf != "\0\0"
-        dependencies = dep_buf.split("\000\000").first.split(0.chr)
-      end
-
-      dependencies
-    end
-
     # Returns a human readable string indicating the action type.
     #
     def self.get_action_type(action_type)
