@@ -1211,7 +1211,7 @@ module Win32
 
         tkp = TOKEN_PRIVILEGES.new
         tkp[:PrivilegeCount] = 1
-        tkp[:Priveleges][0] = luid_and_attrs
+        tkp[:Privileges][0] = luid_and_attrs
 
         # Enable shutdown privilege in access token of this process
         bool = AdjustTokenPrivileges(
@@ -1245,17 +1245,20 @@ module Win32
       end
 
       if opts['failure_actions']
-        actions = FFI::MemoryPointer.new(SC_ACTION, opts['failure_actions'].size)
+        action_size = opts['failure_actions'].size
+        action_ptr = FFI::MemoryPointer.new(SC_ACTION, action_size)
 
-        opts['failure_actions'].each{ |action|
-          sc_action = SC_ACTION.new
-          sc_action[:Type] = action
-          sc_action[:Delay] = opts['failure_delay']
-          actions << sc_action # TODO: Wrong
+        actions = action_size.times.collect do |i|
+          SC_ACTION.new(action_ptr + i * SC_ACTION.size)
+        end
+
+        opts['failure_actions'].each_with_index{ |action, i|
+          actions[i][:Type] = action
+          actions[i][:Delay] = opts['failure_delay']
         }
 
-        sfa[:cActions] = actions.size
-        sfa[:lpsaActions] = actions # TODO: Wrong
+        sfa[:cActions] = action_size
+        sfa[:lpsaActions] = action_ptr
       end
 
       bool = ChangeServiceConfig2(
