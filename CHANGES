@@ -1,4 +1,4 @@
-== 0.8.0 - ???
+== 0.8.0 - 19-Jun-2013
 * Converted all code to use FFI. This includes the Daemon code, which means
   that it also now works with JRuby.
 
