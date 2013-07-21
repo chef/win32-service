@@ -18,6 +18,7 @@ module Windows
     attach_function :CreateThread, [:ptr, :size_t, :ptr, :ptr, :dword, :ptr], :handle, :blocking => true
     attach_function :EnterCriticalSection, [:ptr], :void
     attach_function :FormatMessage, :FormatMessageA, [:ulong, :ptr, :ulong, :ulong, :str, :ulong, :ptr], :ulong
+    attach_function :GetCurrentProcess, [], :handle
     attach_function :InitializeCriticalSection, [:ptr], :void
     attach_function :LeaveCriticalSection, [:ptr], :void
     attach_function :SetEvent, [:handle], :bool

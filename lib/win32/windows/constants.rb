@@ -128,6 +128,8 @@ module Windows
     NO_ERROR = 0
 
     SE_PRIVILEGE_ENABLED = 0x00000002
+    TOKEN_ADJUST_PRIVILEGES = 0x0020
+    TOKEN_QUERY = 0x0008
 
     # Errors
 
