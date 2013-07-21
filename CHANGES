@@ -1,3 +1,7 @@
+== 0.8.1 - ???
+* Fixed the failure actions code so that it is also using FFI.
+* Removed a helper function that was no longer being used.
+
 == 0.8.0 - 19-Jun-2013
 * Converted all code to use FFI. This includes the Daemon code, which means
   that it also now works with JRuby.
