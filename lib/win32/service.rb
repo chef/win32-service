@@ -17,7 +17,7 @@ module Win32
     extend Windows::Functions
 
     # The version of the win32-service library
-    VERSION = '0.8.0'
+    VERSION = '0.8.1'
 
     # SCM security and access rights
 
