@@ -18,7 +18,7 @@ module Win32
     extend Windows::Functions
 
     # The version of this library
-    VERSION = '0.8.0'
+    VERSION = '0.8.1'
 
     private
 
@@ -294,6 +294,7 @@ module Win32
         end
 
         service_stop() if respond_to?('service_stop')
+        SetEvent(@@hStopCompletedEvent)
       end
 
       if respond_to?('service_main')
