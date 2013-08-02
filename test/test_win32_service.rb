@@ -4,8 +4,8 @@
 # Tests for the Win32::Service class.
 ##########################################################################
 require 'test-unit'
-require 'win32/service'
 require 'win32/security'
+require 'win32/service'
 require 'socket'
 
 class TC_Win32_Service < Test::Unit::TestCase
@@ -20,6 +20,9 @@ class TC_Win32_Service < Test::Unit::TestCase
     @service_stat = nil
     @services     = []
     @elevated     = Win32::Security.elevated_security?
+
+    @singleton_methods = Win32::Service.methods.map{ |m| m.to_s }
+    @instance_methods  = Win32::Service.instance_methods.map{ |m| m.to_s }
   end
 
   def start_service(service)
@@ -49,7 +52,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "version number is expected value" do
-    assert_equal('0.8.0', Win32::Service::VERSION)
+    assert_equal('0.8.1', Win32::Service::VERSION)
   end
 
   test "services basic functionality" do
@@ -390,6 +393,18 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_not_nil(Win32::Service::START_PENDING)
     assert_not_nil(Win32::Service::STOP_PENDING)
     assert_not_nil(Win32::Service::STOPPED)
+  end
+
+  test "internal ffi functions are not public as singleton methods" do
+    assert_false(@singleton_methods.include?('CloseHandle'))
+    assert_false(@singleton_methods.include?('ControlService'))
+    assert_false(@singleton_methods.include?('DeleteService'))
+  end
+
+  test "internal ffi functions are not public as instance methods" do
+    assert_false(@instance_methods.include?('CloseHandle'))
+    assert_false(@instance_methods.include?('ControlService'))
+    assert_false(@instance_methods.include?('DeleteService'))
   end
 
   def teardown
