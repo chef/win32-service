@@ -2,7 +2,7 @@ require 'rubygems'
 
 Gem::Specification.new do |spec|
   spec.name       = 'win32-service'
-  spec.version    = '0.8.0'
+  spec.version    = '0.8.1'
   spec.authors    = ['Daniel J. Berger', 'Park Heesob']
   spec.license    = 'Artistic 2.0'
   spec.email      = 'djberg96@gmail.com'
@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency('ffi')
   spec.add_development_dependency('test-unit', '>= 2.4.0')
+  spec.add_development_dependency('rake')
 
   spec.description = <<-EOF
     The win32-service library provides a Ruby interface to services on
