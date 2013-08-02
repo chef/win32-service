@@ -1,9 +1,12 @@
-== 0.8.1 - ???
-* Fixed the failure actions code for the Service class so that it is
-  also using FFI.
-* Removed a helper function that was no longer being used.
+== 0.8.1 - 2-Aug-2013
+* Fixed the failure actions code for the Service#configure method
+  so that it is also using FFI.
 * An internal fix for the Daemon class was added. In short, you no longer
-  need to, nor should you, call exit! in a service_stop method.
+  need to, nor should you, call exit! in a service_stop method. Thanks go
+  to Adrian Candaten for pointing out the issue in general.
+* Made FFI functions private.
+* Added Rake as a development dependency.
+* Removed an internal helper function that was no longer being used.
 
 == 0.8.0 - 19-Jun-2013
 * Converted all code to use FFI. This includes the Daemon code, which means
