@@ -6,11 +6,9 @@ module Windows
 
     # Make FFI functions private
     module FFI::Library
-      unless defined?(:attach_pfunc)
-        def attach_pfunc(*args)
-          attach_function(*args)
-          private args[0]
-        end
+      def attach_pfunc(*args)
+        attach_function(*args)
+        private args[0]
       end
     end
 
