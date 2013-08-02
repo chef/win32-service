@@ -58,15 +58,15 @@ begin
       File.open(LOG_FILE, 'a'){ |f| f.puts msg }
     end
 
-    # This event triggers when the service receives a signal to stop. I've
-    # added an explicit "exit!" here to ensure that the Ruby interpreter exits
-    # properly. I use 'exit!' instead of 'exit' because otherwise Ruby will
-    # raise a SystemExitError, which I don't want.
+    # This event triggers when the service receives a signal to stop.
+    #
+    # NOTE: Older versions of this code used an explicit exit! call
+    # to force the Ruby interpreter to exit. Don't do that. It is no
+    # longer required and, in fact, may cause issues.
     #
     def service_stop
       msg = 'Received stop signal at: ' + Time.now.to_s
       File.open(LOG_FILE, 'a'){ |f| f.puts msg }
-      exit!
     end
 
     # This event triggers when the service receives a signal to pause.
