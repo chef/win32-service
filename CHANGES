@@ -1,6 +1,9 @@
 == 0.8.1 - ???
-* Fixed the failure actions code so that it is also using FFI.
+* Fixed the failure actions code for the Service class so that it is
+  also using FFI.
 * Removed a helper function that was no longer being used.
+* An internal fix for the Daemon class was added. In short, you no longer
+  need to, nor should you, call exit! in a service_stop method.
 
 == 0.8.0 - 19-Jun-2013
 * Converted all code to use FFI. This includes the Daemon code, which means
