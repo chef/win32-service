@@ -13,7 +13,12 @@ namespace 'gem' do
   desc "Create the win32-service gem"
   task :create => [:clean] do
     spec = eval(IO.read('win32-service.gemspec'))
-    Gem::Builder.new(spec).build
+    if Gem::VERSION.to_f < 2.0
+      Gem::Builder.new(spec).build
+    else
+      require 'rubygems/package'
+      Gem::Package.build(spec)
+    end
   end
 
   desc "Install the win32-service gem"
