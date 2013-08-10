@@ -17,7 +17,7 @@ module Win32
     extend Windows::Functions
 
     # The version of the win32-service library
-    VERSION = '0.8.1'
+    VERSION = '0.8.2'
 
     # SCM security and access rights
 
@@ -702,12 +702,9 @@ module Win32
 
         if args.empty?
           args = nil
-        else # TODO: Verify that this works
+        else
           str_ptrs = []
           num_args = args.size
-
-          # First arg must be service name
-          str_ptrs << FFI::MemoryPointer.from_string(service)
 
           args.each{ |string|
             str_ptrs << FFI::MemoryPointer.from_string(string)
