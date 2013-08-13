@@ -37,6 +37,8 @@
   in a begin/end block and send error messages to a file. That should give a
   good clue as to the nature of the problem. The most probable culprits are:
 
+  * You forgot to require 'win32/daemon' in your Daemon code.
+
   * You've tried to require a library that's not in your $LOAD_PATH. Make sure
   that your require statements are inside the begin/rescue block so that you can
   easily find those mistakes.
