@@ -1,3 +1,7 @@
+== 0.8.2 - 13-Aug-2013
+* Fixed a bug in the Service.start method where it was not handling arguments
+  properly. Thanks go to Sean Karlage for the spot.
+
 == 0.8.1 - 2-Aug-2013
 * Fixed the failure actions code for the Service#configure method
   so that it is also using FFI.
