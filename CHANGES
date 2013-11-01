@@ -1,3 +1,10 @@
+== 0.8.3 - 1-Nov-2013
+* Fixed a bug where a service's state could be changed when merely
+  interrogating the service. Thanks go to Glenn Sarti / Puppet Labs
+  for the spot.
+* Fixed a bug where attempting to get the description of a service that
+  has no description could raise an error. Now an empty string is returned.
+
 == 0.8.2 - 13-Aug-2013
 * Fixed a bug in the Service.start method where it was not handling arguments
   properly. Thanks go to Sean Karlage for the spot.
