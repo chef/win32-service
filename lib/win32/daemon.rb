@@ -118,10 +118,14 @@ module Win32
           dwState = SERVICE_PAUSED
         when SERVICE_CONTROL_CONTINUE
           dwState = SERVICE_RUNNING
+        #else
+          # TODO: Handle other control codes? Retain the current state?
       end
 
-      # Set the status of the service.
-      SetTheServiceStatus.call(dwState, NO_ERROR, 0, 0)
+      # Set the status of the service except on interrogation.
+      unless dwCtrlCode == SERVICE_CONTROL_INTERROGATE
+        SetTheServiceStatus.call(dwState, NO_ERROR, 0, 0)
+      end
 
       # Tell service_main thread to stop.
       if dwCtrlCode == SERVICE_CONTROL_STOP || dwCtrlCode == SERVICE_CONTROL_SHUTDOWN
