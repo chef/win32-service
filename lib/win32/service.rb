@@ -1064,7 +1064,7 @@ module Win32
 
               buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
 
-              if buf.read_pointer.null?
+              if buf.is_a?(Fixnum) || buf.read_pointer.null?
                 description = ''
               else
                 description = buf.read_pointer.read_string
@@ -1338,6 +1338,10 @@ module Win32
 
       err_num = FFI.errno
 
+      # This is a bit hacky since it means we have to check the type of value
+      # we get back, but we don't always want to raise an error either,
+      # depending on what we're trying to get at.
+      #
       if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
         config2_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
       elsif err_num == ERROR_FILE_NOT_FOUND
