@@ -244,7 +244,8 @@ module Win32
       :reboot_message,
       :command,
       :num_actions,
-      :actions
+      :actions,
+      :delayed_start
     )
 
     # :startdoc: #
@@ -479,7 +480,8 @@ module Win32
         'failure_actions'        => nil,
         'failure_delay'          => 0,
         'service_name'           => nil,
-        'host'                   => nil
+        'host'                   => nil,
+        'delayed_start'          => false
       }
 
       # Validate the hash options
@@ -562,6 +564,17 @@ module Win32
 
           FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
+		if opts['delayed_start']
+		  delayed_start = SERVICE_DELAYED_AUTO_START_INFO.new
+		  delayed_start[:fDelayedAutostart] = opts['delayed_start'] ? 1 : 0
+		  bool = ChangeServiceConfig2(
+		    handle_scs,
+		    SERVICE_CONFIG_DELAYED_AUTO_START_INFO,
+		    delayed_start
+		  )
+
+		  FFI.raise_windows_error('ChangeServiceConfig2') unless bool
+		end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
            opts['failure_command'] || opts['failure_actions']
@@ -1069,6 +1082,13 @@ module Win32
               else
                 description = buf.read_pointer.read_string
               end
+			  delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+			  if delayed_start_buf.is_a?(FFI::MemoryPointer)
+				delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
+				delayed_start = (delayed_start_info[:fDelayedAutostart] == 1)
+			  else
+                delayed_start = false
+              end
             else
               msg = "WARNING: The registry entry for the #{service_name} "
               msg += "service could not be found."
@@ -1153,7 +1173,8 @@ module Win32
             reboot_msg,
             command,
             num_actions,
-            actions
+            actions,
+            delayed_start
           )
 
           if block_given?
