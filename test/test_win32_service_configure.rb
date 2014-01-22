@@ -64,6 +64,11 @@ class TC_Win32_Service_Configure < Test::Unit::TestCase
     assert_equal('disabled', config_info.start_type)
   end
 
+  test "service start can be delayed" do
+	service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
+    assert_true(full_info.delayed_start)
+  end
+
   test "the configure method requires one argument" do
     assert_raise(ArgumentError){ Win32::Service.configure }
   end

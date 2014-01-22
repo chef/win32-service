@@ -36,6 +36,10 @@ module Windows
       layout(:lpDescription, :pointer)
     end
 
+	class SERVICE_DELAYED_AUTO_START_INFO < FFI::Struct
+	  layout(:fDelayedAutostart, :int)
+	end
+
     class QUERY_SERVICE_CONFIG < FFI::Struct
       layout(
         :dwServiceType, :dword,
