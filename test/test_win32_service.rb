@@ -218,7 +218,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to start a running service raises an error" do
-	start_service(@service_name)
+	  start_service(@service_name)
     assert_raise(SystemCallError){ Win32::Service.start(@service_name) }
   end
 

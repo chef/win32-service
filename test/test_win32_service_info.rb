@@ -162,7 +162,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   def test_service_info_interactive
     assert_respond_to(@service_info, :interactive)
-    assert([true, false].include?(@service_info.interactive))
+    assert_boolean(@service_info.interactive)
   end
 
   def test_service_info_service_flags
@@ -171,8 +171,8 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
   end
 
   def test_service_info_delayed_start
-	assert_respond_to(@service_info, :delayed_start)
-	assert([true, false].include?(@service_info.delayed_start))
+    assert_respond_to(@service_info, :delayed_start)
+    assert_boolean(@service_info.delayed_start)
   end
 
   def teardown

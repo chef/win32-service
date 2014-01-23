@@ -65,7 +65,7 @@ class TC_Win32_Service_Configure < Test::Unit::TestCase
   end
 
   test "service start can be delayed" do
-	service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
+	  service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
     assert_true(full_info.delayed_start)
   end
 
