@@ -18,7 +18,7 @@ module Win32
     extend Windows::Functions
 
     # The version of this library
-    VERSION = '0.8.3'
+    VERSION = '0.8.4'
 
     private
 
