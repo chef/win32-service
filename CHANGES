@@ -1,3 +1,9 @@
+== 0.8.5 - ???
+* The service type for Service.new no longer defaults to being an interactive
+  process. This could cause process credential issues and wasn't very
+  useful in practice anyway. Thanks go to Pierre Ynard for the report.
+* More tests skipped unless run with admin privileges.
+
 == 0.8.4 - 23-Jan-2014
 * Added support for the delayed start startup type. Thanks go to Jim Arnold
   for the patch.
