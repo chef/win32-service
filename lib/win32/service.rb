@@ -81,7 +81,7 @@ module Win32
     FILE_SYSTEM_DRIVER  = SERVICE_FILE_SYSTEM_DRIVER
 
     # Service that runs in its own process
-    WIN32_OWN_PROCESS   = SERVICE_WIN32_OWN_PROCESS
+    WIN32_OWN_PROCESS = SERVICE_WIN32_OWN_PROCESS
 
     # Service that shares a process with one or more other services.
     WIN32_SHARE_PROCESS = SERVICE_WIN32_SHARE_PROCESS
@@ -260,8 +260,7 @@ module Win32
     # * host                   => nil (optional)
     # * display_name           => service_name
     # * desired_access         => Service::ALL_ACCESS
-    # * service_type           => Service::WIN32_OWN_PROCESS |
-    #                             Service::INTERACTIVE_PROCESS
+    # * service_type           => Service::WIN32_OWN_PROCESS
     # * start_type             => Service::DEMAND_START
     # * error_control          => Service::ERROR_NORMAL
     # * binary_path_name       => nil
@@ -306,8 +305,7 @@ module Win32
       opts = {
         'display_name'           => nil,
         'desired_access'         => SERVICE_ALL_ACCESS,
-        'service_type'           => SERVICE_WIN32_OWN_PROCESS |
-                                    SERVICE_INTERACTIVE_PROCESS,
+        'service_type'           => SERVICE_WIN32_OWN_PROCESS,
         'start_type'             => SERVICE_DEMAND_START,
         'error_control'          => SERVICE_ERROR_NORMAL,
         'binary_path_name'       => nil,
