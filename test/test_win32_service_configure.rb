@@ -47,7 +47,7 @@ class TC_Win32_Service_Configure < Test::Unit::TestCase
   end
 
   test "configuring the service type works as expected" do
-    assert_equal('own process, interactive', config_info.service_type)
+    assert_equal('own process', config_info.service_type)
     service_configure(:service_type => Win32::Service::WIN32_SHARE_PROCESS)
     assert_equal('share process', config_info.service_type)
   end
@@ -65,7 +65,7 @@ class TC_Win32_Service_Configure < Test::Unit::TestCase
   end
 
   test "service start can be delayed" do
-	  service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
+    service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
     assert_true(full_info.delayed_start)
   end
 

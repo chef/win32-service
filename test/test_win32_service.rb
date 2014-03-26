@@ -12,6 +12,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
     @@host = Socket.gethostname
     @@service_name = 'stisvc'
+    @@elevated = Win32::Security.elevated_security?
   end
 
   def setup
@@ -19,7 +20,6 @@ class TC_Win32_Service < Test::Unit::TestCase
     @service_name = 'stisvc'
     @service_stat = nil
     @services     = []
-    @elevated     = Win32::Security.elevated_security?
 
     @singleton_methods = Win32::Service.methods.map{ |m| m.to_s }
     @instance_methods  = Win32::Service.instance_methods.map{ |m| m.to_s }
@@ -99,6 +99,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "delete method raises an error if a bogus service name is provided" do
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
     assert_raise(SystemCallError){ Win32::Service.delete('bogus') }
   end
 
@@ -119,7 +120,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pause and resume work as expected" do
-    omit_unless(@elevated, "Skipped unless run with admin privileges")
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.pause(@service_name) }
@@ -130,6 +131,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pausing an already paused service is harmless" do
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.pause(@service_name) }
@@ -178,6 +180,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "stop and start methods work as expected" do
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
@@ -188,6 +191,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to stop a stopped service raises an error" do
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
@@ -218,7 +222,8 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to start a running service raises an error" do
-	  start_service(@service_name)
+    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    start_service(@service_name)
     assert_raise(SystemCallError){ Win32::Service.start(@service_name) }
   end
 
@@ -413,7 +418,6 @@ class TC_Win32_Service < Test::Unit::TestCase
     @service_name = nil
     @service_stat = nil
     @services     = nil
-    @elevated     = nil
   end
 
   def self.shutdown
@@ -427,5 +431,7 @@ class TC_Win32_Service < Test::Unit::TestCase
     unless ['running', 'start pending'].include?(status)
       Win32::Service.start(@@service_name)
     end
+
+    @@elevated = nil
   end
 end

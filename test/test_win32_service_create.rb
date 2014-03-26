@@ -54,7 +54,7 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
   end
 
   test "expected service type configuration information" do
-    assert_equal('own process, interactive', @info1.service_type)
+    assert_equal('own process', @info1.service_type)
   end
 
   test "expected start type configuration information" do
