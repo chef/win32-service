@@ -1367,7 +1367,7 @@ module Win32
       #
       if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
         config2_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
-      elsif err_num == ERROR_FILE_NOT_FOUND
+      elsif err_num == ERROR_FILE_NOT_FOUND || err_num == ERROR_RESOURCE_TYPE_NOT_FOUND
         return err_num
       else
         CloseServiceHandle(handle)
