@@ -1,7 +1,7 @@
-require File.join(File.dirname(__FILE__), 'windows', 'helper')
-require File.join(File.dirname(__FILE__), 'windows', 'constants')
-require File.join(File.dirname(__FILE__), 'windows', 'structs')
-require File.join(File.dirname(__FILE__), 'windows', 'functions')
+require_relative 'windows/helper'
+require_relative 'windows/constants'
+require_relative 'windows/structs'
+require_relative 'windows/functions'
 
 # The Win32 module serves as a namespace only.
 module Win32
@@ -17,7 +17,7 @@ module Win32
     extend Windows::Functions
 
     # The version of the win32-service library
-    VERSION = '0.8.4'
+    VERSION = '0.8.5'
 
     # SCM security and access rights
 
@@ -1332,7 +1332,7 @@ module Win32
         FFI.raise_windows_error('QueryServiceConfig', error)
       end
 
-      bytes_needed = FFI::MemoryPointer.new(:ulong)
+      bytes_needed.clear
 
       # Second attempt at QueryServiceConfig gets the actual info
       begin
@@ -1367,14 +1367,14 @@ module Win32
       #
       if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
         config2_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
-      elsif err_num == ERROR_FILE_NOT_FOUND
+      elsif [ERROR_FILE_NOT_FOUND, ERROR_RESOURCE_TYPE_NOT_FOUND].include?(err_num)
         return err_num
       else
         CloseServiceHandle(handle)
         FFI.raise_windows_error('QueryServiceConfig2', err_num)
       end
 
-      bytes_needed = FFI::MemoryPointer.new(:ulong)
+      bytes_needed.clear
 
       # Second attempt at QueryServiceConfig2 gets the actual info
       begin
