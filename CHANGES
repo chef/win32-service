@@ -3,6 +3,10 @@
   process. This could cause process credential issues and wasn't very
   useful in practice anyway. Thanks go to Pierre Ynard for the report.
 * More tests skipped unless run with admin privileges.
+* Use relative_require instead of doing things manually.
+* Minor memory efficieny improvements.
+* Skip errors on ERROR_RESOURCE_TYPE_NOT_FOUND when getting service
+  config info.
 
 == 0.8.4 - 23-Jan-2014
 * Added support for the delayed start startup type. Thanks go to Jim Arnold
