@@ -1075,12 +1075,18 @@ module Win32
 
               deps = config_struct[:lpDependencies].read_array_of_null_separated_strings
 
-              buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
+              begin
+                buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
 
-              if buf.is_a?(Fixnum) || buf.read_pointer.null?
+                if buf.is_a?(Fixnum) || buf.read_pointer.null?
+                  description = ''
+                else
+                  description = buf.read_pointer.read_string
+                end
+              rescue
+                # While being annoying, not being able to get a description is not exceptional
+                warn "WARNING: Failed to retreive description for the #{service_name} service."
                 description = ''
-              else
-                description = buf.read_pointer.read_string
               end
 
               delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
@@ -1367,7 +1373,7 @@ module Win32
       #
       if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
         config2_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
-      elsif [ERROR_FILE_NOT_FOUND, ERROR_RESOURCE_TYPE_NOT_FOUND].include?(err_num)
+      elsif [ERROR_FILE_NOT_FOUND, ERROR_RESOURCE_TYPE_NOT_FOUND, ERROR_RESOURCE_NAME_NOT_FOUND].include?(err_num)
         return err_num
       else
         CloseServiceHandle(handle)
