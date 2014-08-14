@@ -255,7 +255,7 @@ module Win32
         raise SystemCallError.new('CreateThread', FFI.errno)
       end
 
-      events = FFI::MemoryPointer.new(:pointer, FFI::Pointer.size*2)
+      events = FFI::MemoryPointer.new(:pointer, 2)
       events.put_pointer(0, FFI::Pointer.new(hThread))
       events.put_pointer(FFI::Pointer.size, FFI::Pointer.new(@@hStartEvent))
 
