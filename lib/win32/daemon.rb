@@ -137,46 +137,48 @@ module Win32
 
     # Called by the service control manager after the call to StartServiceCtrlDispatcher.
     Service_Main = FFI::Function.new(:void, [:ulong, :pointer], :blocking => false) do |dwArgc,lpszArgv|
-      # Obtain the name of the service.
-      if lpszArgv.address!=0
-        argv = lpszArgv.get_array_of_string(0,dwArgc)
-        lpszServiceName = argv[0]
-      else
-        lpszServiceName = ''
+      begin
+        # Obtain the name of the service.
+        if lpszArgv.address!=0
+          argv = lpszArgv.get_array_of_string(0,dwArgc)
+          lpszServiceName = argv[0]
+        else
+          lpszServiceName = ''
+        end
+
+        # Args passed to Service.start
+        if(dwArgc > 1)
+          @@Argv = argv[1..-1]
+        else
+          @@Argv = nil
+        end
+
+        # Register the service ctrl handler.
+        @@ssh = RegisterServiceCtrlHandlerEx(
+          lpszServiceName,
+          Service_Ctrl_ex,
+          nil
+        )
+
+        # No service to stop, no service handle to notify, nothing to do but exit.
+        return if @@ssh == 0
+
+        # The service has started.
+        SetTheServiceStatus.call(SERVICE_RUNNING, NO_ERROR, 0, 0)
+
+        SetEvent(@@hStartEvent)
+
+        # Main loop for the service.
+        while(WaitForSingleObject(@@hStopEvent, 1000) != WAIT_OBJECT_0) do
+        end
+
+        # Main loop for the service.
+        while(WaitForSingleObject(@@hStopCompletedEvent, 1000) != WAIT_OBJECT_0) do
+        end
+      ensure
+        # Stop the service.
+        SetTheServiceStatus.call(SERVICE_STOPPED, NO_ERROR, 0, 0)
       end
-
-      # Args passed to Service.start
-      if(dwArgc > 1)
-        @@Argv = argv[1..-1]
-      else
-        @@Argv = nil
-      end
-
-      # Register the service ctrl handler.
-      @@ssh = RegisterServiceCtrlHandlerEx(
-        lpszServiceName,
-        Service_Ctrl_ex,
-        nil
-      )
-
-      # No service to stop, no service handle to notify, nothing to do but exit.
-      return if @@ssh == 0
-
-      # The service has started.
-      SetTheServiceStatus.call(SERVICE_RUNNING, NO_ERROR, 0, 0)
-
-      SetEvent(@@hStartEvent)
-
-      # Main loop for the service.
-      while(WaitForSingleObject(@@hStopEvent, 1000) != WAIT_OBJECT_0) do
-      end
-
-      # Main loop for the service.
-      while(WaitForSingleObject(@@hStopCompletedEvent, 1000) != WAIT_OBJECT_0) do
-      end
-
-      # Stop the service.
-      SetTheServiceStatus.call(SERVICE_STOPPED, NO_ERROR, 0, 0)
     end
 
     ThreadProc = FFI::Function.new(:ulong,[:pointer]) do |lpParameter|
