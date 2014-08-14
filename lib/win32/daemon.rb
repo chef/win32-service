@@ -103,36 +103,45 @@ module Win32
       end
     end
 
+    ERROR_CALL_NOT_IMPLEMENTED = 0x78
+
     # Handles control signals from the service control manager.
     Service_Ctrl_ex = Proc.new do |dwCtrlCode,dwEventType,lpEventData,lpContext|
       @@waiting_control_code = dwCtrlCode;
+      return_value = NO_ERROR
 
-      dwState = SERVICE_RUNNING
+      begin
+        dwState = SERVICE_RUNNING
 
-      case dwCtrlCode
-        when SERVICE_CONTROL_STOP
-          dwState = SERVICE_STOP_PENDING
-        when SERVICE_CONTROL_SHUTDOWN
-          dwState = SERVICE_STOP_PENDING
-        when SERVICE_CONTROL_PAUSE
-          dwState = SERVICE_PAUSED
-        when SERVICE_CONTROL_CONTINUE
-          dwState = SERVICE_RUNNING
-        #else
-          # TODO: Handle other control codes? Retain the current state?
-      end
-
-      # Set the status of the service except on interrogation.
-      unless dwCtrlCode == SERVICE_CONTROL_INTERROGATE
-        SetTheServiceStatus.call(dwState, NO_ERROR, 0, 0)
-      end
-
-      # Tell service_main thread to stop.
-      if dwCtrlCode == SERVICE_CONTROL_STOP || dwCtrlCode == SERVICE_CONTROL_SHUTDOWN
-        if !SetEvent(@@hStopEvent)
-          SetTheServiceStatus.call(SERVICE_STOPPED, FFI.errno, 0, 0)
+        case dwCtrlCode
+          when SERVICE_CONTROL_STOP
+            dwState = SERVICE_STOP_PENDING
+          when SERVICE_CONTROL_SHUTDOWN
+            dwState = SERVICE_STOP_PENDING
+          when SERVICE_CONTROL_PAUSE
+            dwState = SERVICE_PAUSED
+          when SERVICE_CONTROL_CONTINUE
+            dwState = SERVICE_RUNNING
+          #else
+            # TODO: Handle other control codes? Retain the current state?
         end
+
+        # Set the status of the service except on interrogation.
+        unless dwCtrlCode == SERVICE_CONTROL_INTERROGATE
+          SetTheServiceStatus.call(dwState, NO_ERROR, 0, 0)
+        end
+
+        # Tell service_main thread to stop.
+        if dwCtrlCode == SERVICE_CONTROL_STOP || dwCtrlCode == SERVICE_CONTROL_SHUTDOWN
+          if SetEvent(@@hStopEvent) == 0
+            SetTheServiceStatus.call(SERVICE_STOPPED, FFI.errno, 0, 0)
+          end
+        end
+      rescue
+        return_value = ERROR_CALL_NOT_IMPLEMENTED
       end
+
+      return_value
     end
 
     # Called by the service control manager after the call to StartServiceCtrlDispatcher.
