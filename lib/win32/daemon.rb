@@ -184,7 +184,7 @@ module Win32
 
       s = SERVICE_TABLE_ENTRY.new(ste[0])
       s[:lpServiceName] = FFI::MemoryPointer.from_string('')
-      s[:lpServiceProc] = Service_Main
+      s[:lpServiceProc] = lpParameter
 
       s = SERVICE_TABLE_ENTRY.new(ste[1])
       s[:lpServiceName] = nil
@@ -249,7 +249,7 @@ module Win32
         raise SystemCallError.new('CreateEvent', FFI.errno)
       end
 
-      hThread = CreateThread(nil, 0, ThreadProc, nil, 0, nil)
+      hThread = CreateThread(nil, 0, ThreadProc, Service_Main, 0, nil)
 
       if hThread == 0
         raise SystemCallError.new('CreateThread', FFI.errno)
