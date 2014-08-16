@@ -1,5 +1,5 @@
 module Windows
-  module Constants
+  module ServiceConstants
     SC_MANAGER_ALL_ACCESS         = 0xF003F
     SC_MANAGER_CREATE_SERVICE     = 0x0002
     SC_MANAGER_CONNECT            = 0x0001

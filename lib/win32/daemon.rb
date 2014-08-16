@@ -10,7 +10,7 @@ module Win32
 
   # The Daemon class
   class Daemon
-    include Windows::Constants
+    include Windows::ServiceConstants
     include Windows::Structs
     include Windows::Functions
 
@@ -18,7 +18,7 @@ module Win32
     extend Windows::Functions
 
     # The version of this library
-    VERSION = '0.8.4'
+    VERSION = '0.8.6'
 
     private
 

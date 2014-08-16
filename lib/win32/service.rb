@@ -9,7 +9,7 @@ module Win32
   # The Service class encapsulates services controller actions, such as
   # creating, starting, configuring or deleting services.
   class Service
-    include Windows::Constants
+    include Windows::ServiceConstants
     include Windows::Structs
     include Windows::Functions
 
@@ -17,7 +17,7 @@ module Win32
     extend Windows::Functions
 
     # The version of the win32-service library
-    VERSION = '0.8.5'
+    VERSION = '0.8.6'
 
     # SCM security and access rights
 
