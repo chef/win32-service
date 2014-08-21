@@ -1,3 +1,9 @@
+== 0.8.6 - 21-Aug-2014
+* Some internal changes that make stopping a service more robust. Thanks go
+  to Ethan J. Brown for the patches.
+* Renamed the constants module to avoid name clashes. Thanks go to Michael
+  Smith for the spot.
+
 == 0.8.5 - 2-Jul-2014
 * The service type for Service.new no longer defaults to being an interactive
   process. This could cause process credential issues and wasn't very
