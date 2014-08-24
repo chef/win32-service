@@ -8,7 +8,7 @@
   require 'win32/service'
 
   # Iterate over the available services
-  Service.services do |service|
+  Win32::Service.services do |service|
     p service
   end
 
