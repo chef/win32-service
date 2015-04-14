@@ -33,6 +33,8 @@ module Windows
     attach_pfunc :WaitForSingleObject, [:handle, :dword], :dword, :blocking => true
     attach_pfunc :WaitForMultipleObjects, [:dword, :ptr, :bool, :dword], :dword
 
+    attach_pfunc :GetVersionExW, [:ptr], :bool
+
     ffi_lib :advapi32
 
     callback :handler_ex, [:ulong, :ulong, :ptr, :ptr], :void

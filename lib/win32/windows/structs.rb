@@ -4,7 +4,10 @@ module Windows
   module Structs
     extend FFI::Library
 
+    typedef :uchar, :byte
+    typedef :uint16, :word
     typedef :ulong, :dword
+
 
     class SERVICE_STATUS < FFI::Struct
       layout(
@@ -115,6 +118,22 @@ module Windows
       layout(
         :PrivilegeCount, :dword,
         :Privileges, [LUID_AND_ATTRIBUTES, 1]
+      )
+    end
+
+    class OSVERSIONINFO < FFI::Struct
+      layout(
+        :dwOSVersionInfoSize, :dword,
+        :dwMajorVersion, :dword,
+        :dwMinorVersion, :dword,
+        :dwBuildNumber, :dword,
+        :dwPlatformId, :dword,
+        :szCSDVersion, [:uint16, 128],
+        :wServicePackMajor, :word,
+        :wServicePackMinor, :word,
+        :wSuiteMask, :word,
+        :wProductType, :byte,
+        :wReserved, :byte,
       )
     end
   end
