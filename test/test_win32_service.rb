@@ -11,13 +11,13 @@ require 'socket'
 class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
     @@host = Socket.gethostname
-    @@service_name = 'stisvc'
+    @@service_name = 'LanmanServer'
     @@elevated = Win32::Security.elevated_security?
   end
 
   def setup
-    @display_name = 'Windows Image Acquisition (WIA)'
-    @service_name = 'stisvc'
+    @display_name = 'Server'
+    @service_name = 'LanmanServer'
     @service_stat = nil
     @services     = []
 
