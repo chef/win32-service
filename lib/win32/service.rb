@@ -495,6 +495,10 @@ module Win32
         raise ArgumentError, 'No service_name specified'
       end
 
+      if windows_version < 6 && options.include?(:delayed_start)
+        raise ArgumentError, 'delayed_start not supported on Windows 2003 and earlier editions'
+      end
+
       service = opts.delete('service_name')
       host = opts.delete('host')
 
@@ -563,7 +567,7 @@ module Win32
           FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
 
-        if opts['delayed_start']
+        if windows_version >= 6 && opts['delayed_start']
           delayed_start = SERVICE_DELAYED_AUTO_START_INFO.new
           delayed_start[:fDelayedAutostart] = opts['delayed_start']
 
@@ -1089,13 +1093,15 @@ module Win32
                 description = ''
               end
 
-              delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+              delayed_start = false
+              # delayed_start can only be read from the service after 2003 / XP
+              if windows_version >= 6
+                delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
 
-              if delayed_start_buf.is_a?(FFI::MemoryPointer)
-                delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-                delayed_start = delayed_start_info[:fDelayedAutostart]
-              else
-                delayed_start = false
+                if delayed_start_buf.is_a?(FFI::MemoryPointer)
+                  delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
+                  delayed_start = delayed_start_info[:fDelayedAutostart]
+                end
               end
             else
               msg = "WARNING: The registry entry for the #{service_name} "
@@ -1562,6 +1568,23 @@ module Win32
       alias create new
       alias getdisplayname get_display_name
       alias getservicename get_service_name
+
+      @@win_ver = nil
+
+      # Private method that returns the Windows major version number.
+      def windows_version
+        return @@win_ver if @@win_ver
+
+        ver = OSVERSIONINFO.new
+        ver[:dwOSVersionInfoSize] = ver.size
+
+        unless GetVersionExW(ver)
+          raise SystemCallError.new('GetVersionEx', FFI.errno)
+        end
+
+        @@win_ver = ver[:dwMajorVersion]
+        @@win_ver
+      end
     end
   end
 end

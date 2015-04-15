@@ -64,9 +64,19 @@ class TC_Win32_Service_Configure < Test::Unit::TestCase
     assert_equal('disabled', config_info.start_type)
   end
 
-  test "service start can be delayed" do
+  test "service start can be delayed on Windows versions newer than 2003" do
+    omit_if(Win32::Service.windows_version < 6)
     service_configure(:start_type => Win32::Service::AUTO_START, :delayed_start => true)
     assert_true(full_info.delayed_start)
+  end
+
+  test "service start cannot be delayed on Windows versions older than 2003" do
+    omit_if(Win32::Service.windows_version >= 6)
+    assert_raise(ArgumentError){
+      Win32::Service.configure(
+      :service_name => @@service,
+      :start_type => Win32::Service::AUTO_START, :delayed_start => true)
+    }
   end
 
   test "the configure method requires one argument" do

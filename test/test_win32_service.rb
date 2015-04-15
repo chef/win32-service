@@ -10,14 +10,18 @@ require 'socket'
 
 class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
+    @@win_ver = Win32::Service.windows_version
     @@host = Socket.gethostname
-    @@service_name = 'stisvc'
-    @@elevated = Win32::Security.elevated_security?
+    @@service_name = @@win_ver < 6 ? 'Schedule' : 'LanmanServer'
+    # win32-security 0.3.1 crashes on 2003, so just assume elevated there
+    @@elevated = false
+    @@elevated = Win32::Security.elevated_security? if @@win_ver >= 6
   end
 
   def setup
-    @display_name = 'Windows Image Acquisition (WIA)'
-    @service_name = 'stisvc'
+    @win_ver = Win32::Service.windows_version
+    @display_name = @win_ver < 6 ? 'Task Scheduler' : 'Server'
+    @service_name = @win_ver < 6 ? 'Schedule' : 'LanmanServer'
     @service_stat = nil
     @services     = []
 
@@ -52,7 +56,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "version number is expected value" do
-    assert_equal('0.8.5', Win32::Service::VERSION)
+    assert_equal('0.8.6', Win32::Service::VERSION)
   end
 
   test "services basic functionality" do
@@ -72,6 +76,16 @@ class TC_Win32_Service < Test::Unit::TestCase
     assert_nothing_raised{ Win32::Service.services{ |s| @services << s } }
     assert_kind_of(Array, @services)
     assert_kind_of(Struct::ServiceInfo, @services[0])
+  end
+
+  test "service objects all have delayed_start set to false on Windows versions older than 2003" do
+    omit_if(Win32::Service.windows_version >= 6)
+    Win32::Service.services.all? { |s| s.delayed_start == false }
+  end
+
+  test "some service objects have delayed_start set to true on Windows versions newer than 2003" do
+    omit_if(Win32::Service.windows_version < 6)
+    Win32::Service.services.any? { |s| s.delayed_start == true }
   end
 
   test "the host argument must be a string or an error is raised" do
