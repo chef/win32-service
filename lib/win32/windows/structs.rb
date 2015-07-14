@@ -37,7 +37,15 @@ module Windows
     end
 
     class SERVICE_DELAYED_AUTO_START_INFO < FFI::Struct
-      layout(:fDelayedAutostart, :bool)
+      layout(:fDelayedAutostart, :int) # BOOL
+      alias aset []=
+
+      # Intercept the accessor so that we can handle either true/false or 1/0.
+      # Since there is only one member, there's no need to check the key name.
+      #
+      def []=(key, value)
+        value ? aset(key, 1) : aset(key, 0)
+      end
     end
 
     class QUERY_SERVICE_CONFIG < FFI::Struct
