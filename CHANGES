@@ -1,3 +1,7 @@
+== 0.8.7 - 14-Jul-2014
+* Fixed a bug in the SERVICE_DELAYED_AUTO_START_INFO struct. Thanks go to
+  Kartik Null Cating-Subramanian for the spot.
+
 == 0.8.6 - 21-Aug-2014
 * Some internal changes that make stopping a service more robust. Thanks go
   to Ethan J. Brown for the patches.
