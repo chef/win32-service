@@ -1,5 +1,6 @@
 == 0.8.7 - 14-Jul-2014
-* Fixed a bug in the SERVICE_DELAYED_AUTO_START_INFO struct. Thanks go to
+* Fixed a bug in the SERVICE_DELAYED_AUTO_START_INFO struct. It now returns 0
+  or 1, though it still accepts true or false as arguments. Thanks go to
   Kartik Null Cating-Subramanian for the spot.
 
 == 0.8.6 - 21-Aug-2014
