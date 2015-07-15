@@ -172,7 +172,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   def test_service_info_delayed_start
     assert_respond_to(@service_info, :delayed_start)
-    assert_boolean(@service_info.delayed_start)
+    assert([0,1].include?(@service_info.delayed_start))
   end
 
   def teardown
