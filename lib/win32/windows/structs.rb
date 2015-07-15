@@ -39,14 +39,13 @@ module Windows
     class SERVICE_DELAYED_AUTO_START_INFO < FFI::Struct
       layout(:fDelayedAutostart, :int) # BOOL
 
-      alias aref []
       alias aset []=
 
       # Intercept the accessor so that we can handle either true/false or 1/0.
       # Since there is only one member, there's no need to check the key name.
       #
       def []=(key, value)
-        [1, true].include?(value) ? aset(key, 1) : aset(key, 0)
+        [0, false].include?(value) ? aset(key, 0) : aset(key, 1)
       end
     end
 
