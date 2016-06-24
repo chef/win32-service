@@ -71,106 +71,107 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
     ]
   end
 
-  def test_service_info_info_service_name
+  test "service_name basic functionality" do
     assert_respond_to(@service_info, :service_name)
     assert_kind_of(String, @service_info.service_name)
   end
 
-  def test_service_info_info_display_name
+  test "display_name basic functionality" do
     assert_respond_to(@service_info, :display_name)
     assert_kind_of(String, @service_info.display_name)
   end
 
-  def test_service_info_info_service_type
+  test "service_type basic functionality" do
     assert_respond_to(@service_info, :service_type)
     assert(@types.include?(@service_info.service_type))
   end
 
-  def test_service_info_current_state
+  test "current_state basic functionality" do
     assert_respond_to(@service_info, :current_state)
     assert(@states.include?(@service_info.current_state))
   end
 
-  def test_service_info_controls_accepted
+  test "controls_accepted basic functionality" do
     assert_respond_to(@service_info, :controls_accepted)
     assert_kind_of(Array, @service_info.controls_accepted)
-    assert_false(@service_info.controls_accepted.empty?)
-    @service_info.controls_accepted.each{ |control|
-      assert_true(@controls.include?(control))
-    }
   end
 
-  def test_service_info_win32_exit_code
+  test "controls_accepted returns expected values" do
+    assert_false(@service_info.controls_accepted.empty?)
+    @service_info.controls_accepted.each{ |c| assert_true(@controls.include?(c)) }
+  end
+
+  test "win32_exit_code basic functionality" do
     assert_respond_to(@service_info, :win32_exit_code)
     assert_kind_of(Fixnum, @service_info.win32_exit_code)
   end
 
-  def test_service_info_service_specific_exit_code
+  test "service_specific_exit_code basic functionality" do
     assert_respond_to(@service_info, :service_specific_exit_code)
     assert_kind_of(Fixnum, @service_info.service_specific_exit_code)
   end
 
-  def test_service_info_check_point
+  test "check_point basic functionality" do
     assert_respond_to(@service_info, :check_point)
     assert_kind_of(Fixnum, @service_info.check_point)
   end
 
-  def test_service_info_wait_hint
+  test "wait_hint basic functionality" do
     assert_respond_to(@service_info, :wait_hint)
     assert_kind_of(Fixnum, @service_info.wait_hint)
   end
 
-  def test_service_info_binary_path_name
+  test "binary_path_name basic functionality" do
     assert_respond_to(@service_info, :binary_path_name)
     assert_kind_of(String, @service_info.binary_path_name)
   end
 
-  def test_service_info_start_type
+  test "start_type basic functionality" do
     assert_respond_to(@service_info, :start_type)
     assert(@start_types.include?(@service_info.start_type))
   end
 
-  def test_service_info_error_control
+  test "error_control basic functionality" do
     assert_respond_to(@service_info, :error_control)
     assert(@error_controls.include?(@service_info.error_control))
   end
 
-  def test_service_info_load_order_group
+  test "load_order_group basic functionality" do
     assert_respond_to(@service_info, :load_order_group)
     assert_kind_of(String, @service_info.load_order_group)
   end
 
-  def test_service_info_tag_id
+  test "tag_id basic functionality" do
     assert_respond_to(@service_info, :tag_id)
     assert_kind_of(Fixnum, @service_info.tag_id)
   end
 
-  def test_service_info_start_name
+  test "start_name basic functionality" do
     assert_respond_to(@service_info, :start_name)
     assert_kind_of(String, @service_info.start_name)
   end
 
-  def test_service_info_dependencies
+  test "dependencies basic functionality" do
     assert_respond_to(@service_info, :dependencies)
     assert_kind_of(Array, @service_info.dependencies)
   end
 
-  def test_service_info_description
+  test "description basic functionality" do
     assert_respond_to(@service_info, :description)
     assert_kind_of(String, @service_info.description)
   end
 
-  def test_service_info_interactive
+  test "interactive basic functionality" do
     assert_respond_to(@service_info, :interactive)
     assert_boolean(@service_info.interactive)
   end
 
-  def test_service_info_service_flags
+  test "service_flags basic functionality" do
     assert_respond_to(@service_info, :service_flags)
     assert([0,1].include?(@service_info.service_flags))
   end
 
-  def test_service_info_delayed_start
+  test "delayed_start basic functionality" do
     assert_respond_to(@service_info, :delayed_start)
     assert([0,1].include?(@service_info.delayed_start))
   end
