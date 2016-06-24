@@ -1,9 +1,7 @@
-require File.join(File.dirname(__FILE__), 'windows', 'helper')
-require File.join(File.dirname(__FILE__), 'windows', 'constants')
-require File.join(File.dirname(__FILE__), 'windows', 'structs')
-require File.join(File.dirname(__FILE__), 'windows', 'functions')
-
-require 'ffi'
+require_relative 'windows/helper'
+require_relative 'windows/constants'
+require_relative 'windows/structs'
+require_relative 'windows/functions'
 
 # The Win32 module serves as a namespace only.
 module Win32
@@ -11,14 +9,14 @@ module Win32
   # The Daemon class
   class Daemon
     include Windows::ServiceConstants
-    include Windows::Structs
-    include Windows::Functions
+    include Windows::ServiceStructs
+    include Windows::ServiceFunctions
 
-    extend Windows::Structs
-    extend Windows::Functions
+    extend Windows::ServiceStructs
+    extend Windows::ServiceFunctions
 
     # The version of this library
-    VERSION = '0.8.6'
+    VERSION = '0.8.8'
 
     private
 
@@ -240,21 +238,21 @@ module Win32
       service_init() if respond_to?('service_init')
 
       # Create the event to signal the service to start.
-      @@hStartEvent = CreateEvent(nil, true, false, nil)
+      @@hStartEvent = CreateEvent(nil, 1, 0, nil)
 
       if @@hStartEvent == 0
         raise SystemCallError.new('CreateEvent', FFI.errno)
       end
 
       # Create the event to signal the service to stop.
-      @@hStopEvent = CreateEvent(nil, true, false, nil)
+      @@hStopEvent = CreateEvent(nil, 1, 0, nil)
 
       if @@hStopEvent == 0
         raise SystemCallError.new('CreateEvent', FFI.errno)
       end
 
       # Create the event to signal the service that stop has completed
-      @@hStopCompletedEvent = CreateEvent(nil, true, false, nil)
+      @@hStopCompletedEvent = CreateEvent(nil, 1, 0, nil)
 
       if @@hStopCompletedEvent == 0
         raise SystemCallError.new('CreateEvent', FFI.errno)
