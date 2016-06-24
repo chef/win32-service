@@ -1,7 +1,9 @@
 ##########################################################################
 # test_win32_service.rb
 #
-# Tests for the Win32::Service class.
+# Tests for the Win32::Service class. Some tests are skipped unless
+# run with admin privileges either because they are somewhat invasive,
+# or because they take too long.
 ##########################################################################
 require 'test-unit'
 require 'win32/security'
@@ -20,29 +22,39 @@ class TC_Win32_Service < Test::Unit::TestCase
     @service_name = 'stisvc'
     @service_stat = nil
     @services     = []
+    @elevated     = Win32::Security.elevated_security?
 
     @singleton_methods = Win32::Service.methods.map{ |m| m.to_s }
     @instance_methods  = Win32::Service.instance_methods.map{ |m| m.to_s }
   end
 
+  def omit_unless_elevated
+    omit_unless(@elevated, "Skipped unless run with admin privileges")
+  end
+
   def start_service(service)
     status = Win32::Service.status(@service_name).current_state
-    if status == 'paused'
-      Win32::Service.resume(service)
-    else
-      unless ['running', 'start pending'].include?(status)
-        Win32::Service.start(service)
+
+    if @elevated
+      if status == 'paused'
+        Win32::Service.resume(service)
+      else
+        unless ['running', 'start pending'].include?(status)
+          Win32::Service.start(service)
+        end
       end
+      wait_for_status('running')
     end
-    wait_for_status('running')
   end
 
   def stop_service(service)
     status = Win32::Service.status(@service_name).current_state
-    unless ['stopped', 'stop pending'].include?(status)
-      Win32::Service.stop(service)
+    if @elevated
+      unless ['stopped', 'stop pending'].include?(status)
+        Win32::Service.stop(service)
+      end
+      wait_for_status('stopped')
     end
-    wait_for_status('stopped')
   end
 
   # Helper method that waits for a status to change its state since state
@@ -57,9 +69,18 @@ class TC_Win32_Service < Test::Unit::TestCase
 
   test "services basic functionality" do
     assert_respond_to(Win32::Service, :services)
+  end
+
+  test "services with no arguments works as expected" do
     assert_nothing_raised{ Win32::Service.services }
-    assert_nothing_raised{ Win32::Service.services(nil) }
-    assert_nothing_raised{ Win32::Service.services(nil, 'network') }
+  end
+
+  test "services with explicit host works as expected" do
+    assert_nothing_raised{ Win32::Service.services(@@host) }
+  end
+
+  test "services with explicit host and group works as expected" do
+    assert_nothing_raised{ Win32::Service.services(@@host, 'network') }
   end
 
   test "services method returns an array without a block" do
@@ -87,6 +108,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "a valid hostname must be provided or an error is raised" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.services('bogus') }
   end
 
@@ -99,11 +121,12 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "delete method raises an error if a bogus service name is provided" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.delete('bogus') }
   end
 
   test "delete method raises an error if a bogus host name is provided" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.delete('bogus', 'bogus') }
   end
 
@@ -120,7 +143,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pause and resume work as expected" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.pause(@service_name) }
@@ -131,7 +154,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pausing an already paused service is harmless" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.pause(@service_name) }
@@ -148,6 +171,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "pausing a service on an unrecognized host raises an error" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.pause('W32Time', 'bogus') }
   end
 
@@ -164,6 +188,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "resume method with an unrecognized host name raises an error" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.resume('W32Time', 'bogus') }
   end
 
@@ -180,7 +205,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "stop and start methods work as expected" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
@@ -191,7 +216,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to stop a stopped service raises an error" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     start_service(@service_name)
 
     assert_nothing_raised{ Win32::Service.stop(@service_name) }
@@ -210,6 +235,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "stop method raises an error if the host is unrecognized" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.stop('W32Time', 'bogus') }
   end
 
@@ -222,7 +248,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to start a running service raises an error" do
-    omit_unless(@@elevated, "Skipped unless run with admin privileges")
+    omit_unless_elevated
     start_service(@service_name)
     assert_raise(SystemCallError){ Win32::Service.start(@service_name) }
   end
@@ -232,6 +258,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "attempting to start a service on an unknown host raises an error" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.start('bogus', 'bogus') }
   end
 
@@ -244,6 +271,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "stop raises an error with an unrecognized host" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.stop('W32Time', 'bogus') }
   end
 
@@ -281,6 +309,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_service_name raises an error if a bogus host is provided" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.get_service_name('foo', 'bogus') }
   end
 
@@ -312,6 +341,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_display_name raises an error if a bad host name is provided" do
+    omit_unless_elevated
     assert_raise(SystemCallError){ Win32::Service.get_display_name('W32Time', 'bogus') }
   end
 
@@ -335,9 +365,8 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "exists method raises an error if a bogus host is passed" do
-    assert_raises(SystemCallError){
-      Win32::Service.exists?('foo', 'bogushost')
-    }
+    omit_unless_elevated
+    assert_raises(SystemCallError){ Win32::Service.exists?('foo', 'bogus') }
   end
 
   test "exists method only accepts up to two arguments" do
@@ -424,12 +453,14 @@ class TC_Win32_Service < Test::Unit::TestCase
     @@host = nil
     status = Win32::Service.status(@@service_name).current_state
 
-    if status == 'paused'
-      Win32::Service.resume(@@service_name)
-    end
+    if @elevated
+      if status == 'paused'
+        Win32::Service.resume(@@service_name)
+      end
 
-    unless ['running', 'start pending'].include?(status)
-      Win32::Service.start(@@service_name)
+      unless ['running', 'start pending'].include?(status)
+        Win32::Service.start(@@service_name)
+      end
     end
 
     @@elevated = nil
