@@ -1085,22 +1085,24 @@ module Win32
                 end
               rescue
                 # While being annoying, not being able to get a description is not exceptional
-                warn "WARNING: Failed to retreive description for the #{service_name} service."
+                warn "WARNING: Failed to retrieve description for the #{service_name} service."
                 description = ''
               end
 
-              delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
-
-              if delayed_start_buf.is_a?(FFI::MemoryPointer)
-                delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-                delayed_start = delayed_start_info[:fDelayedAutostart]
-              else
-                delayed_start = false
+              begin
+                delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+                if delayed_start_buf.is_a?(FFI::MemoryPointer)
+                  delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
+                  delayed_start = delayed_start_info[:fDelayedAutostart]
+                else
+                  delayed_start = false
+                end
+              rescue
+                warn "WARNING: Unable to get delayed auto start information for the #{service_name} service"
+                delayed_start = nil
               end
             else
-              msg = "WARNING: The registry entry for the #{service_name} "
-              msg += "service could not be found."
-              warn msg
+              warn "WARNING: The registry entry for the #{service_name} service could not be found"
 
               binary_path = nil
               load_order  = nil
@@ -1112,41 +1114,49 @@ module Win32
               description = nil
             end
 
-            buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
+            begin
+              buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
 
-            if buf2.is_a?(FFI::MemoryPointer)
-              fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
+              if buf2.is_a?(FFI::MemoryPointer)
+                fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
 
-              reset_period = fail_struct[:dwResetPeriod]
-              num_actions  = fail_struct[:cActions]
+                reset_period = fail_struct[:dwResetPeriod]
+                num_actions  = fail_struct[:cActions]
 
-              if fail_struct[:lpRebootMsg].null?
-                reboot_msg = nil
+                if fail_struct[:lpRebootMsg].null?
+                  reboot_msg = nil
+                else
+                  reboot_msg = fail_struct[:lpRebootMsg].read_string
+                end
+
+                if fail_struct[:lpCommand].null?
+                  command = nil
+                else
+                  command = fail_struct[:lpCommand].read_string
+                end
+
+                actions = nil
+
+                if num_actions > 0
+                  action_ptr = fail_struct[:lpsaActions]
+
+                  actions = {}
+
+                  num_actions.times{ |n|
+                    sc_action = SC_ACTION.new(action_ptr[n])
+                    delay = sc_action[:Delay]
+                    action_type = get_action_type(sc_action[:Type])
+                    actions[n+1] = {:action_type => action_type, :delay => delay}
+                  }
+                end
               else
-                reboot_msg = fail_struct[:lpRebootMsg].read_string
+                reset_period = nil
+                reboot_msg   = nil
+                command      = nil
+                actions      = nil
               end
-
-              if fail_struct[:lpCommand].null?
-                command = nil
-              else
-                command = fail_struct[:lpCommand].read_string
-              end
-
-              actions = nil
-
-              if num_actions > 0
-                action_ptr = fail_struct[:lpsaActions]
-
-                actions = {}
-
-                num_actions.times{ |n|
-                  sc_action = SC_ACTION.new(action_ptr[n])
-                  delay = sc_action[:Delay]
-                  action_type = get_action_type(sc_action[:Type])
-                  actions[n+1] = {:action_type => action_type, :delay => delay}
-                }
-              end
-            else
+            rescue
+              warn "WARNING: Unable to retrieve failure actions for the #{service_name} service"
               reset_period = nil
               reboot_msg   = nil
               command      = nil
