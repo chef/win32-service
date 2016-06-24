@@ -1,7 +1,7 @@
 require 'ffi'
 
 module Windows
-  module Structs
+  module ServiceStructs
     extend FFI::Library
 
     typedef :ulong, :dword

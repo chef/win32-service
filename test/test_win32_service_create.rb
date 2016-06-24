@@ -5,6 +5,7 @@
 # a dummy (notepad) service. It won't actually run of course.
 ########################################################################
 require 'test-unit'
+require 'win32/security'
 require 'win32/service'
 
 class TC_Win32_Service_Create < Test::Unit::TestCase
@@ -13,28 +14,34 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
     @@service2 = "notepad_service2"
     @@command  = "C:\\windows\\system32\\notepad.exe"
 
-    Win32::Service.new(
-      :service_name     => @@service1,
-      :binary_path_name => @@command
-    )
+    if Win32::Security.elevated_security?
+      Win32::Service.new(
+        :service_name     => @@service1,
+        :binary_path_name => @@command
+      )
 
-    Win32::Service.new(
-      :service_name     => @@service2,
-      :display_name     => 'Notepad Test',
-      :desired_access   => Win32::Service::ALL_ACCESS,
-      :service_type     => Win32::Service::WIN32_OWN_PROCESS,
-      :start_type       => Win32::Service::DISABLED,
-      :error_control    => Win32::Service::ERROR_IGNORE,
-      :binary_path_name => @@command,
-      :load_order_group => 'Network',
-      :dependencies     => 'W32Time',
-      :description      => 'Test service. Please delete me'
-    )
+      Win32::Service.new(
+        :service_name     => @@service2,
+        :display_name     => 'Notepad Test',
+        :desired_access   => Win32::Service::ALL_ACCESS,
+        :service_type     => Win32::Service::WIN32_OWN_PROCESS,
+        :start_type       => Win32::Service::DISABLED,
+        :error_control    => Win32::Service::ERROR_IGNORE,
+        :binary_path_name => @@command,
+        :load_order_group => 'Network',
+        :dependencies     => 'W32Time',
+        :description      => 'Test service. Please delete me'
+      )
+    end
   end
 
   def setup
-    @info1 = Win32::Service.config_info(@@service1)
-    @info2 = Win32::Service.config_info(@@service2)
+    @elevated = Win32::Security.elevated_security?
+
+    if @elevated
+      @info1 = Win32::Service.config_info(@@service1)
+      @info2 = Win32::Service.config_info(@@service2)
+    end
   end
 
   test "constructor basic functionality" do
@@ -48,48 +55,59 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
   end
 
   test "ensure services were created in startup method" do
+    omit_unless(@elevated)
     notify "If this test fails then remaining results are meaningless."
     assert_true(Win32::Service.exists?(@@service1))
     assert_true(Win32::Service.exists?(@@service2))
   end
 
   test "expected service type configuration information" do
+    omit_unless(@elevated)
     assert_equal('own process', @info1.service_type)
   end
 
   test "expected start type configuration information" do
+    omit_unless(@elevated)
     assert_equal('demand start', @info1.start_type)
   end
 
   test "expected error control configuration information" do
+    omit_unless(@elevated)
     assert_equal('normal', @info1.error_control)
   end
 
   test "expected binary path name configuration information" do
+    omit_unless(@elevated)
     assert_equal(@@command, @info1.binary_path_name)
   end
 
   test "expected load order group configuration information" do
+    omit_unless(@elevated)
     assert_equal('', @info1.load_order_group)
   end
 
   test "expected tag id configuration information" do
+    omit_unless(@elevated)
     assert_equal(0, @info1.tag_id)
   end
 
   test "expected dependency configuration information" do
+    omit_unless(@elevated)
     assert_equal([], @info1.dependencies)
   end
 
   test "expected service start time configuration information" do
+    omit_unless(@elevated)
     assert_equal('LocalSystem', @info1.service_start_name)
   end
 
   test "expected display name configuration information" do
+    omit_unless(@elevated)
     assert_equal('notepad_service1', @info1.display_name)
   end
 
   test "configuration information options are set properly for service 2" do
+    omit_unless(@elevated)
     assert_equal('own process', @info2.service_type)
     assert_equal('disabled', @info2.start_type)
     assert_equal('ignore', @info2.error_control)
@@ -114,13 +132,19 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
   end
 
   def teardown
-    @info1 = nil
-    @info2 = nil
+    if @elevated
+      @info1 = nil
+      @info2 = nil
+    end
+
+    @elevated = nil
   end
 
   def self.shutdown
-    Win32::Service.delete(@@service1) if Win32::Service.exists?(@@service1)
-    Win32::Service.delete(@@service2) if Win32::Service.exists?(@@service2)
+    if Win32::Security.elevated_security?
+      Win32::Service.delete(@@service1) if Win32::Service.exists?(@@service1)
+      Win32::Service.delete(@@service2) if Win32::Service.exists?(@@service2)
+    end
 
     @@service1 = nil
     @@service2 = nil

@@ -1,7 +1,7 @@
 require 'ffi'
 
 module Windows
-  module Functions
+  module ServiceFunctions
     extend FFI::Library
 
     # Make FFI functions private
@@ -22,7 +22,7 @@ module Windows
     ffi_lib :kernel32
 
     attach_pfunc :CloseHandle, [:handle], :bool
-    attach_pfunc :CreateEvent, :CreateEventA, [:ptr, :bool, :bool, :str], :handle
+    attach_pfunc :CreateEvent, :CreateEventA, [:ptr, :int, :int, :str], :handle
     attach_pfunc :CreateThread, [:ptr, :size_t, :ptr, :ptr, :dword, :ptr], :handle, :blocking => true
     attach_pfunc :EnterCriticalSection, [:ptr], :void
     attach_pfunc :FormatMessage, :FormatMessageA, [:ulong, :ptr, :ulong, :ulong, :str, :ulong, :ptr], :ulong
@@ -31,13 +31,13 @@ module Windows
     attach_pfunc :LeaveCriticalSection, [:ptr], :void
     attach_pfunc :SetEvent, [:handle], :bool
     attach_pfunc :WaitForSingleObject, [:handle, :dword], :dword, :blocking => true
-    attach_pfunc :WaitForMultipleObjects, [:dword, :ptr, :bool, :dword], :dword
+    attach_pfunc :WaitForMultipleObjects, [:dword, :ptr, :int, :dword], :dword
 
     ffi_lib :advapi32
 
     callback :handler_ex, [:ulong, :ulong, :ptr, :ptr], :void
 
-    attach_pfunc :AdjustTokenPrivileges, [:handle, :bool, :ptr, :dword, :ptr, :ptr], :bool
+    attach_pfunc :AdjustTokenPrivileges, [:handle, :int, :ptr, :dword, :ptr, :ptr], :bool
     attach_pfunc :CloseServiceHandle, [:handle], :bool
 
     attach_pfunc :ChangeServiceConfig, :ChangeServiceConfigA,
