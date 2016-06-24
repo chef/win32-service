@@ -10,14 +10,14 @@ module Win32
   # creating, starting, configuring or deleting services.
   class Service
     include Windows::ServiceConstants
-    include Windows::Structs
-    include Windows::Functions
+    include Windows::ServiceStructs
+    include Windows::ServiceFunctions
 
-    extend Windows::Structs
-    extend Windows::Functions
+    extend Windows::ServiceStructs
+    extend Windows::ServiceFunctions
 
     # The version of the win32-service library
-    VERSION = '0.8.7'
+    VERSION = '0.8.8'
 
     # SCM security and access rights
 
@@ -1242,7 +1242,7 @@ module Win32
         # Enable shutdown privilege in access token of this process
         bool = AdjustTokenPrivileges(
           token_handle,
-          false,
+          0,
           tkp,
           tkp.size,
           nil,
