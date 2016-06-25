@@ -127,7 +127,7 @@ Daemon::IDLE
   setup your own Daemon.
 
 = Known Bugs
-  None known.  Please report any bugs you find on the Bug tracker at
+  None known. Please report any bugs you find on the issue tracker at
   https//github.com/djberg96/win32-service
 
 = Future Plans
@@ -142,7 +142,7 @@ Daemon::IDLE
   his patch that solved service responsiveness issues.
     
 = Copyright
-  (C) 2003-2013 Daniel J. Berger, All Rights Reserved
+  (C) 2003-2016 Daniel J. Berger, All Rights Reserved
 
 = License
   Artistic 2.0

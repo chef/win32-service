@@ -2,7 +2,7 @@
   An interface for MS Windows Services.
     
 = Prerequisites
-  FFI 1.0 or later
+  ffi 1.0 or later
 	
   This library is only supported for the Windows NT family of operating
   systems, e.g. 2000, XP, 2003, etc. It is NOT supported (and won't
@@ -351,7 +351,7 @@ Service::ERROR_CRITICAL
   Add ability to create or modify service failure actions.
     
 = Copyright
-  (C) 2003-2013, Daniel J. Berger, All Rights Reserved
+  (C) 2003-2016, Daniel J. Berger, All Rights Reserved
     
 = Warranty
   This package is provided "as is" and without any express or
