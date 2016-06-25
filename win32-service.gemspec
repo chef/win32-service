@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.homepage   = 'http://github.com/djberg96/win32-service'
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
+  spec.cert_chain = Dir['certs/*']
    
   spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
 
