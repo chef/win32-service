@@ -3,11 +3,14 @@
 * README
 * Rakefile
 * win32-service.gemspec
+* certs/djberg96_pub.pem
 * doc/daemon.txt
 * doc/service.txt
 * examples/demo_daemon.rb
 * examples/demo_daemon_ctl.rb
 * examples/demo_services.rb
+* lib/win32-daemon.rb
+* lib/win32-service.rb
 * lib/win32/service.rb
 * lib/win32/daemon.rb
 * test/test_win32_daemon.rb
