@@ -268,7 +268,7 @@ module Win32
       events.put_pointer(0, FFI::Pointer.new(hThread))
       events.put_pointer(FFI::Pointer.size, FFI::Pointer.new(@@hStartEvent))
 
-      while ((index = WaitForMultipleObjects(2, events, false, 1000)) == WAIT_TIMEOUT) do
+      while ((index = WaitForMultipleObjects(2, events, 0, 1000)) == WAIT_TIMEOUT) do
       end
 
       if index == WAIT_FAILED
@@ -282,7 +282,7 @@ module Win32
 
       thr = Thread.new do
         begin
-          while(WaitForSingleObject(@@hStopEvent, 10) == WAIT_TIMEOUT)
+          while(WaitForSingleObject(@@hStopEvent, 1000) == WAIT_TIMEOUT)
             # Check to see if anything interesting has been signaled
             case @@waiting_control_code
               when SERVICE_CONTROL_PAUSE
