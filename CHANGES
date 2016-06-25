@@ -6,13 +6,17 @@
 * Discovered more places where QueryServiceConfig2 could fail while attempting
   to get failure actions and delayed auto start info. Instead of failing,
   these now set their respective data to nil.
+* A timeout value in our main observer thread was increased to potentially
+  improve performance. Feedback welcome.
 * This gem is now signed.
+* Added the win32-service.rb and win32-daemon.rb files for convenience.
 * Use require_relative internally.
 * Added win32-security as a development dependency.
 * Many tests are now skipped unless run with administrative privileges, either
   because they require it, or because they otherwise take too long.
 * Gem related tasks in the Rakefile now assume Rubygems 2.x.
 * Added an appveyor.yml file.
+* The DemoDaemon example will create C:/Tmp if it doesn't already exist.
 
 == 0.8.7 - 14-Jul-2014
 * Fixed a bug in the SERVICE_DELAYED_AUTO_START_INFO struct. It now returns 0
