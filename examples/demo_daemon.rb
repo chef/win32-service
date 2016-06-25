@@ -12,6 +12,7 @@ begin
     # timeout error when you try to start it.
     #
     def service_init
+      Dir.mkdir("C:/Tmp") unless File.exist?("C:/Tmp")
       10.times{ |i|
         File.open(LOG_FILE , 'a'){ |f| f.puts("#{i}") }
         sleep 1
