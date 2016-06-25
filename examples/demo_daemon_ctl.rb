@@ -2,7 +2,7 @@
 # demo_daemon_ctl.rb
 #
 # This is a command line script for installing and/or running a small
-# Ruby program as a service.  The service will simply write a small bit
+# Ruby program as a service. The service will simply write a small bit
 # of text to a file every 20 seconds. It will also write some text to the
 # file during the initialization (service_init) step.
 #
@@ -10,7 +10,8 @@
 # of the service_init hook, so don't be surprised if you see "one moment,
 # start pending" about 10 times on the command line.
 #
-# The file in question is C:\test.log.  Feel free to delete it when finished.
+# The file in question is C:\Tmp\win32_daemon_test.log. Feel free to delete
+# it when you're finished.
 #
 # To run the service, you must install it first.
 #
