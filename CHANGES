@@ -6,10 +6,12 @@
 * Discovered more places where QueryServiceConfig2 could fail while attempting
   to get failure actions and delayed auto start info. Instead of failing,
   these now set their respective data to nil.
+* This gem is now signed.
 * Use require_relative internally.
 * Added win32-security as a development dependency.
 * Many tests are now skipped unless run with administrative privileges, either
   because they require it, or because they otherwise take too long.
+* Gem related tasks in the Rakefile now assume Rubygems 2.x.
 * Added an appveyor.yml file.
 
 == 0.8.7 - 14-Jul-2014
