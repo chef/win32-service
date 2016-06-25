@@ -1,8 +1,8 @@
-== 0.8.8 - ???
+== 0.8.8 - 24-Jun-2016
 * Fixed the function prototypes for CreateEvent and AdjustTokenPrivileges
   where I was using :bool instead of :int.
 * Updated the various FFI module wrapper names so that they're more distinctly
-  namespaced. Avoids a clash with the win32-eventlog gem, among others.
+  namespaced. Avoids a clash with the win32-eventlog gem, and possibly others.
 * Discovered more places where QueryServiceConfig2 could fail while attempting
   to get failure actions and delayed auto start info. Instead of failing,
   these now set their respective data to nil.
@@ -11,7 +11,8 @@
 * This gem is now signed.
 * Added the win32-service.rb and win32-daemon.rb files for convenience.
 * Use require_relative internally.
-* Added win32-security as a development dependency.
+* Added win32-security as a development dependency. It was already being used
+  for tests but now it's actually part of the gemspec.
 * Many tests are now skipped unless run with administrative privileges, either
   because they require it, or because they otherwise take too long.
 * Gem related tasks in the Rakefile now assume Rubygems 2.x.
