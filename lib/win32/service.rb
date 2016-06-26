@@ -1,4 +1,4 @@
-require_relative 'windows/helper'
+require 'ffi/win32/extensions'
 require_relative 'windows/constants'
 require_relative 'windows/structs'
 require_relative 'windows/functions'
@@ -886,7 +886,7 @@ module Win32
         struct[:lpBinaryPathName].read_string,
         struct[:lpLoadOrderGroup].read_string,
         struct[:dwTagId],
-        struct[:lpDependencies].read_array_of_null_separated_strings,
+        struct.dependencies,
         struct[:lpServiceStartName].read_string,
         struct[:lpDisplayName].read_string
       )
@@ -1073,7 +1073,7 @@ module Win32
               start_type = get_start_type(config_struct[:dwStartType])
               error_ctrl = get_error_control(config_struct[:dwErrorControl])
 
-              deps = config_struct[:lpDependencies].read_array_of_null_separated_strings
+              deps = config_struct.dependencies
 
               begin
                 buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
