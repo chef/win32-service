@@ -1,3 +1,8 @@
+== 0.8.9 - 26-Jun-2016
+* Added the ffi-win32-extensions dependency.
+* Changed the way service dependencies are determined.
+* Removed the helper.rb file since it's no longer used.
+
 == 0.8.8 - 24-Jun-2016
 * Fixed the function prototypes for CreateEvent and AdjustTokenPrivileges
   where I was using :bool instead of :int.
