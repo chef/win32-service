@@ -1,4 +1,3 @@
-require_relative 'windows/helper'
 require_relative 'windows/constants'
 require_relative 'windows/structs'
 require_relative 'windows/functions'
