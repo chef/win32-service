@@ -13,6 +13,9 @@
 * lib/win32-service.rb
 * lib/win32/service.rb
 * lib/win32/daemon.rb
+* lib/win32/windows/constants.rb
+* lib/win32/windows/functions.rb
+* lib/win32/windows/structs.rb
 * test/test_win32_daemon.rb
 * test/test_win32_service_configure.rb
 * test/test_win32_service_create.rb
