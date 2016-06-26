@@ -61,6 +61,11 @@ module Windows
         :lpServiceStartName, :pointer,
         :lpDisplayName, :pointer
       )
+
+      def dependencies
+        length = self[:lpServiceStartName].address - self[:lpDependencies].address - 1
+        self[:lpDependencies].read_bytes(length).split(0.chr)
+      end
     end
 
     class SERVICE_STATUS_PROCESS < FFI::Struct
