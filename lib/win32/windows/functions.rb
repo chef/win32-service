@@ -41,7 +41,7 @@ module Windows
     attach_pfunc :CloseServiceHandle, [:handle], :bool
 
     attach_pfunc :ChangeServiceConfig, :ChangeServiceConfigA,
-      [:handle, :dword, :dword, :dword, :str, :str, :ptr, :str, :str, :str, :str],
+      [:handle, :dword, :dword, :dword, :str, :str, :ptr, :ptr, :str, :str, :str],
       :bool
 
     attach_pfunc :ChangeServiceConfig2, :ChangeServiceConfig2A, [:handle, :dword, :ptr], :bool
