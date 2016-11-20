@@ -1143,7 +1143,7 @@ module Win32
                   actions = {}
 
                   num_actions.times{ |n|
-                    sc_action = SC_ACTION.new(action_ptr[n])
+                    sc_action = SC_ACTION.new(action_ptr[n * SC_ACTION.size])
                     delay = sc_action[:Delay]
                     action_type = get_action_type(sc_action[:Type])
                     actions[n+1] = {:action_type => action_type, :delay => delay}
