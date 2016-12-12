@@ -17,7 +17,7 @@ module Win32
     extend Windows::ServiceFunctions
 
     # The version of the win32-service library
-    VERSION = '0.8.9'.freeze
+    VERSION = '0.8.10'.freeze
 
     # SCM security and access rights
 

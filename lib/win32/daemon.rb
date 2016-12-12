@@ -15,7 +15,7 @@ module Win32
     extend Windows::ServiceFunctions
 
     # The version of this library
-    VERSION = '0.8.9'.freeze
+    VERSION = '0.8.10'.freeze
 
     private
 
