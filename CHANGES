@@ -1,3 +1,7 @@
+== 0.8.10 - 11-Dec-2016
+* Fixed a bug where action resolution information was not correct. Thanks go
+  to BXII-Dave for the spot and patch.
+
 == 0.8.9 - 26-Jun-2016
 * Added the ffi-win32-extensions dependency.
 * Changed the way service dependencies are determined.
