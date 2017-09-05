@@ -58,7 +58,7 @@ module Windows
       [:handle, :int, :dword, :dword, :ptr, :dword, :ptr, :ptr, :ptr, :string],
       :bool
 
-    attach_pfunc :GetServiceDisplayName, :GetServiceDisplayNameA, [:handle, :string, :ptr, :ptr], :bool
+    attach_pfunc :GetServiceDisplayName, :GetServiceDisplayNameW, [:handle, :buffer_in, :ptr, :ptr], :bool
     attach_pfunc :GetServiceKeyName, :GetServiceKeyNameA, [:handle, :string, :ptr, :ptr], :bool
     attach_pfunc :LookupPrivilegeValue, :LookupPrivilegeValueA, [:string, :string, :ptr], :bool
     attach_pfunc :OpenSCManager, :OpenSCManagerA, [:ptr, :ptr, :dword], :handle

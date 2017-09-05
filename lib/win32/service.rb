@@ -17,7 +17,7 @@ module Win32
     extend Windows::ServiceFunctions
 
     # The version of the win32-service library
-    VERSION = '0.8.10'.freeze
+    VERSION = '0.9.0'.freeze
 
     # SCM security and access rights
 
@@ -632,24 +632,23 @@ module Win32
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       display_name = FFI::MemoryPointer.new(260)
-      display_size  = FFI::MemoryPointer.new(:ulong)
+      display_size = FFI::MemoryPointer.new(:ulong)
       display_size.write_ulong(display_name.size)
 
       begin
         bool = GetServiceDisplayName(
           handle_scm,
-          service,
+          service.wincode,
           display_name,
           display_size
         )
 
-
-        FFI.raise_windows_error('OpenSCManager') unless bool
+        FFI.raise_windows_error('GetServiceDisplayName') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      display_name.read_string
+      display_name.read_wide_string
     end
 
     # Returns the service name of the specified service from the provided
