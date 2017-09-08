@@ -81,7 +81,7 @@ module Win32
       else
         ss[:dwControlsAccepted] =
         SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN|
-        SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_SHUTDOWN
+        SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_PARAMCHANGE
       end
 
       # Initialize ss structure.
