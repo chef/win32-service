@@ -338,6 +338,7 @@ module Win32
 
       service_name = opts.delete('service_name')
       host = opts.delete('host')
+      host.wincode if host
 
       raise TypeError unless service_name.is_a?(String)
       raise TypeError if host && !host.is_a?(String)
@@ -497,6 +498,7 @@ module Win32
 
       service = opts.delete('service_name')
       host = opts.delete('host')
+      host = host.wincode if host
 
       raise TypeError unless service.is_a?(String)
       raise TypeError unless host.is_a?(String) if host
@@ -598,6 +600,7 @@ module Win32
     #
     def self.exists?(service, host=nil)
       bool = false
+      host = host.wincode if host
 
       begin
         handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
@@ -627,6 +630,7 @@ module Win32
     # Service.get_display_name('W32Time') => 'Windows Time'
     #
     def self.get_display_name(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -664,6 +668,7 @@ module Win32
     # Service.get_service_name('Windows Time') => 'W32Time'
     #
     def self.get_service_name(display_name, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -701,6 +706,7 @@ module Win32
     #    Service.start('SomeSvc', 'foo', 'hello') => self
     #
     def self.start(service, host=nil, *args)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -812,6 +818,7 @@ module Win32
     #   Service.delete('SomeService') => self
     #
     def self.delete(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -846,6 +853,7 @@ module Win32
     #
     def self.config_info(service, host=nil)
       raise TypeError if host && !host.is_a?(String)
+      host = host.wincode if host
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
@@ -899,6 +907,7 @@ module Win32
     # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
     #
     def self.status(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -979,6 +988,7 @@ module Win32
     def self.services(host=nil, group=nil)
       unless host.nil?
         raise TypeError unless host.is_a?(String) # Avoid strange errors
+        host = host.wincode
       end
 
       unless group.nil?
@@ -1545,6 +1555,7 @@ module Win32
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
