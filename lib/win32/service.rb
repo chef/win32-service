@@ -516,7 +516,7 @@ module Win32
 
         handle_scs = OpenService(
           handle_scm,
-          service,
+          service.wincode,
           desired_access
         )
 
@@ -607,7 +607,7 @@ module Win32
 
         FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
         CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
@@ -712,7 +712,7 @@ module Win32
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_START)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_START)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -824,7 +824,7 @@ module Win32
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, DELETE)
+        handle_scs = OpenService(handle_scm, service.wincode, DELETE)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -860,7 +860,7 @@ module Win32
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_QUERY_CONFIG)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -915,7 +915,7 @@ module Win32
       begin
         handle_scs = OpenService(
           handle_scm,
-          service,
+          service.wincode,
           SERVICE_QUERY_STATUS
         )
 
@@ -1065,7 +1065,7 @@ module Win32
           begin
             handle_scs = OpenService(
               handle_scm,
-              service_name,
+              service_name.wincode,
               SERVICE_QUERY_CONFIG
             )
 
@@ -1561,7 +1561,7 @@ module Win32
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, service_signal)
+        handle_scs = OpenService(handle_scm, service.wincode, service_signal)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
