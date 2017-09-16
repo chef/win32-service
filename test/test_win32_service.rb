@@ -64,7 +64,7 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "version number is expected value" do
-    assert_equal('0.8.10', Win32::Service::VERSION)
+    assert_equal('0.9.0', Win32::Service::VERSION)
   end
 
   test "services basic functionality" do
