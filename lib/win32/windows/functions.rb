@@ -22,7 +22,7 @@ module Windows
     ffi_lib :kernel32
 
     attach_pfunc :CloseHandle, [:handle], :bool
-    attach_pfunc :CreateEvent, :CreateEventA, [:ptr, :int, :int, :str], :handle
+    attach_pfunc :CreateEvent, :CreateEventW, [:ptr, :int, :int, :str], :handle
     attach_pfunc :CreateThread, [:ptr, :size_t, :ptr, :ptr, :dword, :ptr], :handle, :blocking => true
     attach_pfunc :EnterCriticalSection, [:ptr], :void
     attach_pfunc :FormatMessage, :FormatMessageA, [:ulong, :ptr, :ulong, :ulong, :str, :ulong, :ptr], :ulong
@@ -63,7 +63,7 @@ module Windows
     attach_pfunc :LookupPrivilegeValue, :LookupPrivilegeValueA, [:string, :string, :ptr], :bool
     attach_pfunc :OpenSCManager, :OpenSCManagerW, [:ptr, :ptr, :dword], :handle
     attach_pfunc :OpenProcessToken, [:handle, :dword, :ptr], :bool
-    attach_pfunc :OpenService, :OpenServiceA, [:handle, :string, :dword], :handle
+    attach_pfunc :OpenService, :OpenServiceW, [:handle, :buffer_in, :dword], :handle
     attach_pfunc :QueryServiceConfig, :QueryServiceConfigA, [:handle, :ptr, :dword, :ptr], :bool
     attach_pfunc :QueryServiceConfig2, :QueryServiceConfig2A, [:handle, :dword, :ptr, :dword, :ptr], :bool
     attach_pfunc :QueryServiceStatusEx, [:handle, :int, :ptr, :dword, :ptr], :bool
