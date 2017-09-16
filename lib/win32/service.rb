@@ -890,12 +890,12 @@ module Win32
         get_service_type(struct[:dwServiceType]),
         get_start_type(struct[:dwStartType]),
         get_error_control(struct[:dwErrorControl]),
-        struct[:lpBinaryPathName].read_string,
-        struct[:lpLoadOrderGroup].read_string,
+        struct[:lpBinaryPathName].read_wide_string(1024),
+        struct[:lpLoadOrderGroup].read_wide_string(1024),
         struct[:dwTagId],
         struct.dependencies,
-        struct[:lpServiceStartName].read_string,
-        struct[:lpDisplayName].read_string
+        struct[:lpServiceStartName].read_wide_string(1024),
+        struct[:lpDisplayName].read_wide_string(1024)
       )
     end
 
@@ -1074,9 +1074,9 @@ module Win32
             config_struct = get_config_info(handle_scs)
 
             if config_struct != ERROR_FILE_NOT_FOUND
-              binary_path = config_struct[:lpBinaryPathName].read_string
-              load_order  = config_struct[:lpLoadOrderGroup].read_string
-              start_name  = config_struct[:lpServiceStartName].read_string
+              binary_path = config_struct[:lpBinaryPathName].read_wide_string(1024)
+              load_order  = config_struct[:lpLoadOrderGroup].read_wide_string(1024)
+              start_name  = config_struct[:lpServiceStartName].read_wide_string(1024)
               tag_id      = config_struct[:dwTagId]
 
               start_type = get_start_type(config_struct[:dwStartType])

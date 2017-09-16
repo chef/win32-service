@@ -64,7 +64,7 @@ module Windows
     attach_pfunc :OpenSCManager, :OpenSCManagerW, [:ptr, :ptr, :dword], :handle
     attach_pfunc :OpenProcessToken, [:handle, :dword, :ptr], :bool
     attach_pfunc :OpenService, :OpenServiceW, [:handle, :buffer_in, :dword], :handle
-    attach_pfunc :QueryServiceConfig, :QueryServiceConfigA, [:handle, :ptr, :dword, :ptr], :bool
+    attach_pfunc :QueryServiceConfig, :QueryServiceConfigW, [:handle, :ptr, :dword, :ptr], :bool
     attach_pfunc :QueryServiceConfig2, :QueryServiceConfig2A, [:handle, :dword, :ptr, :dword, :ptr], :bool
     attach_pfunc :QueryServiceStatusEx, [:handle, :int, :ptr, :dword, :ptr], :bool
     attach_pfunc :RegisterServiceCtrlHandlerEx, :RegisterServiceCtrlHandlerExA, [:str, :handler_ex, :ptr], :handle
