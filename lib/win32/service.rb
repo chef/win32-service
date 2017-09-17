@@ -1090,7 +1090,7 @@ module Win32
                 if buf.is_a?(Fixnum) || buf.read_pointer.null?
                   description = ''
                 else
-                  description = buf.read_pointer.read_string
+                  description = buf.read_pointer.read_wide_string(1024)
                 end
               rescue
                 # While being annoying, not being able to get a description is not exceptional
