@@ -22,7 +22,7 @@ module Windows
     ffi_lib :kernel32
 
     attach_pfunc :CloseHandle, [:handle], :bool
-    attach_pfunc :CreateEvent, :CreateEventA, [:ptr, :int, :int, :str], :handle
+    attach_pfunc :CreateEvent, :CreateEventW, [:ptr, :int, :int, :str], :handle
     attach_pfunc :CreateThread, [:ptr, :size_t, :ptr, :ptr, :dword, :ptr], :handle, :blocking => true
     attach_pfunc :EnterCriticalSection, [:ptr], :void
     attach_pfunc :FormatMessage, :FormatMessageA, [:ulong, :ptr, :ulong, :ulong, :str, :ulong, :ptr], :ulong
@@ -58,14 +58,14 @@ module Windows
       [:handle, :int, :dword, :dword, :ptr, :dword, :ptr, :ptr, :ptr, :string],
       :bool
 
-    attach_pfunc :GetServiceDisplayName, :GetServiceDisplayNameA, [:handle, :string, :ptr, :ptr], :bool
+    attach_pfunc :GetServiceDisplayName, :GetServiceDisplayNameW, [:handle, :buffer_in, :ptr, :ptr], :bool
     attach_pfunc :GetServiceKeyName, :GetServiceKeyNameA, [:handle, :string, :ptr, :ptr], :bool
     attach_pfunc :LookupPrivilegeValue, :LookupPrivilegeValueA, [:string, :string, :ptr], :bool
-    attach_pfunc :OpenSCManager, :OpenSCManagerA, [:ptr, :ptr, :dword], :handle
+    attach_pfunc :OpenSCManager, :OpenSCManagerW, [:ptr, :ptr, :dword], :handle
     attach_pfunc :OpenProcessToken, [:handle, :dword, :ptr], :bool
-    attach_pfunc :OpenService, :OpenServiceA, [:handle, :string, :dword], :handle
-    attach_pfunc :QueryServiceConfig, :QueryServiceConfigA, [:handle, :ptr, :dword, :ptr], :bool
-    attach_pfunc :QueryServiceConfig2, :QueryServiceConfig2A, [:handle, :dword, :ptr, :dword, :ptr], :bool
+    attach_pfunc :OpenService, :OpenServiceW, [:handle, :buffer_in, :dword], :handle
+    attach_pfunc :QueryServiceConfig, :QueryServiceConfigW, [:handle, :ptr, :dword, :ptr], :bool
+    attach_pfunc :QueryServiceConfig2, :QueryServiceConfig2W, [:handle, :dword, :ptr, :dword, :ptr], :bool
     attach_pfunc :QueryServiceStatusEx, [:handle, :int, :ptr, :dword, :ptr], :bool
     attach_pfunc :RegisterServiceCtrlHandlerEx, :RegisterServiceCtrlHandlerExA, [:str, :handler_ex, :ptr], :handle
     attach_pfunc :SetServiceStatus, [:handle, :ptr], :bool

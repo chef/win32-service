@@ -17,7 +17,7 @@ module Win32
     extend Windows::ServiceFunctions
 
     # The version of the win32-service library
-    VERSION = '0.8.10'.freeze
+    VERSION = '0.9.0'.freeze
 
     # SCM security and access rights
 
@@ -338,6 +338,7 @@ module Win32
 
       service_name = opts.delete('service_name')
       host = opts.delete('host')
+      host.wincode if host
 
       raise TypeError unless service_name.is_a?(String)
       raise TypeError if host && !host.is_a?(String)
@@ -497,6 +498,7 @@ module Win32
 
       service = opts.delete('service_name')
       host = opts.delete('host')
+      host = host.wincode if host
 
       raise TypeError unless service.is_a?(String)
       raise TypeError unless host.is_a?(String) if host
@@ -514,7 +516,7 @@ module Win32
 
         handle_scs = OpenService(
           handle_scm,
-          service,
+          service.wincode,
           desired_access
         )
 
@@ -598,13 +600,14 @@ module Win32
     #
     def self.exists?(service, host=nil)
       bool = false
+      host = host.wincode if host
 
       begin
         handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
         FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
         CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
@@ -627,29 +630,29 @@ module Win32
     # Service.get_display_name('W32Time') => 'Windows Time'
     #
     def self.get_display_name(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       display_name = FFI::MemoryPointer.new(260)
-      display_size  = FFI::MemoryPointer.new(:ulong)
+      display_size = FFI::MemoryPointer.new(:ulong)
       display_size.write_ulong(display_name.size)
 
       begin
         bool = GetServiceDisplayName(
           handle_scm,
-          service,
+          service.wincode,
           display_name,
           display_size
         )
 
-
-        FFI.raise_windows_error('OpenSCManager') unless bool
+        FFI.raise_windows_error('GetServiceDisplayName') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      display_name.read_string
+      display_name.read_wide_string
     end
 
     # Returns the service name of the specified service from the provided
@@ -665,6 +668,7 @@ module Win32
     # Service.get_service_name('Windows Time') => 'W32Time'
     #
     def self.get_service_name(display_name, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -702,12 +706,13 @@ module Win32
     #    Service.start('SomeSvc', 'foo', 'hello') => self
     #
     def self.start(service, host=nil, *args)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_START)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_START)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -813,12 +818,13 @@ module Win32
     #   Service.delete('SomeService') => self
     #
     def self.delete(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, DELETE)
+        handle_scs = OpenService(handle_scm, service.wincode, DELETE)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -847,13 +853,14 @@ module Win32
     #
     def self.config_info(service, host=nil)
       raise TypeError if host && !host.is_a?(String)
+      host = host.wincode if host
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
+        handle_scs = OpenService(handle_scm, service.wincode, SERVICE_QUERY_CONFIG)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
@@ -883,12 +890,12 @@ module Win32
         get_service_type(struct[:dwServiceType]),
         get_start_type(struct[:dwStartType]),
         get_error_control(struct[:dwErrorControl]),
-        struct[:lpBinaryPathName].read_string,
-        struct[:lpLoadOrderGroup].read_string,
+        struct[:lpBinaryPathName].read_wide_string(1024),
+        struct[:lpLoadOrderGroup].read_wide_string(1024),
         struct[:dwTagId],
         struct.dependencies,
-        struct[:lpServiceStartName].read_string,
-        struct[:lpDisplayName].read_string
+        struct[:lpServiceStartName].read_wide_string(1024),
+        struct[:lpDisplayName].read_wide_string(1024)
       )
     end
 
@@ -900,6 +907,7 @@ module Win32
     # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
     #
     def self.status(service, host=nil)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
@@ -907,7 +915,7 @@ module Win32
       begin
         handle_scs = OpenService(
           handle_scm,
-          service,
+          service.wincode,
           SERVICE_QUERY_STATUS
         )
 
@@ -980,6 +988,7 @@ module Win32
     def self.services(host=nil, group=nil)
       unless host.nil?
         raise TypeError unless host.is_a?(String) # Avoid strange errors
+        host = host.wincode
       end
 
       unless group.nil?
@@ -1056,7 +1065,7 @@ module Win32
           begin
             handle_scs = OpenService(
               handle_scm,
-              service_name,
+              service_name.wincode,
               SERVICE_QUERY_CONFIG
             )
 
@@ -1065,9 +1074,9 @@ module Win32
             config_struct = get_config_info(handle_scs)
 
             if config_struct != ERROR_FILE_NOT_FOUND
-              binary_path = config_struct[:lpBinaryPathName].read_string
-              load_order  = config_struct[:lpLoadOrderGroup].read_string
-              start_name  = config_struct[:lpServiceStartName].read_string
+              binary_path = config_struct[:lpBinaryPathName].read_wide_string(1024)
+              load_order  = config_struct[:lpLoadOrderGroup].read_wide_string(1024)
+              start_name  = config_struct[:lpServiceStartName].read_wide_string(1024)
               tag_id      = config_struct[:dwTagId]
 
               start_type = get_start_type(config_struct[:dwStartType])
@@ -1081,7 +1090,7 @@ module Win32
                 if buf.is_a?(Numeric) || buf.read_pointer.null?
                   description = ''
                 else
-                  description = buf.read_pointer.read_string
+                  description = buf.read_pointer.read_wide_string(1024)
                 end
               rescue
                 # While being annoying, not being able to get a description is not exceptional
@@ -1546,12 +1555,13 @@ module Win32
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)
+      host = host.wincode if host
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
       FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, service_signal)
+        handle_scs = OpenService(handle_scm, service.wincode, service_signal)
 
         FFI.raise_windows_error('OpenService') if handle_scs == 0
 
