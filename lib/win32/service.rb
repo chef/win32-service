@@ -1078,7 +1078,7 @@ module Win32
               begin
                 buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
 
-                if buf.is_a?(Fixnum) || buf.read_pointer.null?
+                if buf.is_a?(Numeric) || buf.read_pointer.null?
                   description = ''
                 else
                   description = buf.read_pointer.read_string
