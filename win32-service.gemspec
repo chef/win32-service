@@ -10,12 +10,12 @@ Gem::Specification.new do |spec|
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
   spec.cert_chain = Dir['certs/*']
-   
+
   spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
 
   spec.extra_rdoc_files = [
     'CHANGES',
-    'README',
+    'README.md',
     'MANIFEST',
     'doc/service.txt',
     'doc/daemon.txt'
