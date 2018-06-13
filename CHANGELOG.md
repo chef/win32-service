@@ -1,3 +1,14 @@
+# win32-service Change Log
+
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
+<!-- latest_stable_release -->
+
 == 0.8.10 - 11-Dec-2016
 * Fixed a bug where action resolution information was not correct. Thanks go
   to BXII-Dave for the spot and patch.
