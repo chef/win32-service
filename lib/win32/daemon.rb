@@ -1,6 +1,7 @@
 require_relative 'windows/constants'
 require_relative 'windows/structs'
 require_relative 'windows/functions'
+require_relative 'windows/version'
 
 # The Win32 module serves as a namespace only.
 module Win32
@@ -15,7 +16,7 @@ module Win32
     extend Windows::ServiceFunctions
 
     # The version of this library
-    VERSION = '0.8.10'.freeze
+    VERSION = Win32::Service::VERSION
 
     private
 

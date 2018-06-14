@@ -17,7 +17,7 @@ class TC_Daemon < Test::Unit::TestCase
   end
 
   test "version number is set properly" do
-    assert_equal('0.8.10', Daemon::VERSION)
+    assert_equal(Win32::Service::VERSION, Daemon::VERSION)
   end
 
   test "constructor basic functionality" do
