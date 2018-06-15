@@ -1,8 +1,11 @@
 require 'rubygems'
+lib = File.expand_path("../lib", __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require "win32/windows/version"
 
 Gem::Specification.new do |spec|
   spec.name       = 'win32-service'
-  spec.version    = '0.7.2'
+  spec.version    = Win32::Service::VERSION
   spec.authors    = ['Daniel J. Berger', 'Park Heesob']
   spec.license    = 'Artistic 2.0'
   spec.email      = 'djberg96@gmail.com'

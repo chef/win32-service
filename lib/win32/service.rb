@@ -1,4 +1,5 @@
 require 'rubygems'
+require_relative 'windows/version'
 require 'windows/error'
 require 'windows/service'
 require 'windows/file'
@@ -33,9 +34,6 @@ module Win32
     extend Windows::Security
     extend Windows::MSVCRT::String
     extend Windows::MSVCRT::Buffer
-
-    # The version of the win32-service library
-    VERSION = '0.7.2'
 
     # SCM security and access rights
 
