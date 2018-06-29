@@ -1,6 +1,11 @@
 # win32-service Change Log
 
 <!-- latest_release -->
+- This gem is now maintained by Chef Software Inc and the code can be found at https://github.com/chef/win32-service
+- Avoid Fixnum deprecation warnings on Ruby 2.4 and later
+- Allow daemon to accept SERVICE_CONTROL_PARAMCHANGE control code
+- Removed gem signing
+- Moved version to a separate file to support automated versioning with Expeditor
 <!-- latest_release -->
 
 <!-- release_rollup -->
@@ -203,9 +208,9 @@
   starts.  This was done to deal with services that need to perform any
   initialization in the Daemon itself before the service starts.  Previously
   this would result in the service timing out during startup.
-  
+
   Thanks go to Jamey Cribbs for spotting the problem.
-  
+
 * Modified the Daemon example, adding a service_init hook that does about 10
   seconds worth of initialization before finally starting.  See the comments
   in examples\daemon_test.rb for more information.
