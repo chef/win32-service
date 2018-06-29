@@ -8,11 +8,15 @@
 - Moved version to a separate file to support automated versioning with Expeditor
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=1.0.1 -->
+### Changes since 1.0.1 release
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [win32-service-1.0.1](https://github.com/chef/win32-service/tree/win32-service-1.0.1) (2018-06-29)
 <!-- latest_stable_release -->
+
+
 
 == 0.8.10 - 11-Dec-2016
 * Fixed a bug where action resolution information was not correct. Thanks go
