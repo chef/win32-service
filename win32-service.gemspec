@@ -8,16 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors    = ['Daniel J. Berger', 'Park Heesob']
   spec.license    = 'Artistic-2.0'
   spec.email      = 'djberg96@gmail.com'
-  spec.homepage   = 'http://github.com/chef/win32-service'
+  spec.homepage   = 'https://github.com/chef/win32-service'
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
 
-  spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
+  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|Gemfile|Rakefile|doc|examples|VERSION|appveyor.yml|test)}) }
 
   spec.extra_rdoc_files = [
     'CHANGELOG.md',
     'README.md',
-    'MANIFEST',
     'doc/service.txt',
     'doc/daemon.txt'
   ]
