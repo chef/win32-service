@@ -12,14 +12,9 @@ Gem::Specification.new do |spec|
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
 
-  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|Gemfile|Rakefile|doc|examples|VERSION|appveyor.yml|test)}) }
+  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|Gemfile|Rakefile|doc|examples|VERSION|test)}) }
 
-  spec.extra_rdoc_files = [
-    'CHANGELOG.md',
-    'README.md',
-    'doc/service.txt',
-    'doc/daemon.txt'
-  ]
+  spec.extra_rdoc_files  = ['README.md']
 
   spec.add_dependency('ffi')
   spec.add_dependency('ffi-win32-extensions')
