@@ -1,15 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release -->
-- This gem is now maintained by Chef Software Inc and the code can be found at https://github.com/chef/win32-service
-- Avoid Fixnum deprecation warnings on Ruby 2.4 and later
-- Allow daemon to accept SERVICE_CONTROL_PARAMCHANGE control code
-- Removed gem signing
-- Moved version to a separate file to support automated versioning with Expeditor
+<!-- latest_release 1.0.2 -->
+## [win32-service-1.0.2](https://github.com/chef/win32-service/tree/win32-service-1.0.2) (2018-10-26)
+
+#### Merged Pull Requests
+- Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.0.1 -->
 ### Changes since 1.0.1 release
+
+#### Merged Pull Requests
+- Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50)) <!-- 1.0.2 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
