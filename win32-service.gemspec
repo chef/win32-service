@@ -1,4 +1,3 @@
-require 'rubygems'
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "win32/windows/version"
@@ -7,30 +6,22 @@ Gem::Specification.new do |spec|
   spec.name       = 'win32-service'
   spec.version    = Win32::Service::VERSION
   spec.authors    = ['Daniel J. Berger', 'Park Heesob']
-  spec.license    = 'Artistic 2.0'
+  spec.license    = 'Artistic-2.0'
   spec.email      = 'djberg96@gmail.com'
-  spec.homepage   = 'http://www.rubyforge.org/projects/win32utils'
-  spec.platform   = Gem::Platform::RUBY
+  spec.homepage   = 'https://github.com/chef/win32-service'
   spec.summary    = 'An interface for MS Windows services'
   spec.test_files = Dir['test/test*.rb']
-  spec.extensions = ['ext/extconf.rb']
-   
-  spec.files = Dir['**/*'].reject{ |f| f.include?('git') }
 
-  spec.extra_rdoc_files = [
-    'CHANGES',
-    'README',
-    'MANIFEST',
-    'doc/service.txt',
-    'doc/daemon.txt',
-    'ext/win32/daemon.c'
-  ]
+  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|Gemfile|Rakefile|doc|examples|VERSION|test)}) }
 
-  spec.rubyforge_project = 'win32utils'
-  spec.required_ruby_version = '>= 1.8.2'
+  spec.extra_rdoc_files  = ['README.md']
 
-  spec.add_dependency('windows-pr', '>= 1.0.8')
-  spec.add_development_dependency('test-unit', '>= 2.1.0')
+  spec.add_dependency('ffi')
+  spec.add_dependency('ffi-win32-extensions')
+
+  spec.add_development_dependency('test-unit')
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('win32-security')
 
   spec.description = <<-EOF
     The win32-service library provides a Ruby interface to services on
