@@ -10,11 +10,11 @@ Gem::Specification.new do |spec|
   spec.email      = 'djberg96@gmail.com'
   spec.homepage   = 'https://github.com/chef/win32-service'
   spec.summary    = 'An interface for MS Windows services'
-  spec.test_files = Dir['test/test*.rb']
 
-  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\..*|Gemfile|Rakefile|doc|examples|VERSION|test)}) }
+  spec.files         = Dir["LICENSE", "lib/**/*"]
+  spec.require_paths = ["lib"]
 
-  spec.extra_rdoc_files  = ['README.md']
+  spec.required_ruby_version = ">= 2.2"
 
   spec.add_dependency('ffi')
   spec.add_dependency('ffi-win32-extensions')
