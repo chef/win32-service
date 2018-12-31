@@ -1,16 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 1.0.2 -->
-## [win32-service-1.0.2](https://github.com/chef/win32-service/tree/win32-service-1.0.2) (2018-10-26)
+<!-- latest_release unreleased -->
+## Unreleased
 
 #### Merged Pull Requests
-- Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50))
+- Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.0.1 -->
 ### Changes since 1.0.1 release
 
 #### Merged Pull Requests
+- Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50)) <!-- 2.0.0 -->
 - Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50)) <!-- 1.0.2 -->
 <!-- release_rollup -->
 
