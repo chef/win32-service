@@ -1,12 +1,8 @@
-require 'rubygems'
+require 'ffi/win32/extensions'
 require_relative 'windows/version'
-require 'windows/error'
-require 'windows/service'
-require 'windows/file'
-require 'windows/process'
-require 'windows/security'
-require 'windows/msvcrt/string'
-require 'windows/msvcrt/buffer'
+require_relative 'windows/constants'
+require_relative 'windows/structs'
+require_relative 'windows/functions'
 
 # The Win32 module serves as a namespace only.
 module Win32
@@ -14,26 +10,12 @@ module Win32
   # The Service class encapsulates services controller actions, such as
   # creating, starting, configuring or deleting services.
   class Service
+    include Windows::ServiceConstants
+    include Windows::ServiceStructs
+    include Windows::ServiceFunctions
 
-    # This is the error typically raised if one of the Service methods
-    # should fail for any reason.
-    class Error < StandardError; end
-
-    include Windows::Error
-    include Windows::Service
-    include Windows::File
-    include Windows::Process
-    include Windows::Security
-    include Windows::MSVCRT::String
-    include Windows::MSVCRT::Buffer
-
-    extend Windows::Error
-    extend Windows::Service
-    extend Windows::File
-    extend Windows::Process
-    extend Windows::Security
-    extend Windows::MSVCRT::String
-    extend Windows::MSVCRT::Buffer
+    extend Windows::ServiceStructs
+    extend Windows::ServiceFunctions
 
     # SCM security and access rights
 
@@ -97,7 +79,7 @@ module Win32
     FILE_SYSTEM_DRIVER  = SERVICE_FILE_SYSTEM_DRIVER
 
     # Service that runs in its own process
-    WIN32_OWN_PROCESS   = SERVICE_WIN32_OWN_PROCESS
+    WIN32_OWN_PROCESS = SERVICE_WIN32_OWN_PROCESS
 
     # Service that shares a process with one or more other services.
     WIN32_SHARE_PROCESS = SERVICE_WIN32_SHARE_PROCESS
@@ -260,7 +242,8 @@ module Win32
       :reboot_message,
       :command,
       :num_actions,
-      :actions
+      :actions,
+      :delayed_start
     )
 
     # :startdoc: #
@@ -275,8 +258,7 @@ module Win32
     # * host                   => nil (optional)
     # * display_name           => service_name
     # * desired_access         => Service::ALL_ACCESS
-    # * service_type           => Service::WIN32_OWN_PROCESS |
-    #                             Service::INTERACTIVE_PROCESS
+    # * service_type           => Service::WIN32_OWN_PROCESS
     # * start_type             => Service::DEMAND_START
     # * error_control          => Service::ERROR_NORMAL
     # * binary_path_name       => nil
@@ -321,8 +303,7 @@ module Win32
       opts = {
         'display_name'           => nil,
         'desired_access'         => SERVICE_ALL_ACCESS,
-        'service_type'           => SERVICE_WIN32_OWN_PROCESS |
-                                    SERVICE_INTERACTIVE_PROCESS,
+        'service_type'           => SERVICE_WIN32_OWN_PROCESS,
         'start_type'             => SERVICE_DEMAND_START,
         'error_control'          => SERVICE_ERROR_NORMAL,
         'binary_path_name'       => nil,
@@ -360,11 +341,9 @@ module Win32
       raise TypeError if host && !host.is_a?(String)
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-        if handle_scm == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         # Display name defaults to service_name
         opts['display_name'] ||= service_name
@@ -381,6 +360,7 @@ module Win32
           end
 
           dependencies += "\000"
+          dependencies = FFI::MemoryPointer.from_string(dependencies)
         end
 
         handle_scs = CreateService(
@@ -393,19 +373,17 @@ module Win32
           opts['error_control'],
           opts['binary_path_name'],
           opts['load_order_group'],
-          0,
+          nil,
           dependencies,
           opts['service_start_name'],
           opts['password']
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('CreateService') if handle_scs == 0
 
         if opts['description']
-          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-          description[0,4] = [opts['description']].pack('p*')
+          description = SERVICE_DESCRIPTION.new
+          description[:lpDescription] = FFI::MemoryPointer.from_string(opts['description'])
 
           bool = ChangeServiceConfig2(
             handle_scs,
@@ -413,9 +391,7 @@ module Win32
             description
           )
 
-          unless bool
-            raise Error, get_last_error
-          end
+          FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
@@ -500,7 +476,8 @@ module Win32
         'failure_actions'        => nil,
         'failure_delay'          => 0,
         'service_name'           => nil,
-        'host'                   => nil
+        'host'                   => nil,
+        'delayed_start'          => false
       }
 
       # Validate the hash options
@@ -523,11 +500,9 @@ module Win32
       raise TypeError unless host.is_a?(String) if host
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-        if handle_scm == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         desired_access = SERVICE_CHANGE_CONFIG
 
@@ -541,9 +516,7 @@ module Win32
           desired_access
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         dependencies = opts['dependencies']
 
@@ -566,20 +539,18 @@ module Win32
           opts['error_control'],
           opts['binary_path_name'],
           opts['load_order_group'],
-          0,
+          nil,
           dependencies,
           opts['service_start_name'],
           opts['password'],
           opts['display_name']
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('ChangeServiceConfig') unless bool
 
         if opts['description']
-          description = 0.chr * 4 # sizeof(SERVICE_DESCRIPTION)
-          description[0,4] = [opts['description']].pack('p*')
+          description = SERVICE_DESCRIPTION.new
+          description[:lpDescription] = FFI::MemoryPointer.from_string(opts['description'])
 
           bool = ChangeServiceConfig2(
             handle_scs,
@@ -587,9 +558,20 @@ module Win32
             description
           )
 
-          unless bool
-            raise Error, get_last_error
-          end
+          FFI.raise_windows_error('ChangeServiceConfig2') unless bool
+        end
+
+        if opts['delayed_start']
+          delayed_start = SERVICE_DELAYED_AUTO_START_INFO.new
+          delayed_start[:fDelayedAutostart] = opts['delayed_start']
+
+          bool = ChangeServiceConfig2(
+            handle_scs,
+            SERVICE_CONFIG_DELAYED_AUTO_START_INFO,
+            delayed_start
+          )
+
+          FFI.raise_windows_error('ChangeServiceConfig2') unless bool
         end
 
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
@@ -616,11 +598,9 @@ module Win32
       bool = false
 
       begin
-        handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+        handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-        if handle_scm == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
@@ -645,31 +625,29 @@ module Win32
     # Service.get_display_name('W32Time') => 'Windows Time'
     #
     def self.get_display_name(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
-      display_name = 0.chr * 260
-      display_buf  = [display_name.size].pack('L')
+      display_name = FFI::MemoryPointer.new(260)
+      display_size  = FFI::MemoryPointer.new(:ulong)
+      display_size.write_ulong(display_name.size)
 
       begin
         bool = GetServiceDisplayName(
           handle_scm,
           service,
           display_name,
-          display_buf
+          display_size
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+
+        FFI.raise_windows_error('OpenSCManager') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      display_name.unpack('Z*')[0]
+      display_name.read_string
     end
 
     # Returns the service name of the specified service from the provided
@@ -685,31 +663,28 @@ module Win32
     # Service.get_service_name('Windows Time') => 'W32Time'
     #
     def self.get_service_name(display_name, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
-      service_name = 0.chr * 260
-      service_buf  = [service_name.size].pack('L')
+      service_name = FFI::MemoryPointer.new(260)
+      service_size = FFI::MemoryPointer.new(:ulong)
+      service_size.write_ulong(service_name.size)
 
       begin
         bool = GetServiceKeyName(
           handle_scm,
           display_name,
           service_name,
-          service_buf
+          service_size
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('GetServiceKeyName') unless bool
       ensure
         CloseServiceHandle(handle_scm)
       end
 
-      service_name.unpack('Z*')[0]
+      service_name.read_string
     end
 
     # Attempts to start the named +service+ on +host+, or the local machine
@@ -727,28 +702,36 @@ module Win32
     def self.start(service, host=nil, *args)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-	      raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_START)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         num_args = 0
 
         if args.empty?
           args = nil
         else
-          num_args = args.length
-          args = args.map{ |x| [x].pack('p*') }.join
+          str_ptrs = []
+          num_args = args.size
+
+          args.each{ |string|
+            str_ptrs << FFI::MemoryPointer.from_string(string)
+          }
+
+          str_ptrs << nil
+
+          vector = FFI::MemoryPointer.new(:pointer, str_ptrs.size)
+
+          str_ptrs.each_with_index{ |p, i|
+            vector[i].put_pointer(0, p)
+          }
         end
 
-        unless StartService(handle_scs, num_args, args)
-          raise Error, get_last_error
+        unless StartService(handle_scs, num_args, vector)
+          FFI.raise_windows_error('StartService')
         end
 
       ensure
@@ -828,21 +811,17 @@ module Win32
     #   Service.delete('SomeService') => self
     #
     def self.delete(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CREATE_SERVICE)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, DELETE)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         unless DeleteService(handle_scs)
-          raise Error, get_last_error
+          FFI.raise_windows_error('DeleteService')
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
@@ -869,69 +848,45 @@ module Win32
 
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         # First, get the buf size needed
-        bytes_needed = [0].pack('L')
+        bytes = FFI::MemoryPointer.new(:ulong)
 
-        bool = QueryServiceConfig(handle_scs, nil, 0, bytes_needed)
+        bool = QueryServiceConfig(handle_scs, nil, 0, bytes)
 
-        if !bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER
-          raise Error, get_last_error
+        if !bool && FFI.errno != ERROR_INSUFFICIENT_BUFFER
+          FFI.raise_windows_error('QueryServiceConfig')
         end
 
-        buf = 0.chr * bytes_needed.unpack('L')[0]
-        bytes = [0].pack('L')
+        buf = FFI::MemoryPointer.new(:char, bytes.read_ulong)
+        bytes = FFI::MemoryPointer.new(:ulong)
 
         bool = QueryServiceConfig(handle_scs, buf, buf.size, bytes)
 
-        unless bool
-          raise Error, get_last_error
-        end
+        struct = QUERY_SERVICE_CONFIG.new(buf) # cast the buffer
+
+        FFI.raise_windows_error('QueryServiceConfig') unless bool
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
       end
 
-      binary_path_name   = 0.chr * 1024
-      load_order_group   = 0.chr * 1024
-      dependencies       = 0.chr * 1024
-      service_start_name = 0.chr * 260
-      display_name       = 0.chr * 260
-
-      strcpy(binary_path_name, buf[12,4].unpack('L')[0])
-      binary_path_name = binary_path_name.unpack('Z*')[0]
-
-      strcpy(load_order_group, buf[16,4].unpack('L')[0])
-      load_order_group = load_order_group.unpack('Z*')[0]
-
-      dependencies = get_dependencies(buf[24,4].unpack('L').first)
-
-      strcpy(service_start_name, buf[28,4].unpack('L')[0])
-      service_start_name = service_start_name.unpack('Z*')[0]
-
-      strcpy(display_name, buf[32,4].unpack('L')[0])
-      display_name = display_name.unpack('Z*')[0]
-
       ConfigStruct.new(
-        get_service_type(buf[0,4].unpack('L')[0]),
-        get_start_type(buf[4,4].unpack('L')[0]),
-        get_error_control(buf[8,4].unpack('L')[0]),
-        binary_path_name,
-        load_order_group,
-        buf[20,4].unpack('L')[0],
-        dependencies,
-        service_start_name,
-        display_name
+        get_service_type(struct[:dwServiceType]),
+        get_start_type(struct[:dwStartType]),
+        get_error_control(struct[:dwErrorControl]),
+        struct[:lpBinaryPathName].read_string,
+        struct[:lpLoadOrderGroup].read_string,
+        struct[:dwTagId],
+        struct.dependencies,
+        struct[:lpServiceStartName].read_string,
+        struct[:lpDisplayName].read_string
       )
     end
 
@@ -943,11 +898,9 @@ module Win32
     # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
     #
     def self.status(service, host=nil)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(
@@ -956,13 +909,11 @@ module Win32
           SERVICE_QUERY_STATUS
         )
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
         # SERVICE_STATUS_PROCESS struct
-        status = [0,0,0,0,0,0,0,0,0].pack('LLLLLLLLL')
-        bytes  = [0].pack('L')
+        status = SERVICE_STATUS_PROCESS.new
+        bytes  = FFI::MemoryPointer.new(:ulong)
 
         bool = QueryServiceStatusEx(
           handle_scs,
@@ -972,16 +923,12 @@ module Win32
           bytes
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('QueryServiceStatusEx') unless bool
 
-        dw_service_type = status[0,4].unpack('L').first
-
-        service_type  = get_service_type(dw_service_type)
-        current_state = get_current_state(status[4,4].unpack('L').first)
-        controls      = get_controls_accepted(status[8,4].unpack('L').first)
-        interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
+        service_type  = get_service_type(status[:dwServiceType])
+        current_state = get_current_state(status[:dwCurrentState])
+        controls      = get_controls_accepted(status[:dwControlsAccepted])
+        interactive   = status[:dwServiceType] & SERVICE_INTERACTIVE_PROCESS > 0
 
         # Note that the pid and service flags will always return 0 if you're
         # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
@@ -991,15 +938,14 @@ module Win32
           service_type,
           current_state,
           controls,
-          status[12,4].unpack('L').first, # Win32ExitCode
-          status[16,4].unpack('L').first, # ServiceSpecificExitCode
-          status[20,4].unpack('L').first, # CheckPoint
-          status[24,4].unpack('L').first, # WaitHint
+          status[:dwWin32ExitCode],
+          status[:dwServiceSpecificExitCode],
+          status[:dwCheckPoint],
+          status[:dwWaitHint],
           interactive,
-          status[28,4].unpack('L').first, # ProcessId
-          status[32,4].unpack('L').first  # ServiceFlags
+          status[:dwProcessId],
+          status[:dwServiceFlags]
         )
-
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
         CloseServiceHandle(handle_scm)
@@ -1038,15 +984,13 @@ module Win32
         raise TypeError unless group.is_a?(String) # Avoid strange errors
       end
 
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
-      bytes_needed      = [0].pack('L')
-      services_returned = [0].pack('L')
-      resume_handle     = [0].pack('L')
+      bytes_needed      = FFI::MemoryPointer.new(:ulong)
+      services_returned = FFI::MemoryPointer.new(:ulong)
+      resume_handle     = FFI::MemoryPointer.new(:ulong)
 
       begin
         # The first call is used to determine the required buffer size
@@ -1055,7 +999,7 @@ module Win32
           SC_ENUM_PROCESS_INFO,
           SERVICE_WIN32 | SERVICE_DRIVER,
           SERVICE_STATE_ALL,
-          0,
+          nil,
           0,
           bytes_needed,
           services_returned,
@@ -1063,12 +1007,10 @@ module Win32
           group
         )
 
-        err_num = GetLastError()
-
-        if !bool && err_num == ERROR_MORE_DATA
-          service_buf = 0.chr * bytes_needed.unpack('L').first
+        if !bool && FFI.errno == ERROR_MORE_DATA
+          service_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
         else
-          raise Error, get_last_error(err_num)
+          FFI.raise_windows_error('EnumServiceStatusEx')
         end
 
         bool = EnumServicesStatusEx(
@@ -1084,39 +1026,30 @@ module Win32
           group
         )
 
-        unless bool
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('EnumServiceStatusEx') unless bool
 
-        num_services = services_returned.unpack('L').first
+        num_services = services_returned.read_ulong
 
-        index = 0
         services_array = [] unless block_given?
 
         1.upto(num_services){ |num|
-          service_name = 0.chr * 260
-          display_name = 0.chr * 260
+          # Cast the buffer
+          struct = ENUM_SERVICE_STATUS_PROCESS.new(service_buf)
 
-          info = service_buf[index, 44] # sizeof(SERVICE_STATUS_PROCESS)
+          service_name = struct[:lpServiceName].read_string
+          display_name = struct[:lpDisplayName].read_string
 
-          strcpy(service_name, info[0,4].unpack('L').first)
-          strcpy(display_name, info[4,4].unpack('L').first)
+          service_type  = get_service_type(struct[:ServiceStatusProcess][:dwServiceType])
+          current_state = get_current_state(struct[:ServiceStatusProcess][:dwCurrentState])
+          controls      = get_controls_accepted(struct[:ServiceStatusProcess][:dwControlsAccepted])
 
-          service_name = service_name.unpack('Z*')[0]
-          display_name = display_name.unpack('Z*')[0]
-
-          dw_service_type = info[8,4].unpack('L').first
-
-          service_type  = get_service_type(dw_service_type)
-          current_state = get_current_state(info[12,4].unpack('L').first)
-          controls      = get_controls_accepted(info[16,4].unpack('L').first)
-          interactive   = dw_service_type & SERVICE_INTERACTIVE_PROCESS > 0
-          win_exit_code = info[20,4].unpack('L').first
-          ser_exit_code = info[24,4].unpack('L').first
-          check_point   = info[28,4].unpack('L').first
-          wait_hint     = info[32,4].unpack('L').first
-          pid           = info[36,4].unpack('L').first
-          service_flags = info[40,4].unpack('L').first
+          interactive   = struct[:ServiceStatusProcess][:dwServiceType] & SERVICE_INTERACTIVE_PROCESS > 0
+          win_exit_code = struct[:ServiceStatusProcess][:dwWin32ExitCode]
+          ser_exit_code = struct[:ServiceStatusProcess][:dwServiceSpecificExitCode]
+          check_point   = struct[:ServiceStatusProcess][:dwCheckPoint]
+          wait_hint     = struct[:ServiceStatusProcess][:dwWaitHint]
+          pid           = struct[:ServiceStatusProcess][:dwProcessId]
+          service_flags = struct[:ServiceStatusProcess][:dwServiceFlags]
 
           begin
             handle_scs = OpenService(
@@ -1125,46 +1058,49 @@ module Win32
               SERVICE_QUERY_CONFIG
             )
 
-            if handle_scs == 0
-              raise Error, get_last_error
-            end
+            FFI.raise_windows_error('OpenService') if handle_scs == 0
 
-            config_buf = get_config_info(handle_scs)
+            config_struct = get_config_info(handle_scs)
 
-            if config_buf != ERROR_FILE_NOT_FOUND
-              binary_path = 0.chr * 1024
-              strcpy(binary_path, config_buf[12,4].unpack('L').first)
-              binary_path = binary_path.unpack('Z*')[0]
+            if config_struct != ERROR_FILE_NOT_FOUND
+              binary_path = config_struct[:lpBinaryPathName].read_string
+              load_order  = config_struct[:lpLoadOrderGroup].read_string
+              start_name  = config_struct[:lpServiceStartName].read_string
+              tag_id      = config_struct[:dwTagId]
 
-              load_order = 0.chr * 1024
-              strcpy(load_order, config_buf[16,4].unpack('L').first)
-              load_order = load_order.unpack('Z*')[0]
+              start_type = get_start_type(config_struct[:dwStartType])
+              error_ctrl = get_error_control(config_struct[:dwErrorControl])
 
-              start_name = 0.chr * 1024
-              strcpy(start_name, config_buf[28,4].unpack('L').first)
-              start_name = start_name.unpack('Z*')[0]
+              deps = config_struct.dependencies
 
-              start_type = get_start_type(config_buf[4,4].unpack('L').first)
-              error_ctrl = get_error_control(config_buf[8,4].unpack('L').first)
-
-              tag_id = config_buf[20,4].unpack('L').first
-
-              deps = get_dependencies(config_buf[24,4].unpack('L').first)
-
-              description = 0.chr * 2048
               begin
-                buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION, false)
+                buf = get_config2_info(handle_scs, SERVICE_CONFIG_DESCRIPTION)
 
-                strcpy(description, buf[0,4].unpack('L').first)
-                description = description.unpack('Z*')[0]
+                if buf.is_a?(Numeric) || buf.read_pointer.null?
+                  description = ''
+                else
+                  description = buf.read_pointer.read_string
+                end
               rescue
-                warn "WARNING: Failed to retrieve description for the #{service_name} service"
-                description = nil
+                # While being annoying, not being able to get a description is not exceptional
+                warn "WARNING: Failed to retrieve description for the #{service_name} service."
+                description = ''
+              end
+
+              begin
+                delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+                if delayed_start_buf.is_a?(FFI::MemoryPointer)
+                  delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
+                  delayed_start = delayed_start_info[:fDelayedAutostart]
+                else
+                  delayed_start = false
+                end
+              rescue
+                warn "WARNING: Unable to get delayed auto start information for the #{service_name} service"
+                delayed_start = nil
               end
             else
-              msg = "WARNING: The registry entry for the #{service_name} "
-              msg += "service could not be found."
-              warn msg
+              warn "WARNING: The registry entry for the #{service_name} service could not be found"
 
               binary_path = nil
               load_order  = nil
@@ -1177,41 +1113,48 @@ module Win32
             end
 
             begin
-              buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS, false)
-            rescue
-              warn "WARNING: Failed to retrieve failure actions for the #{service_name} service"
-              buf2 = ERROR_FILE_NOT_FOUND
-            end
+              buf2 = get_config2_info(handle_scs, SERVICE_CONFIG_FAILURE_ACTIONS)
 
-            if buf2 != ERROR_FILE_NOT_FOUND
-              reset_period = buf2[0,4].unpack('L').first
+              if buf2.is_a?(FFI::MemoryPointer)
+                fail_struct = SERVICE_FAILURE_ACTIONS.new(buf2)
 
-              reboot_msg = 0.chr * 260
-              strcpy(reboot_msg, buf2[4,4].unpack('L').first)
-              reboot_msg = reboot_msg.unpack('Z*')[0]
+                reset_period = fail_struct[:dwResetPeriod]
+                num_actions  = fail_struct[:cActions]
 
-              command = 0.chr * 260
-              strcpy(command, buf2[8,4].unpack('L').first)
-              command = command.unpack('Z*')[0]
+                if fail_struct[:lpRebootMsg].null?
+                  reboot_msg = nil
+                else
+                  reboot_msg = fail_struct[:lpRebootMsg].read_string
+                end
 
-              num_actions = buf2[12,4].unpack('L').first
-              actions = nil
+                if fail_struct[:lpCommand].null?
+                  command = nil
+                else
+                  command = fail_struct[:lpCommand].read_string
+                end
 
-              if num_actions > 0
-                action_ptr = buf2[16,4].unpack('L').first
-                action_buf = [0,0].pack('LL') * num_actions
-                memcpy(action_buf, action_ptr, action_buf.size)
+                actions = nil
 
-                i = 0
-                actions = {}
-                num_actions.times{ |n|
-                  action_type, delay = action_buf[i, 8].unpack('LL')
-                  action_type = get_action_type(action_type)
-                  actions[n+1] = {:action_type => action_type, :delay => delay}
-                  i += 8
-                }
+                if num_actions > 0
+                  action_ptr = fail_struct[:lpsaActions]
+
+                  actions = {}
+
+                  num_actions.times{ |n|
+                    sc_action = SC_ACTION.new(action_ptr[n * SC_ACTION.size])
+                    delay = sc_action[:Delay]
+                    action_type = get_action_type(sc_action[:Type])
+                    actions[n+1] = {:action_type => action_type, :delay => delay}
+                  }
+                end
+              else
+                reset_period = nil
+                reboot_msg   = nil
+                command      = nil
+                actions      = nil
               end
-            else
+            rescue
+              warn "WARNING: Unable to retrieve failure actions for the #{service_name} service"
               reset_period = nil
               reboot_msg   = nil
               command      = nil
@@ -1246,7 +1189,8 @@ module Win32
             reboot_msg,
             command,
             num_actions,
-            actions
+            actions,
+            delayed_start
           )
 
           if block_given?
@@ -1255,7 +1199,7 @@ module Win32
              services_array << struct
           end
 
-          index += 44 # sizeof(SERVICE_STATUS_PROCESS)
+          service_buf += ENUM_SERVICE_STATUS_PROCESS.size
         }
       ensure
         CloseServiceHandle(handle_scm)
@@ -1270,7 +1214,7 @@ module Win32
     #
     def self.configure_failure_actions(handle_scs, opts)
       if opts['failure_actions']
-        token_handle = 0.chr * 4
+        token_handle = FFI::MemoryPointer.new(:ulong)
 
         bool = OpenProcessToken(
           GetCurrentProcess(),
@@ -1279,23 +1223,29 @@ module Win32
         )
 
         unless bool
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('OpenProcessToken', error)
         end
 
-        token_handle = token_handle.unpack('L').first
+        token_handle = token_handle.read_ulong
 
         # Get the LUID for shutdown privilege.
-        luid = 0.chr * 8
+        luid = LUID.new
 
         unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('LookupPrivilegeValue', error)
         end
 
-        tkp = [1].pack('L') + luid + [SE_PRIVILEGE_ENABLED].pack('L')
+        luid_and_attrs = LUID_AND_ATTRIBUTES.new
+        luid_and_attrs[:Luid] = luid
+        luid_and_attrs[:Attributes] = SE_PRIVILEGE_ENABLED
+
+        tkp = TOKEN_PRIVILEGES.new
+        tkp[:PrivilegeCount] = 1
+        tkp[:Privileges][0] = luid_and_attrs
 
         # Enable shutdown privilege in access token of this process
         bool = AdjustTokenPrivileges(
@@ -1308,76 +1258,54 @@ module Win32
         )
 
         unless bool
-          error = get_last_error
+          error = FFI.errno
           CloseServiceHandle(handle_scs)
-          raise Error, error
+          raise SystemCallError.new('AdjustTokenPrivileges', error)
         end
       end
 
-      fail_buf = 0.chr * 20 # sizeof(SERVICE_FAILURE_ACTIONS)
+      sfa = SERVICE_FAILURE_ACTIONS.new
 
       if opts['failure_reset_period']
-        fail_buf[0,4] = [opts['failure_reset_period']].pack('L')
+        sfa[:dwResetPeriod] = opts['failure_reset_period']
       end
 
       if opts['failure_reboot_message']
-        fail_buf[4,4] = [opts['failure_reboot_message']].pack('p*')
+        sfa[:lpRebootMsg] = FFI::MemoryPointer.from_string(opts['failure_reboot_message'])
       end
 
       if opts['failure_command']
-        fail_buf[8,4] = [opts['failure_command']].pack('p*')
+        sfa[:lpCommand] = FFI::MemoryPointer.from_string(opts['failure_command'])
       end
 
       if opts['failure_actions']
-        actions = []
+        action_size = opts['failure_actions'].size
+        action_ptr = FFI::MemoryPointer.new(SC_ACTION, action_size)
 
-        opts['failure_actions'].each{ |action|
-          action_buf = 0.chr * 8
-          action_buf[0, 4] = [action].pack('L')
-          action_buf[4, 4] = [opts['failure_delay']].pack('L')
-          actions << action_buf
+        actions = action_size.times.collect do |i|
+          SC_ACTION.new(action_ptr + i * SC_ACTION.size)
+        end
+
+        opts['failure_actions'].each_with_index{ |action, i|
+          actions[i][:Type] = action
+          actions[i][:Delay] = opts['failure_delay']
         }
 
-        actions = actions.join
-
-        fail_buf[12,4] = [opts['failure_actions'].length].pack('L')
-        fail_buf[16,4] = [actions].pack('p*')
+        sfa[:cActions] = action_size
+        sfa[:lpsaActions] = action_ptr
       end
 
       bool = ChangeServiceConfig2(
         handle_scs,
         SERVICE_CONFIG_FAILURE_ACTIONS,
-        fail_buf
+        sfa
       )
 
       unless bool
-        error = get_last_error
+        error = FFI.errno
         CloseServiceHandle(handle_scs)
-        raise Error, error
+        raise SystemCallError.new('ChangeServiceConfig2', error)
       end
-    end
-
-    # Unravels a pointer to an array of dependencies. Takes the address
-    # that points the array as an argument.
-    #
-    def self.get_dependencies(address)
-      dep_buf = ""
-
-      while address != 0
-        char_buf = 0.chr
-        memcpy(char_buf, address, 1)
-        address += 1
-        dep_buf += char_buf
-        break if dep_buf[-2,2] == "\0\0"
-      end
-
-      dependencies = []
-
-      if dep_buf != "\0\0"
-        dependencies = dep_buf.split("\000\000").first.split(0.chr)
-      end
-
-      dependencies
     end
 
     # Returns a human readable string indicating the action type.
@@ -1403,24 +1331,22 @@ module Win32
     # instead.
     #
     def self.get_config_info(handle)
-      bytes_needed = [0].pack('L')
+      bytes_needed = FFI::MemoryPointer.new(:ulong)
 
       # First attempt at QueryServiceConfig is to get size needed
-      bool = QueryServiceConfig(handle, 0, 0, bytes_needed)
+      bool = QueryServiceConfig(handle, nil, 0, bytes_needed)
 
-      err_num = GetLastError()
-
-      if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
-        config_buf = 0.chr * bytes_needed.unpack('L').first
-      elsif err_num == ERROR_FILE_NOT_FOUND
-        return err_num
+      if !bool && FFI.errno == ERROR_INSUFFICIENT_BUFFER
+        config_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
+      elsif FFI.errno == ERROR_FILE_NOT_FOUND
+        return FFI.errno
       else
-        error = get_last_error(err_num)
+        error = FFI.errno
         CloseServiceHandle(handle)
-        raise Error, error
+        FFI.raise_windows_error('QueryServiceConfig', error)
       end
 
-      bytes_needed = [0].pack('L')
+      bytes_needed.clear
 
       # Second attempt at QueryServiceConfig gets the actual info
       begin
@@ -1431,34 +1357,38 @@ module Win32
           bytes_needed
         )
 
-        raise Error, get_last_error unless bool
+        FFI.raise_windows_error('QueryServiceConfig') unless bool
       ensure
         CloseServiceHandle(handle) unless bool
       end
 
-      config_buf
+      QUERY_SERVICE_CONFIG.new(config_buf) # cast the buffer
     end
 
     # Shortcut for QueryServiceConfig2. Returns the buffer.
     #
-    def self.get_config2_info(handle, info_level, close_handle = true)
-      bytes_needed = [0].pack('L')
+    def self.get_config2_info(handle, info_level)
+      bytes_needed = FFI::MemoryPointer.new(:ulong)
 
       # First attempt at QueryServiceConfig2 is to get size needed
-      bool = QueryServiceConfig2(handle, info_level, 0, 0, bytes_needed)
+      bool = QueryServiceConfig2(handle, info_level, nil, 0, bytes_needed)
 
-      err_num = GetLastError()
+      err_num = FFI.errno
 
+      # This is a bit hacky since it means we have to check the type of value
+      # we get back, but we don't always want to raise an error either,
+      # depending on what we're trying to get at.
+      #
       if !bool && err_num == ERROR_INSUFFICIENT_BUFFER
-        config2_buf = 0.chr * bytes_needed.unpack('L').first
-      elsif err_num == ERROR_FILE_NOT_FOUND
+        config2_buf = FFI::MemoryPointer.new(:char, bytes_needed.read_ulong)
+      elsif [ERROR_FILE_NOT_FOUND, ERROR_RESOURCE_TYPE_NOT_FOUND, ERROR_RESOURCE_NAME_NOT_FOUND].include?(err_num)
         return err_num
       else
-        CloseServiceHandle(handle) if close_handle
-        raise Error, get_last_error(err_num)
+        CloseServiceHandle(handle)
+        FFI.raise_windows_error('QueryServiceConfig2', err_num)
       end
 
-      bytes_needed = [0].pack('L')
+      bytes_needed.clear
 
       # Second attempt at QueryServiceConfig2 gets the actual info
       begin
@@ -1470,9 +1400,9 @@ module Win32
           bytes_needed
         )
 
-        raise Error, get_last_error unless bool
+        FFI.raise_windows_error('QueryServiceConfig2') unless bool
       ensure
-        CloseServiceHandle(handle) if close_handle and not bool
+        CloseServiceHandle(handle) unless bool
       end
 
       config2_buf
@@ -1614,23 +1544,19 @@ module Win32
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)
-      handle_scm = OpenSCManager(host, 0, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
 
-      if handle_scm == 0
-        raise Error, get_last_error
-      end
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
 
       begin
         handle_scs = OpenService(handle_scm, service, service_signal)
 
-        if handle_scs == 0
-          raise Error, get_last_error
-        end
+        FFI.raise_windows_error('OpenService') if handle_scs == 0
 
-        status = [0,0,0,0,0,0,0].pack('LLLLLLL')
+        status = SERVICE_STATUS.new
 
         unless ControlService(handle_scs, control_signal, status)
-          raise Error, get_last_error
+          FFI.raise_windows_error('ControlService')
         end
       ensure
         CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0

@@ -1,19 +1,114 @@
-== 0.7.3 - ???
-* Use char.h instead of tchar.h on cygwin. Thanks go to John Eckersberg
-  for the patch.
+# win32-service Change Log
+
+<!-- latest_release 1.0.2 -->
+## [win32-service-1.0.2](https://github.com/chef/win32-service/tree/win32-service-1.0.2) (2018-10-26)
+
+#### Merged Pull Requests
+- Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50))
+<!-- latest_release -->
+
+<!-- release_rollup since=1.0.1 -->
+### Changes since 1.0.1 release
+
+#### Merged Pull Requests
+- Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50)) <!-- 1.0.2 -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
+## [win32-service-1.0.1](https://github.com/chef/win32-service/tree/win32-service-1.0.1) (2018-06-29)
+<!-- latest_stable_release -->
+
+## 0.8.10 - 11-Dec-2016
+* Fixed a bug where action resolution information was not correct. Thanks go
+  to BXII-Dave for the spot and patch.
+
+## 0.8.9 - 26-Jun-2016
+* Added the ffi-win32-extensions dependency.
+* Changed the way service dependencies are determined.
+* Removed the helper.rb file since it's no longer used.
+
+## 0.8.8 - 24-Jun-2016
+* Fixed the function prototypes for CreateEvent and AdjustTokenPrivileges
+  where I was using :bool instead of :int.
+* Updated the various FFI module wrapper names so that they're more distinctly
+  namespaced. Avoids a clash with the win32-eventlog gem, and possibly others.
+* Discovered more places where QueryServiceConfig2 could fail while attempting
+  to get failure actions and delayed auto start info. Instead of failing,
+  these now set their respective data to nil.
+* A timeout value in our main observer thread was increased to potentially
+  improve performance. Feedback welcome.
+* This gem is now signed.
+* Added the win32-service.rb and win32-daemon.rb files for convenience.
+* Use require_relative internally.
+* Added win32-security as a development dependency. It was already being used
+  for tests but now it's actually part of the gemspec.
+* Many tests are now skipped unless run with administrative privileges, either
+  because they require it, or because they otherwise take too long.
+* Gem related tasks in the Rakefile now assume Rubygems 2.x.
+* Added an appveyor.yml file.
+* The DemoDaemon example will create C:/Tmp if it doesn't already exist.
+
+## 0.8.7 - 14-Jul-2014
+* Fixed a bug in the SERVICE_DELAYED_AUTO_START_INFO struct. It now returns 0
+  or 1, though it still accepts true or false as arguments. Thanks go to
+  Kartik Null Cating-Subramanian for the spot.
+
+## 0.8.6 - 21-Aug-2014
+* Some internal changes that make stopping a service more robust. Thanks go
+  to Ethan J. Brown for the patches.
+* Renamed the constants module to avoid name clashes. Thanks go to Michael
+  Smith for the spot.
+
+## 0.8.5 - 2-Jul-2014
+* The service type for Service.new no longer defaults to being an interactive
+  process. This could cause process credential issues and wasn't very
+  useful in practice anyway. Thanks go to Pierre Ynard for the report.
+* More tests skipped unless run with admin privileges.
+* Use relative_require instead of doing things manually.
+* Minor memory efficieny improvements.
+* Skip errors on ERROR_RESOURCE_TYPE_NOT_FOUND when getting service config info. Thanks go to Rob Reynolds for the patch.
+
+## 0.8.4 - 23-Jan-2014
 * Cleaned up some unused and/or misnamed variables.
 * Automatically require devkit in Rakefile if mingw.
 * Added a patch that warns, instead of fails, if a resource is misconfigured
   in the Service.services method. Thanks go to Josh Cooper for the patch.
+* Fixed the service test that ensures that trying to start an already running
+  service will raise an error. Thanks again to Jim Arnold for the patch.
 
-== 0.7.2 - 7-Sep-2011
+## 0.8.3 - 1-Nov-2013
+* Fixed a bug where a service's state could be changed when merely
+  interrogating the service. Thanks go to Glenn Sarti / Puppet Labs
+  for the spot.
+* Fixed a bug where attempting to get the description of a service that
+  has no description could raise an error. Now an empty string is returned.
+
+## 0.8.2 - 13-Aug-2013
+* Fixed a bug in the Service.start method where it was not handling arguments
+  properly. Thanks go to Sean Karlage for the spot.
+
+## 0.8.1 - 2-Aug-2013
+* Fixed the failure actions code for the Service#configure method
+  so that it is also using FFI.
+* An internal fix for the Daemon class was added. In short, you no longer
+  need to, nor should you, call exit! in a service_stop method. Thanks go
+  to Adrian Candaten for pointing out the issue in general.
+* Made FFI functions private.
+* Added Rake as a development dependency.
+* Removed an internal helper function that was no longer being used.
+
+## 0.8.0 - 19-Jun-2013
+* Converted all code to use FFI. This includes the Daemon code, which means
+  that it also now works with JRuby.
+
+## 0.7.2 - 7-Sep-2011
 * Now works with mingw compiler by skipping __try and __finally if using
   mingw, or using them with mingw if the seh.h header is found.
 * The binary gem now contains binaries for both Ruby 1.8.7 and 1.9.2 using
   a simple wrapper.
 * Updated some Rake tasks.
 
-== 0.7.1 - 9-Feb-2010
+## 0.7.1 - 9-Feb-2010
 * Compatibility fixes for 1.9.x.
 * Fixed a bug where the controls_accepted struct member was always nil. This
   has been fixed and now always returns an array.
@@ -22,7 +117,7 @@
 * Some tests were refactored to be more reliable.
 * Refactored the Rakefile and gemspec.
 
-== 0.7.0 - 30-Jun-2009
+## 0.7.0 - 30-Jun-2009
 * INTERFACE CHANGE: The Service.new and Service.configure methods now accept
   a single hash argument only. The :service_name key is mandatory, while the
   :host key is optional.
@@ -43,14 +138,14 @@
   library is now a dependency.
 * The 'uninstall' Rakefile task is now more verbose.
 
-== 0.6.1 - 1-Jan-2008
+## 0.6.1 - 1-Jan-2008
 * The Service.services method now handles the scenario where a particular
   service may still exist, but its underlying registry entry has been deleted.
   In this case, most ServiceInfo struct members are set to nil and a warning
   is issued.
 * RDoc updates.
 
-== 0.6.0 - 25-Nov-2007
+## 0.6.0 - 25-Nov-2007
 * The Service control class is now pure Ruby. The Daemon class is still C,
   however. That may change in the future. This means the windows-pr
   library is now a prerequisite.
@@ -86,7 +181,7 @@
 * DaemonError is now Daemon::Error.
 * Some documentation improvements, corrections and updates.
 
-== 0.5.2 - 25-Nov-2006
+## 0.5.2 - 25-Nov-2006
 * Fixed a bug in the Daemon class where the service event handling methods
   (most notably service_stop) did not work properly due to thread blocking
   issues.  Many thanks go to Patrick Hurley for the patch.
@@ -99,7 +194,7 @@
 * Added a gemspec.
 * Documentation and test suite updates.
 
-== 0.5.1 - 18-Jun-2006
+## 0.5.1 - 18-Jun-2006
 * Added the Service.open method.
 * The Service.new method now accepts a block, and automatically closes itself
   at the end of the block.
@@ -113,20 +208,20 @@
 * Added a tweak to the extconf.rb file to help with the test suite.
 * Some documentation updates and corrections.
 
-== 0.5.0 - 26-Nov-2005
+## 0.5.0 - 26-Nov-2005
 * Added a service_init hook, and (internally) altered the way the service
   starts.  This was done to deal with services that need to perform any
   initialization in the Daemon itself before the service starts.  Previously
   this would result in the service timing out during startup.
-  
+
   Thanks go to Jamey Cribbs for spotting the problem.
-  
+
 * Modified the Daemon example, adding a service_init hook that does about 10
   seconds worth of initialization before finally starting.  See the comments
   in examples\daemon_test.rb for more information.
 * Minor test and README changes.
 
-== 0.4.6 - 24-May-2005
+## 0.4.6 - 24-May-2005
 * Fixed an initialization bug that could cause Daemons to fail unless the
   win32-service package was the last package require'd.
 * Altered the Service.start method.  It now takes any number of arguments
@@ -150,7 +245,7 @@
   run rdoc over the service.txt and daemon.txt files.
 * The dreaded "code cleanup".
 
-== 0.4.5 - 28-Feb-2005
+## 0.4.5 - 28-Feb-2005
 * Fixed an accessor bug in Service#create.  Thanks go to Nathaniel Talbott
   for the spot.
 * Eliminated a warning that appeared starting in Ruby 1.8.2 regarding Struct
@@ -161,14 +256,14 @@
 * Renamed the 'test.rb' file to 'services_test.rb'.
 * Made this document rdoc friendly.
 
-== 0.4.4 - 27-Aug-2004
+## 0.4.4 - 27-Aug-2004
 * Modified the Service class to use the newer allocation framework.  The
   Daemon class already used this, hence no major version bump.
 * Fixed in a bug in the create_service() method with regards to the
   'dependencies' option and null arguments (you no longer need to specify
   an empty array).
 
-== 0.4.3 - 14-Aug-2004
+## 0.4.3 - 14-Aug-2004
 * Fixed the Daemon class by adding back the constants it needed in order to
   run.  I accidentally broke this when I changed the Daemon class from being
   a subclass of Service to being its own class.
@@ -178,7 +273,7 @@
   any occur.
 * Minor doc updates
 
-== 0.4.2 - 10-Jul-2004
+## 0.4.2 - 10-Jul-2004
 * The Daemon class is no longer a subclass of Service.
 * Added the 'pid' and 'service_flags' struct members to the Win32Service
   struct.  These members are only available to folks using Windows 2000 or
@@ -193,13 +288,13 @@
 * Removed the .html files under /doc.  You can generate that on your own if
   you like.
 
-== 0.4.1 - 14-Mar-2004
+## 0.4.1 - 14-Mar-2004
 * Added the exists? class method and corresponding test suite additions.
 * Pushed the ServiceError and DaemonError classes under the Win32 module.
 * Normalized tc_service.rb so that it can be run outside of the test directory
   more easily.
 
-== 0.4.0 - 9-Feb-2004
+## 0.4.0 - 9-Feb-2004
 * Changed "worker" method to "service_main" method.
 * Added event hooks for stop, pause, resume, etc.  See the documentation for
   further details.  (Thanks Park Heesob)
@@ -208,7 +303,7 @@
 * Updated the daemon_test.rb file to use the new event hooks.
 * Documentation additions and updates.
 
-== 0.3.0 - 31-Jan-2004
+## 0.3.0 - 31-Jan-2004
 * Added a Daemon subclass.  This allows you to run Ruby programs as a service.
   Please see the documentation for more details. (Thanks Park Heesob).  This
   should be considered an ALPHA release.
@@ -229,7 +324,7 @@
 * Test suite and documentation additions, including a sample daemon program
   in the test directory called "daemon_test.rb".
 
-== 0.2.2 - 15-Jan-2004
+## 0.2.2 - 15-Jan-2004
 * Fixed a mistake in the service_init declaration within Init_service().
 * Fixed bug in the service_init function with regards to desired access.
 * Modified service_free() function to explicitly set the hSCManager handle
@@ -240,13 +335,13 @@
 * Added explicit garbage collection in Service.services() method.
 * More explicit about closing open HANDLE's when error conditions arise.
 
-== 0.2.1 - 2-Nov-2003
+## 0.2.1 - 2-Nov-2003
 * Made the exported less redundant and less verbose, e.g.
   Service::SERVICE_DISABLED is now just Service::DISABLED.  The same is true
   for the service control constants, i.e. the 'SC_' has been removed.
 * Corresponding test suite changes.
 
-== 0.2.0 - 16-Oct-2003
+## 0.2.0 - 16-Oct-2003
 * The constructor has been changed.  It now only takes a machine name and a
   desired access for arguments.  The keyword arguments are now part of the
   create_service method() and only in block form.  See the documentation for
@@ -258,5 +353,5 @@
   error instead of a vanilla StandardError.
 * Moved some common code into the service.h file.
 
-== 0.1.0 - 10-Oct-2003
+## 0.1.0 - 10-Oct-2003
 - Initial release
