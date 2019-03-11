@@ -69,6 +69,12 @@ namespace 'test' do
       t.warning = true
       t.test_files = FileList['test/test_win32_service_status.rb']
     end
+
+    Rake::TestTask.new('close_service_handle') do |t|
+      t.verbose = true
+      t.warning = true
+      t.test_files = FileList['test/test_win32_service_close_service_handle.rb']
+    end
   end
 
   task :all do

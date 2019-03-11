@@ -1087,18 +1087,7 @@ module Win32
                 description = ''
               end
 
-              begin
-                delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
-                if delayed_start_buf.is_a?(FFI::MemoryPointer)
-                  delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-                  delayed_start = delayed_start_info[:fDelayedAutostart]
-                else
-                  delayed_start = false
-                end
-              rescue
-                warn "WARNING: Unable to get delayed auto start information for the #{service_name} service"
-                delayed_start = nil
-              end
+              delayed_start = delayed_start(service_name)
             else
               warn "WARNING: The registry entry for the #{service_name} service could not be found"
 
@@ -1206,6 +1195,59 @@ module Win32
       end
 
       block_given? ? nil : services_array
+    end
+
+    #
+    # Attempts to get the delayed_start attribute for the named +service+ on +host+,
+    # or the local machine if no host is provided.
+    #
+    # @example Get 'SomeSvc' delayed start on the local machine
+    #    Service.delayed_start('SomeSvc') # => 1
+    # @example Get 'SomeSvc' delayed start on host foo
+    #    Service.delayed_start('SomeSvc', 'foo') # => 1
+    #
+    # @param service [String] Service name (e.g. `"Dhcp"`)
+    # @param host [String] Host of service (e.g. `"mymachine"`)
+    # @return [Integer, false, nil] Returns `1` when delayed start is enabled
+    #   and `0` when it is not enabled. Returns nil or false when there is
+    #   a problem of some kind.
+    #
+    def self.delayed_start(service, host = nil)
+      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+
+      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
+
+      handle_scs = OpenService(
+        handle_scm,
+        service,
+        SERVICE_QUERY_CONFIG
+      )
+
+      FFI.raise_windows_error('OpenService') if handle_scs == 0
+
+      delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+      if delayed_start_buf.is_a?(FFI::MemoryPointer)
+        delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
+        delayed_start = delayed_start_info[:fDelayedAutostart] == 1
+      else
+        delayed_start = false
+      end
+    rescue SystemCallError
+      delayed_start = nil
+    ensure
+      close_service_handle(handle_scs)
+      close_service_handle(handle_scm)
+    end
+
+    def self.close_service_handle(handle)
+      case handle
+      when NilClass
+        false
+      when Integer
+        handle > 0 ? CloseServiceHandle(handle) : false
+      else
+        raise ArgumentError, "You must pass a valid handle to ::close_service_handle"
+      end
     end
 
     private
