@@ -400,8 +400,8 @@ module Win32
           Service.configure_failure_actions(handle_scs, opts)
         end
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       self
@@ -580,8 +580,8 @@ module Win32
           configure_failure_actions(handle_scs, opts)
         end
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       self
@@ -605,8 +605,8 @@ module Win32
         handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
-        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
+        close_service_handle(handle_scm)
+        close_service_handle(handle_scs)
       end
 
       bool
@@ -644,7 +644,7 @@ module Win32
 
         FFI.raise_windows_error('OpenSCManager') unless bool
       ensure
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scm)
       end
 
       display_name.read_string
@@ -681,7 +681,7 @@ module Win32
 
         FFI.raise_windows_error('GetServiceKeyName') unless bool
       ensure
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scm)
       end
 
       service_name.read_string
@@ -735,8 +735,8 @@ module Win32
         end
 
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       self
@@ -824,8 +824,8 @@ module Win32
           FFI.raise_windows_error('DeleteService')
         end
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       self
@@ -873,8 +873,8 @@ module Win32
 
         FFI.raise_windows_error('QueryServiceConfig') unless bool
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       ConfigStruct.new(
@@ -947,8 +947,8 @@ module Win32
           status[:dwServiceFlags]
         )
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       status_struct
@@ -1150,7 +1150,7 @@ module Win32
               actions      = nil
             end
           ensure
-            CloseServiceHandle(handle_scs) if handle_scs > 0
+            close_service_handle(handle_scs)
           end
 
           struct = ServiceStruct.new(
@@ -1191,7 +1191,7 @@ module Win32
           service_buf += ENUM_SERVICE_STATUS_PROCESS.size
         }
       ensure
-        CloseServiceHandle(handle_scm)
+        close_service_handle(handle_scm)
       end
 
       block_given? ? nil : services_array
@@ -1266,7 +1266,7 @@ module Win32
 
         unless bool
           error = FFI.errno
-          CloseServiceHandle(handle_scs)
+          close_service_handle(handle_scs)
           raise SystemCallError.new('OpenProcessToken', error)
         end
 
@@ -1277,7 +1277,7 @@ module Win32
 
         unless LookupPrivilegeValue('', 'SeShutdownPrivilege', luid)
           error = FFI.errno
-          CloseServiceHandle(handle_scs)
+          close_service_handle(handle_scs)
           raise SystemCallError.new('LookupPrivilegeValue', error)
         end
 
@@ -1301,7 +1301,7 @@ module Win32
 
         unless bool
           error = FFI.errno
-          CloseServiceHandle(handle_scs)
+          close_service_handle(handle_scs)
           raise SystemCallError.new('AdjustTokenPrivileges', error)
         end
       end
@@ -1345,7 +1345,7 @@ module Win32
 
       unless bool
         error = FFI.errno
-        CloseServiceHandle(handle_scs)
+        close_service_handle(handle_scs)
         raise SystemCallError.new('ChangeServiceConfig2', error)
       end
     end
@@ -1601,8 +1601,8 @@ module Win32
           FFI.raise_windows_error('ControlService')
         end
       ensure
-        CloseServiceHandle(handle_scs) if handle_scs && handle_scs > 0
-        CloseServiceHandle(handle_scm) if handle_scm && handle_scm > 0
+        close_service_handle(handle_scs)
+        close_service_handle(handle_scm)
       end
 
       status
