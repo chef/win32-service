@@ -1,17 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 2.0.1 -->
-## [win32-service-2.0.1](https://github.com/chef/win32-service/tree/win32-service-2.0.1) (2019-03-11)
+<!-- latest_release 2.1.0 -->
+## [win32-service-2.1.0](https://github.com/chef/win32-service/tree/win32-service-2.1.0) (2019-03-11)
 
 #### Merged Pull Requests
-- Add ::delayed_start method [#59](https://github.com/chef/win32-service/pull/59) ([jasonwbarnett](https://github.com/jasonwbarnett))
-- Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50))
+- DRY up the calls to ::CloseServiceHandle [#61](https://github.com/chef/win32-service/pull/61) ([jasonwbarnett](https://github.com/jasonwbarnett))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.0.1 -->
 ### Changes since 1.0.1 release
 
 #### Merged Pull Requests
+- DRY up the calls to ::CloseServiceHandle [#61](https://github.com/chef/win32-service/pull/61) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.1.0 -->
 - Add ::delayed_start method [#59](https://github.com/chef/win32-service/pull/59) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.0.1 -->
 - Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50)) <!-- 2.0.0 -->
 - Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50)) <!-- 1.0.2 -->
