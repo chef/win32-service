@@ -1202,14 +1202,15 @@ module Win32
     # or the local machine if no host is provided.
     #
     # @example Get 'SomeSvc' delayed start on the local machine
-    #    Service.delayed_start('SomeSvc') # => true
+    #    Service.delayed_start('SomeSvc') # => 1
     # @example Get 'SomeSvc' delayed start on host foo
-    #    Service.delayed_start('SomeSvc', 'foo') # => true
+    #    Service.delayed_start('SomeSvc', 'foo') # => 1
     #
     # @param service [String] Service name (e.g. `"Dhcp"`)
     # @param host [String] Host of service (e.g. `"mymachine"`)
-    # @return [Boolean, nil] Returns whether or not delayed start is enabled
-    #   for the service. Returns nil if service does not exist.
+    # @return [Integer, false, nil] Returns `1` when delayed start is enabled
+    #   and `0` when it is not enabled. Returns nil or false when there is
+    #   a problem of some kind.
     #
     def self.delayed_start(service, host = nil)
       handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
@@ -1227,7 +1228,7 @@ module Win32
       delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
       if delayed_start_buf.is_a?(FFI::MemoryPointer)
         delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-        delayed_start = delayed_start_info[:fDelayedAutostart] == 1 ? true : false
+        delayed_start = delayed_start_info[:fDelayedAutostart] == 1
       else
         delayed_start = false
       end
