@@ -1,9 +1,10 @@
 # win32-service Change Log
 
-<!-- latest_release unreleased -->
-## Unreleased
+<!-- latest_release 2.0.1 -->
+## [win32-service-2.0.1](https://github.com/chef/win32-service/tree/win32-service-2.0.1) (2019-03-11)
 
 #### Merged Pull Requests
+- Add ::delayed_start method [#59](https://github.com/chef/win32-service/pull/59) ([jasonwbarnett](https://github.com/jasonwbarnett))
 - Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
@@ -11,6 +12,7 @@
 ### Changes since 1.0.1 release
 
 #### Merged Pull Requests
+- Add ::delayed_start method [#59](https://github.com/chef/win32-service/pull/59) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.0.1 -->
 - Require Ruby 2.2 or later [#58](https://github.com/chef/win32-service/pull/58) ([tas50](https://github.com/tas50)) <!-- 2.0.0 -->
 - Slim our gem size and unify our rake tasks [#54](https://github.com/chef/win32-service/pull/54) ([tas50](https://github.com/tas50)) <!-- 1.0.2 -->
 <!-- release_rollup -->
