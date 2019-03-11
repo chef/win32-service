@@ -1234,8 +1234,19 @@ module Win32
     rescue SystemCallError
       delayed_start = nil
     ensure
-      CloseServiceHandle(handle_scs) if handle_scs.to_i > 0
-      CloseServiceHandle(handle_scm) if handle_scm.to_i > 0
+      close_service_handle(handle_scs)
+      close_service_handle(handle_scm)
+    end
+
+    def self.close_service_handle(handle)
+      case handle
+      when NilClass
+        false
+      when Integer
+        handle > 0 ? CloseServiceHandle(handle) : false
+      else
+        raise ArgumentError, "You must pass a valid handle to ::close_service_handle"
+      end
     end
 
     private
