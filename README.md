@@ -1,5 +1,6 @@
 # win32-service
 
+[![Build status](https://ci.appveyor.com/api/projects/status/wffrmiiacikh8yqf/branch/master?svg=true)](https://ci.appveyor.com/project/chef/win32-service/branch/master)
 [![Gem Version](https://badge.fury.io/rb/win32-service.svg)](https://badge.fury.io/rb/win32-service)
 
 The win32-service library allows you to control or create MS Windows services.
