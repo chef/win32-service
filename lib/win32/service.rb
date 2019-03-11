@@ -1250,6 +1250,73 @@ module Win32
       end
     end
 
+    #
+    # Opens an existing service.
+    #
+    # @example
+    #   open_sc_manager do |scm_handle|
+    #     open_service(scm_handle, 'Dhcp', SERVICE_ALL_ACCESS) do |service_handle|
+    #       p service_handle
+    #     end
+    #   end
+    #
+    # @param scm_handle [Integer] pointer to Service Control Manager
+    # @param service_name [String] Name of the service
+    # @param desired_access [Integer] The access to the service. For a list of
+    #   access rights, see `Windows::ServiceConstants`.
+    #
+    # @see Windows::ServiceConstants
+    #
+    def self.open_service(scm_handle, service_name, desired_access)
+       service_handle = OpenService(
+        scm_handle,
+        service_name,
+        desired_access
+      )
+      FFI.raise_windows_error('OpenService') if service_handle == 0
+
+      if block_given?
+        yield service_handle
+      else
+        service_handle
+      end
+    ensure
+      close_service_handle(service_handle) if block_given?
+    end
+
+    #
+    # Establishes a connection to the service control manager on the specified
+    # host and opens the SERVICES_ACTIVE_DATABASE service control manager
+    # database.
+    #
+    # @example
+    #   open_sc_manager(nil, SC_MANAGER_ENUMERATE_SERVICE) do |scm_handle|
+    #     p scm_handle
+    #   end
+    #
+    # @param host [String] Name of host you want to connect to. If `nil` it
+    #   will connect to the local host.
+    # @param desired_access [Integer] The access to the service control
+    #   manager.
+    # @return [Integer] If the function succeeds, the return value is a handle
+    #   to the specified service control manager database. If the function
+    #   fails, the return value is 0.
+    #
+    # @see Windows::ServiceConstants
+    #
+    def self.open_sc_manager(host = nil, desired_access = SC_MANAGER_CONNECT)
+      scm_handle = OpenSCManager(host, nil, desired_access)
+      FFI.raise_windows_error('OpenSCManager') if scm_handle == 0
+
+      if block_given?
+        yield scm_handle
+      else
+        scm_handle
+      end
+    ensure
+      close_service_handle(scm_handle) if block_given?
+    end
+
     private
 
     # Configures failure actions for a given service.

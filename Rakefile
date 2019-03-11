@@ -3,6 +3,7 @@ require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
 require 'rbconfig'
+require_relative 'tasks/rspec'
 include RbConfig
 
 CLEAN.include(
