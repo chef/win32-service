@@ -1228,7 +1228,7 @@ module Win32
       delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
       if delayed_start_buf.is_a?(FFI::MemoryPointer)
         delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-        delayed_start = delayed_start_info[:fDelayedAutostart] == 1
+        delayed_start = delayed_start_info[:fDelayedAutostart]
       else
         delayed_start = false
       end
