@@ -1,16 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 2.1.1 -->
-## [win32-service-2.1.1](https://github.com/chef/win32-service/tree/win32-service-2.1.1) (2019-03-11)
+<!-- latest_release 2.1.2 -->
+## [win32-service-2.1.2](https://github.com/chef/win32-service/tree/win32-service-2.1.2) (2019-03-22)
 
 #### Merged Pull Requests
-- Add open_sc_manager and open_service helpers + add in rspec testing [#62](https://github.com/chef/win32-service/pull/62) ([jasonwbarnett](https://github.com/jasonwbarnett))
+- Bugfix: restore original behavior of ::delayed_start [#65](https://github.com/chef/win32-service/pull/65) ([jasonwbarnett](https://github.com/jasonwbarnett))
 <!-- latest_release -->
 
 <!-- release_rollup since=1.0.1 -->
 ### Changes since 1.0.1 release
 
 #### Merged Pull Requests
+- Bugfix: restore original behavior of ::delayed_start [#65](https://github.com/chef/win32-service/pull/65) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.1.2 -->
 - Add open_sc_manager and open_service helpers + add in rspec testing [#62](https://github.com/chef/win32-service/pull/62) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.1.1 -->
 - DRY up the calls to ::CloseServiceHandle [#61](https://github.com/chef/win32-service/pull/61) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.1.0 -->
 - Add ::delayed_start method [#59](https://github.com/chef/win32-service/pull/59) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.0.1 -->
