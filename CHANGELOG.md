@@ -1,9 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release -->
+<!-- latest_release 2.1.3 -->
+## [win32-service-2.1.3](https://github.com/chef/win32-service/tree/win32-service-2.1.3) (2019-03-25)
+
+#### Merged Pull Requests
+- Require Ruby 2.3 + misc changes [#63](https://github.com/chef/win32-service/pull/63) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=2.1.2 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Require Ruby 2.3 + misc changes [#63](https://github.com/chef/win32-service/pull/63) ([tas50](https://github.com/tas50)) <!-- 2.1.3 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
