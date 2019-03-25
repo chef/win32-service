@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["LICENSE", "lib/**/*"]
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.2"
+  spec.required_ruby_version = ">= 2.3"
 
   spec.add_dependency('ffi')
   spec.add_dependency('ffi-win32-extensions')
