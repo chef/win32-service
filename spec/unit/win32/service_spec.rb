@@ -1,6 +1,22 @@
 require 'win32/service'
 
 describe Win32::Service do
+  describe '::new' do
+    let(:fake_pointer) { 12345 }
+    let(:fake_bool) { 1 }
+
+    before do
+      # Swallow calls out to system
+      allow_any_instance_of(Win32::Service).to receive(:CreateService).with(any_args).and_return(fake_pointer)
+      allow_any_instance_of(Win32::Service).to receive(:ChangeServiceConfig2).with(any_args).and_return(fake_bool)
+      allow_any_instance_of(Win32::Service).to receive(:configure_failure_actions).with(any_args)
+    end
+
+    it 'does not raise an error' do
+      expect { described_class.new(service_name: 'my_new_service') }.not_to raise_error
+    end
+  end
+
   describe '::open_sc_manager' do
     context 'when passed a block' do
       it 'yields a pointer to a scm handle' do
