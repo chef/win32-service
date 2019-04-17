@@ -397,11 +397,11 @@ module Win32
         if opts['failure_reset_period'] || opts['failure_reboot_message'] ||
            opts['failure_command'] || opts['failure_actions']
         then
-          Service.configure_failure_actions(handle_scs, opts)
+          self.class.configure_failure_actions(handle_scs, opts)
         end
       ensure
-        close_service_handle(handle_scs)
-        close_service_handle(handle_scm)
+        self.class.close_service_handle(handle_scs)
+        self.class.close_service_handle(handle_scm)
       end
 
       self
