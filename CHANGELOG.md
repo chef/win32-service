@@ -1,21 +1,19 @@
 # win32-service Change Log
 
-<!-- latest_release 2.1.4 -->
-## [win32-service-2.1.4](https://github.com/chef/win32-service/tree/win32-service-2.1.4) (2019-04-17)
-
-#### Merged Pull Requests
-- Bugfix: NoMethodError in Win32::Service.new [#67](https://github.com/chef/win32-service/pull/67) ([jasonwbarnett](https://github.com/jasonwbarnett))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=2.1.2 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Bugfix: NoMethodError in Win32::Service.new [#67](https://github.com/chef/win32-service/pull/67) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.1.4 -->
-- Require Ruby 2.3 + misc changes [#63](https://github.com/chef/win32-service/pull/63) ([tas50](https://github.com/tas50)) <!-- 2.1.3 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [win32-service-2.1.4](https://github.com/chef/win32-service/tree/win32-service-2.1.4) (2019-04-17)
+
+#### Merged Pull Requests
+- Require Ruby 2.3 + misc changes [#63](https://github.com/chef/win32-service/pull/63) ([tas50](https://github.com/tas50))
+- Bugfix: NoMethodError in Win32::Service.new [#67](https://github.com/chef/win32-service/pull/67) ([jasonwbarnett](https://github.com/jasonwbarnett))
+<!-- latest_stable_release -->
+
 ## [win32-service-2.1.2](https://github.com/chef/win32-service/tree/win32-service-2.1.2) (2019-03-22)
 
 #### Merged Pull Requests
@@ -25,7 +23,6 @@
 - DRY up the calls to ::CloseServiceHandle [#61](https://github.com/chef/win32-service/pull/61) ([jasonwbarnett](https://github.com/jasonwbarnett))
 - Add open_sc_manager and open_service helpers + add in rspec testing [#62](https://github.com/chef/win32-service/pull/62) ([jasonwbarnett](https://github.com/jasonwbarnett))
 - Bugfix: restore original behavior of ::delayed_start [#65](https://github.com/chef/win32-service/pull/65) ([jasonwbarnett](https://github.com/jasonwbarnett))
-<!-- latest_stable_release -->
 
 ## [win32-service-1.0.1](https://github.com/chef/win32-service/tree/win32-service-1.0.1) (2018-06-29)
 
