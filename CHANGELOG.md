@@ -1,9 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release -->
+<!-- latest_release 2.1.5 -->
+## [win32-service-2.1.5](https://github.com/chef/win32-service/tree/win32-service-2.1.5) (2020-01-30)
+
+#### Merged Pull Requests
+- removed secondary SERVICE_STATUS_PROCESS class from structs [#71](https://github.com/chef/win32-service/pull/71) ([Dreweasland](https://github.com/Dreweasland))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=2.1.4 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- removed secondary SERVICE_STATUS_PROCESS class from structs [#71](https://github.com/chef/win32-service/pull/71) ([Dreweasland](https://github.com/Dreweasland)) <!-- 2.1.5 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
