@@ -68,20 +68,6 @@ module Windows
       end
     end
 
-    class SERVICE_STATUS_PROCESS < FFI::Struct
-      layout(
-        :dwServiceType, :dword,
-        :dwCurrentState, :dword,
-        :dwControlsAccepted, :dword,
-        :dwWin32ExitCode, :dword,
-        :dwServiceSpecificExitCode, :dword,
-        :dwCheckPoint, :dword,
-        :dwWaitHint, :dword,
-        :dwProcessId, :dword,
-        :dwServiceFlags, :dword
-      )
-    end
-
     class ENUM_SERVICE_STATUS_PROCESS < FFI::Struct
       layout(
         :lpServiceName, :pointer,
