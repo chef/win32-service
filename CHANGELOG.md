@@ -1,25 +1,22 @@
 # win32-service Change Log
 
-<!-- latest_release 2.1.6 -->
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
 ## [win32-service-2.1.6](https://github.com/chef/win32-service/tree/win32-service-2.1.6) (2020-08-17)
 
 #### Merged Pull Requests
 - Optimize requires for non-omnibus installs [#72](https://github.com/chef/win32-service/pull/72) ([tas50](https://github.com/tas50))
-<!-- latest_release -->
-
-<!-- release_rollup since=2.1.5 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Optimize requires for non-omnibus installs [#72](https://github.com/chef/win32-service/pull/72) ([tas50](https://github.com/tas50)) <!-- 2.1.6 -->
-<!-- release_rollup -->
-
 <!-- latest_stable_release -->
+
 ## [win32-service-2.1.5](https://github.com/chef/win32-service/tree/win32-service-2.1.5) (2020-01-30)
 
 #### Merged Pull Requests
 - removed secondary SERVICE_STATUS_PROCESS class from structs [#71](https://github.com/chef/win32-service/pull/71) ([Dreweasland](https://github.com/Dreweasland))
-<!-- latest_stable_release -->
 
 ## [win32-service-2.1.4](https://github.com/chef/win32-service/tree/win32-service-2.1.4) (2019-04-17)
 
