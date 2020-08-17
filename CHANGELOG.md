@@ -1,9 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release -->
+<!-- latest_release 2.1.6 -->
+## [win32-service-2.1.6](https://github.com/chef/win32-service/tree/win32-service-2.1.6) (2020-08-17)
+
+#### Merged Pull Requests
+- Optimize requires for non-omnibus installs [#72](https://github.com/chef/win32-service/pull/72) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=2.1.5 -->
+### Changes not yet released to rubygems.org
+
+#### Merged Pull Requests
+- Optimize requires for non-omnibus installs [#72](https://github.com/chef/win32-service/pull/72) ([tas50](https://github.com/tas50)) <!-- 2.1.6 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
