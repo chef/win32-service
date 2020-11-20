@@ -1,25 +1,22 @@
 # win32-service Change Log
 
-<!-- latest_release 2.2.0 -->
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
+<!-- latest_stable_release -->
 ## [win32-service-2.2.0](https://github.com/chef/win32-service/tree/win32-service-2.2.0) (2020-11-20)
 
 #### Merged Pull Requests
 - Refactor ::status with new methods [#64](https://github.com/chef/win32-service/pull/64) ([jasonwbarnett](https://github.com/jasonwbarnett))
-<!-- latest_release -->
-
-<!-- release_rollup since=2.1.6 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Refactor ::status with new methods [#64](https://github.com/chef/win32-service/pull/64) ([jasonwbarnett](https://github.com/jasonwbarnett)) <!-- 2.2.0 -->
-<!-- release_rollup -->
-
 <!-- latest_stable_release -->
+
 ## [win32-service-2.1.6](https://github.com/chef/win32-service/tree/win32-service-2.1.6) (2020-08-17)
 
 #### Merged Pull Requests
 - Optimize requires for non-omnibus installs [#72](https://github.com/chef/win32-service/pull/72) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [win32-service-2.1.5](https://github.com/chef/win32-service/tree/win32-service-2.1.5) (2020-01-30)
 
