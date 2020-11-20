@@ -304,6 +304,14 @@ module Win32
               when SERVICE_CONTROL_NETBINDDISABLE
                 service_netbinddisable() if respond_to?('service_netbinddisable')
             end
+
+            # handle user defined control codes
+            if @@waiting_control_code >= 128 && @@waiting_control_code <= 255
+              if respond_to?('service_user_defined_control')
+                service_user_defined_control(@@waiting_control_code)
+              end
+            end
+
             @@waiting_control_code = IDLE_CONTROL_CODE
           end
 
