@@ -898,58 +898,40 @@ module Win32
     # Service.status('W32Time') => <struct Struct::ServiceStatus ...>
     #
     def self.status(service, host=nil)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+      status = SERVICE_STATUS_PROCESS.new
+      bytes  = FFI::MemoryPointer.new(:ulong)
 
-      FFI.raise_windows_error('OpenSCManager') if handle_scm == 0
+      open_sc_manager(host) do |scm_handle|
+        open_service(scm_handle, service, SERVICE_QUERY_STATUS) do |service_handle|
+          bool = QueryServiceStatusEx(
+            service_handle,
+            SC_STATUS_PROCESS_INFO,
+            status,
+            status.size,
+            bytes
+          )
 
-      begin
-        handle_scs = OpenService(
-          handle_scm,
-          service,
-          SERVICE_QUERY_STATUS
-        )
-
-        FFI.raise_windows_error('OpenService') if handle_scs == 0
-
-        # SERVICE_STATUS_PROCESS struct
-        status = SERVICE_STATUS_PROCESS.new
-        bytes  = FFI::MemoryPointer.new(:ulong)
-
-        bool = QueryServiceStatusEx(
-          handle_scs,
-          SC_STATUS_PROCESS_INFO,
-          status,
-          status.size,
-          bytes
-        )
-
-        FFI.raise_windows_error('QueryServiceStatusEx') unless bool
-
-        service_type  = get_service_type(status[:dwServiceType])
-        current_state = get_current_state(status[:dwCurrentState])
-        controls      = get_controls_accepted(status[:dwControlsAccepted])
-        interactive   = status[:dwServiceType] & SERVICE_INTERACTIVE_PROCESS > 0
-
-        # Note that the pid and service flags will always return 0 if you're
-        # on Windows NT 4 or using a version of Ruby compiled with VC++ 6
-        # or earlier.
-        #
-        status_struct = StatusStruct.new(
-          service_type,
-          current_state,
-          controls,
-          status[:dwWin32ExitCode],
-          status[:dwServiceSpecificExitCode],
-          status[:dwCheckPoint],
-          status[:dwWaitHint],
-          interactive,
-          status[:dwProcessId],
-          status[:dwServiceFlags]
-        )
-      ensure
-        close_service_handle(handle_scs)
-        close_service_handle(handle_scm)
+          FFI.raise_windows_error('QueryServiceStatusEx') unless bool
+        end
       end
+
+      service_type  = get_service_type(status[:dwServiceType])
+      current_state = get_current_state(status[:dwCurrentState])
+      controls      = get_controls_accepted(status[:dwControlsAccepted])
+      interactive   = status[:dwServiceType] & SERVICE_INTERACTIVE_PROCESS > 0
+
+      status_struct = StatusStruct.new(
+        service_type,
+        current_state,
+        controls,
+        status[:dwWin32ExitCode],
+        status[:dwServiceSpecificExitCode],
+        status[:dwCheckPoint],
+        status[:dwWaitHint],
+        interactive,
+        status[:dwProcessId],
+        status[:dwServiceFlags]
+      )
 
       status_struct
     end

@@ -42,4 +42,54 @@ describe Win32::Service do
       end
     end
   end
+
+  describe '::status' do
+    let(:dhcp_status) { described_class.status('Dhcp') }
+
+    it 'returns a StatusStruct' do
+      expect(dhcp_status).to be_a(Win32::Service::StatusStruct)
+    end
+
+    %i[
+      service_type
+      current_state
+      controls_accepted
+      win32_exit_code
+      service_specific_exit_code
+      check_point
+      wait_hint
+      interactive
+      pid
+      service_flags
+    ].each do |member|
+      it "responds to #{member}" do
+        expect(dhcp_status).to respond_to(member)
+      end
+    end
+
+    context 'dhcp status' do
+      properties = {
+        service_type: "share process",
+        current_state: "running",
+        controls_accepted: ["shutdown", "stop"],
+        win32_exit_code: 0,
+        service_specific_exit_code: 0,
+        check_point: 0,
+        wait_hint: 0,
+        interactive: false,
+        pid: 676,
+        service_flags: 0
+      }
+
+      properties.each do |property, value|
+        it "sets #{property} to #{value.inspect}" do
+          expect(dhcp_status.send(property)).to eq(value)
+        end unless property == :pid
+
+        it "sets #{property} to a value of type #{value.class}" do
+          expect(dhcp_status.send(property)).to be_a(value.class)
+        end
+      end
+    end
+  end
 end
