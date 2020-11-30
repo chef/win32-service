@@ -92,6 +92,9 @@ Daemon#service_paramchange
   Called if the service receives a SERVICE_CONTROL_PARAMCHANGE signal.
   This notifies a service that its startup parameters have changed.
 
+Daemon#service_user_defined_control(code)
+  Called if the service receives a user-defined control code (128 to 255).
+
 = Constants
 
 === Service state constants
