@@ -1,0 +1,18 @@
+---
+expeditor:
+  defaults:
+    buildkite:
+      retry:
+        automatic:
+          limit: 1
+      timeout_in_minutes: 30
+
+steps:
+- label: "run specs :windows:"
+  command:
+    - bundle install --jobs=7 --retry=3 --without docs debug
+    - bundle exec rake spec
+  expeditor:
+    executor:
+      docker:
+        host_os: windows
