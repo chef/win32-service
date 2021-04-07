@@ -1,4 +1,4 @@
-require 'ffi' unless defined?(FFI)
+require "ffi" unless defined?(FFI)
 
 module Windows
   module ServiceStructs

@@ -1,8 +1,8 @@
 LOG_FILE = 'C:\\Tmp\\win32_daemon_test.log'
 
 begin
-  require 'rubygems'
-  require 'win32/daemon'
+  require "rubygems"
+  require "win32/daemon"
   include Win32
 
   class DemoDaemon < Daemon
@@ -13,8 +13,8 @@ begin
     #
     def service_init
       Dir.mkdir("C:/Tmp") unless File.exist?("C:/Tmp")
-      10.times{ |i|
-        File.open(LOG_FILE , 'a'){ |f| f.puts("#{i}") }
+      10.times { |i|
+        File.open(LOG_FILE , "a") { |f| f.puts("#{i}") }
         sleep 1
       }
     end
@@ -32,19 +32,19 @@ begin
     # to stop the service when you're done!
     #
     def service_main(*args)
-      msg = 'service_main entered at: ' + Time.now.to_s
+      msg = "service_main entered at: " + Time.now.to_s
 
-      File.open(LOG_FILE, 'a'){ |f|
+      File.open(LOG_FILE, "a") { |f|
         f.puts msg
-        f.puts "Args: " + args.join(',')
+        f.puts "Args: " + args.join(",")
       }
 
       # While we're in here the daemon is running.
       while running?
         if state == RUNNING
           sleep 20
-          msg = 'Service is running as of: ' + Time.now.to_s
-          File.open(LOG_FILE, 'a'){ |f| f.puts msg }
+          msg = "Service is running as of: " + Time.now.to_s
+          File.open(LOG_FILE, "a") { |f| f.puts msg }
         else # PAUSED or IDLE
           sleep 0.5
         end
@@ -52,11 +52,11 @@ begin
 
       # We've left the loop, the daemon is about to exit.
 
-      File.open(LOG_FILE, 'a'){ |f| f.puts "STATE: #{state}" }
+      File.open(LOG_FILE, "a") { |f| f.puts "STATE: #{state}" }
 
-      msg = 'service_main left at: ' + Time.now.to_s
+      msg = "service_main left at: " + Time.now.to_s
 
-      File.open(LOG_FILE, 'a'){ |f| f.puts msg }
+      File.open(LOG_FILE, "a") { |f| f.puts msg }
     end
 
     # This event triggers when the service receives a signal to stop.
@@ -66,23 +66,23 @@ begin
     # longer required and, in fact, may cause issues.
     #
     def service_stop
-      msg = 'Received stop signal at: ' + Time.now.to_s
-      File.open(LOG_FILE, 'a'){ |f| f.puts msg }
+      msg = "Received stop signal at: " + Time.now.to_s
+      File.open(LOG_FILE, "a") { |f| f.puts msg }
     end
 
     # This event triggers when the service receives a signal to pause.
     #
     def service_pause
-      msg = 'Received pause signal at: ' + Time.now.to_s
-      File.open(LOG_FILE, 'a'){ |f| f.puts msg }
+      msg = "Received pause signal at: " + Time.now.to_s
+      File.open(LOG_FILE, "a") { |f| f.puts msg }
     end
 
     # This event triggers when the service receives a signal to resume
     # from a paused state.
     #
     def service_resume
-      msg = 'Received resume signal at: ' + Time.now.to_s
-      File.open(LOG_FILE, 'a'){ |f| f.puts msg }
+      msg = "Received resume signal at: " + Time.now.to_s
+      File.open(LOG_FILE, "a") { |f| f.puts msg }
     end
   end
 
@@ -91,6 +91,6 @@ begin
   #
   DemoDaemon.mainloop
 rescue Exception => err
-  File.open(LOG_FILE, 'a'){ |fh| fh.puts "Daemon failure: #{err}" }
+  File.open(LOG_FILE, "a") { |fh| fh.puts "Daemon failure: #{err}" }
   raise
 end
