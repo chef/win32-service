@@ -1,1 +1,1 @@
-require_relative 'win32/service'
+require_relative "win32/service"

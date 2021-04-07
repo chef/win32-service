@@ -3,8 +3,8 @@
 #
 # Test case for the Struct::ServiceInfo structure.
 ########################################################################
-require 'test-unit'
-require 'win32/service'
+require "test-unit"
+require "win32/service"
 
 class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
   def self.startup
@@ -13,61 +13,61 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   def setup
     @service_name = "Dhcp"
-    @service_info = @@services.find{ |s| s.service_name == @service_name }
+    @service_info = @@services.find { |s| s.service_name == @service_name }
 
     @error_controls = [
-      'critical',
-      'ignore',
-      'normal',
-      'severe',
-      nil
+      "critical",
+      "ignore",
+      "normal",
+      "severe",
+      nil,
     ]
 
     @start_types = [
-      'auto start',
-      'boot start',
-      'demand start',
-      'disabled',
-      'system start',
-       nil
+      "auto start",
+      "boot start",
+      "demand start",
+      "disabled",
+      "system start",
+       nil,
     ]
 
     @types = [
-      'file system driver',
-      'kernel driver',
-      'own process',
-      'share process',
-      'recognizer token',
-      'driver',
-      'win32',
-      'all',
-      'own process, interactive',
-      'share process, interactive',
-      nil
+      "file system driver",
+      "kernel driver",
+      "own process",
+      "share process",
+      "recognizer token",
+      "driver",
+      "win32",
+      "all",
+      "own process, interactive",
+      "share process, interactive",
+      nil,
     ]
 
     @states = [
-      'continue pending',
-      'pause pending',
-      'paused',
-      'running',
-      'start pending',
-      'stop pending',
-      'stopped',
-       nil
+      "continue pending",
+      "pause pending",
+      "paused",
+      "running",
+      "start pending",
+      "stop pending",
+      "stopped",
+       nil,
     ]
 
     @controls = [
-      'netbind change',
-      'param change',
-      'pause continue',
-      'pre-shutdown',
-      'shutdown',
-      'stop',
-      'hardware profile change',
-      'power event',
-      'session change',
-      'interrogate'
+      "netbind change",
+      "param change",
+      "pause continue",
+      "pre-shutdown",
+      "shutdown",
+      "stop",
+      "hardware profile change",
+      "power event",
+      "session change",
+      "interrogate",
     ]
   end
 
@@ -98,27 +98,27 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   test "controls_accepted returns expected values" do
     assert_false(@service_info.controls_accepted.empty?)
-    @service_info.controls_accepted.each{ |c| assert_true(@controls.include?(c)) }
+    @service_info.controls_accepted.each { |c| assert_true(@controls.include?(c)) }
   end
 
   test "win32_exit_code basic functionality" do
     assert_respond_to(@service_info, :win32_exit_code)
-    assert_kind_of(Fixnum, @service_info.win32_exit_code)
+    assert_kind_of(Integer, @service_info.win32_exit_code)
   end
 
   test "service_specific_exit_code basic functionality" do
     assert_respond_to(@service_info, :service_specific_exit_code)
-    assert_kind_of(Fixnum, @service_info.service_specific_exit_code)
+    assert_kind_of(Integer, @service_info.service_specific_exit_code)
   end
 
   test "check_point basic functionality" do
     assert_respond_to(@service_info, :check_point)
-    assert_kind_of(Fixnum, @service_info.check_point)
+    assert_kind_of(Integer, @service_info.check_point)
   end
 
   test "wait_hint basic functionality" do
     assert_respond_to(@service_info, :wait_hint)
-    assert_kind_of(Fixnum, @service_info.wait_hint)
+    assert_kind_of(Integer, @service_info.wait_hint)
   end
 
   test "binary_path_name basic functionality" do
@@ -143,7 +143,7 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   test "tag_id basic functionality" do
     assert_respond_to(@service_info, :tag_id)
-    assert_kind_of(Fixnum, @service_info.tag_id)
+    assert_kind_of(Integer, @service_info.tag_id)
   end
 
   test "start_name basic functionality" do
@@ -168,12 +168,12 @@ class TC_Win32_ServiceInfo_Struct < Test::Unit::TestCase
 
   test "service_flags basic functionality" do
     assert_respond_to(@service_info, :service_flags)
-    assert([0,1].include?(@service_info.service_flags))
+    assert([0, 1].include?(@service_info.service_flags))
   end
 
   test "delayed_start basic functionality" do
     assert_respond_to(@service_info, :delayed_start)
-    assert([0,1].include?(@service_info.delayed_start))
+    assert([0, 1].include?(@service_info.delayed_start))
   end
 
   def teardown

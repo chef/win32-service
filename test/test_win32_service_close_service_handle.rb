@@ -3,8 +3,8 @@
 #
 # Test case for the close_service_handle method
 ########################################################################
-require 'test-unit'
-require 'win32/service'
+require "test-unit"
+require "win32/service"
 
 class TC_Win32_Service_CloseServiceHandle < Test::Unit::TestCase
   def test_service_close_service_handle_returns_false_when_passed_nil
@@ -21,7 +21,7 @@ class TC_Win32_Service_CloseServiceHandle < Test::Unit::TestCase
   end
 
   def test_service_close_service_handle_raises_argument_error_when_passed_a_string
-    assert_raise(ArgumentError.new('You must pass a valid handle to ::close_service_handle')) do
+    assert_raise(ArgumentError.new("You must pass a valid handle to ::close_service_handle")) do
       Win32::Service.close_service_handle("test")
     end
   end

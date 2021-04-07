@@ -4,9 +4,9 @@
 # Test case for the Service.create method. This test case will create
 # a dummy (notepad) service. It won't actually run of course.
 ########################################################################
-require 'test-unit'
-require 'win32/security'
-require 'win32/service'
+require "test-unit"
+require "win32/security"
+require "win32/service"
 
 class TC_Win32_Service_Create < Test::Unit::TestCase
   def self.startup
@@ -16,21 +16,21 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
 
     if Win32::Security.elevated_security?
       Win32::Service.new(
-        :service_name     => @@service1,
-        :binary_path_name => @@command
+        service_name: @@service1,
+        binary_path_name: @@command
       )
 
       Win32::Service.new(
-        :service_name     => @@service2,
-        :display_name     => 'Notepad Test',
-        :desired_access   => Win32::Service::ALL_ACCESS,
-        :service_type     => Win32::Service::WIN32_OWN_PROCESS,
-        :start_type       => Win32::Service::DISABLED,
-        :error_control    => Win32::Service::ERROR_IGNORE,
-        :binary_path_name => @@command,
-        :load_order_group => 'Network',
-        :dependencies     => 'W32Time',
-        :description      => 'Test service. Please delete me'
+        service_name: @@service2,
+        display_name: "Notepad Test",
+        desired_access: Win32::Service::ALL_ACCESS,
+        service_type: Win32::Service::WIN32_OWN_PROCESS,
+        start_type: Win32::Service::DISABLED,
+        error_control: Win32::Service::ERROR_IGNORE,
+        binary_path_name: @@command,
+        load_order_group: "Network",
+        dependencies: "W32Time",
+        description: "Test service. Please delete me"
       )
     end
   end
@@ -51,7 +51,7 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
   # Service.create works, but the test fails. Might be a bug in test-unit.
   test "create is an alias for new" do
     assert_respond_to(Win32::Service, :create)
-    #assert_alias_method(Win32::Service, :create, :new)
+    # assert_alias_method(Win32::Service, :create, :new)
   end
 
   test "ensure services were created in startup method" do
@@ -63,17 +63,17 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
 
   test "expected service type configuration information" do
     omit_unless(@elevated)
-    assert_equal('own process', @info1.service_type)
+    assert_equal("own process", @info1.service_type)
   end
 
   test "expected start type configuration information" do
     omit_unless(@elevated)
-    assert_equal('demand start', @info1.start_type)
+    assert_equal("demand start", @info1.start_type)
   end
 
   test "expected error control configuration information" do
     omit_unless(@elevated)
-    assert_equal('normal', @info1.error_control)
+    assert_equal("normal", @info1.error_control)
   end
 
   test "expected binary path name configuration information" do
@@ -83,7 +83,7 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
 
   test "expected load order group configuration information" do
     omit_unless(@elevated)
-    assert_equal('', @info1.load_order_group)
+    assert_equal("", @info1.load_order_group)
   end
 
   test "expected tag id configuration information" do
@@ -98,37 +98,37 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
 
   test "expected service start time configuration information" do
     omit_unless(@elevated)
-    assert_equal('LocalSystem', @info1.service_start_name)
+    assert_equal("LocalSystem", @info1.service_start_name)
   end
 
   test "expected display name configuration information" do
     omit_unless(@elevated)
-    assert_equal('notepad_service1', @info1.display_name)
+    assert_equal("notepad_service1", @info1.display_name)
   end
 
   test "configuration information options are set properly for service 2" do
     omit_unless(@elevated)
-    assert_equal('own process', @info2.service_type)
-    assert_equal('disabled', @info2.start_type)
-    assert_equal('ignore', @info2.error_control)
+    assert_equal("own process", @info2.service_type)
+    assert_equal("disabled", @info2.start_type)
+    assert_equal("ignore", @info2.error_control)
     assert_equal(@@command, @info2.binary_path_name)
-    assert_equal('Network', @info2.load_order_group)
+    assert_equal("Network", @info2.load_order_group)
     assert_equal(0, @info2.tag_id)
-    assert_equal(['W32Time'], @info2.dependencies)
-    assert_equal('LocalSystem', @info2.service_start_name)
-    assert_equal('Notepad Test', @info2.display_name)
+    assert_equal(["W32Time"], @info2.dependencies)
+    assert_equal("LocalSystem", @info2.service_start_name)
+    assert_equal("Notepad Test", @info2.display_name)
   end
 
   test "at least one argument is required or an error is raised" do
-    assert_raise(ArgumentError){ Win32::Service.new }
+    assert_raise(ArgumentError) { Win32::Service.new }
   end
 
   test "passing a bogus option to the constructor will cause an error" do
-    assert_raise(ArgumentError){ Win32::Service.new(:bogus => 'test.exe') }
+    assert_raise(ArgumentError) { Win32::Service.new(bogus: "test.exe") }
   end
 
   test "the service name must be provided or an error is raised" do
-    assert_raise(ArgumentError){ Win32::Service.new(:binary_path_name => 'test.exe') }
+    assert_raise(ArgumentError) { Win32::Service.new(binary_path_name: "test.exe") }
   end
 
   def teardown

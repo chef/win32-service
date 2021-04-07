@@ -5,27 +5,27 @@
 # run with admin privileges either because they are somewhat invasive,
 # or because they take too long.
 ##########################################################################
-require 'test-unit'
-require 'win32/security'
-require 'win32/service'
-require 'socket'
+require "test-unit"
+require "win32/security"
+require "win32/service"
+require "socket"
 
 class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
     @@host = Socket.gethostname
-    @@service_name = 'stisvc'
+    @@service_name = "stisvc"
     @@elevated = Win32::Security.elevated_security?
   end
 
   def setup
-    @display_name = 'Windows Image Acquisition (WIA)'
-    @service_name = 'stisvc'
+    @display_name = "Windows Image Acquisition (WIA)"
+    @service_name = "stisvc"
     @service_stat = nil
     @services     = []
     @elevated     = Win32::Security.elevated_security?
 
-    @singleton_methods = Win32::Service.methods.map{ |m| m.to_s }
-    @instance_methods  = Win32::Service.instance_methods.map{ |m| m.to_s }
+    @singleton_methods = Win32::Service.methods.map { |m| m.to_s }
+    @instance_methods  = Win32::Service.instance_methods.map { |m| m.to_s }
   end
 
   def omit_unless_elevated
@@ -36,24 +36,24 @@ class TC_Win32_Service < Test::Unit::TestCase
     status = Win32::Service.status(@service_name).current_state
 
     if @elevated
-      if status == 'paused'
+      if status == "paused"
         Win32::Service.resume(service)
       else
-        unless ['running', 'start pending'].include?(status)
+        unless ["running", "start pending"].include?(status)
           Win32::Service.start(service)
         end
       end
-      wait_for_status('running')
+      wait_for_status("running")
     end
   end
 
   def stop_service(service)
     status = Win32::Service.status(@service_name).current_state
     if @elevated
-      unless ['stopped', 'stop pending'].include?(status)
+      unless ["stopped", "stop pending"].include?(status)
         Win32::Service.stop(service)
       end
-      wait_for_status('stopped')
+      wait_for_status("stopped")
     end
   end
 
@@ -73,44 +73,44 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "services with no arguments works as expected" do
-    assert_nothing_raised{ Win32::Service.services }
+    assert_nothing_raised { Win32::Service.services }
   end
 
   test "services with explicit host works as expected" do
-    assert_nothing_raised{ Win32::Service.services(@@host) }
+    assert_nothing_raised { Win32::Service.services(@@host) }
   end
 
   test "services with explicit host and group works as expected" do
-    assert_nothing_raised{ Win32::Service.services(@@host, 'network') }
+    assert_nothing_raised { Win32::Service.services(@@host, "network") }
   end
 
   test "services method returns an array without a block" do
-    assert_nothing_raised{ @services = Win32::Service.services }
+    assert_nothing_raised { @services = Win32::Service.services }
     assert_kind_of(Array, @services)
     assert_kind_of(Struct::ServiceInfo, @services[0])
   end
 
   test "services method yields service objects when a block is provided" do
-    assert_nothing_raised{ Win32::Service.services{ |s| @services << s } }
+    assert_nothing_raised { Win32::Service.services { |s| @services << s } }
     assert_kind_of(Array, @services)
     assert_kind_of(Struct::ServiceInfo, @services[0])
   end
 
   test "the host argument must be a string or an error is raised" do
-    assert_raise(TypeError){ Win32::Service.services(1) }
+    assert_raise(TypeError) { Win32::Service.services(1) }
   end
 
   test "the group argument must be a string or an error is raised" do
-    assert_raise(TypeError){ Win32::Service.services(nil, 1) }
+    assert_raise(TypeError) { Win32::Service.services(nil, 1) }
   end
 
   test "the services method only accepts 2 arguments" do
-    assert_raise(ArgumentError){ Win32::Service.services(nil, 'network', 1) }
+    assert_raise(ArgumentError) { Win32::Service.services(nil, "network", 1) }
   end
 
   test "a valid hostname must be provided or an error is raised" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.services('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.services("bogus") }
   end
 
   test "delete method basic functionality" do
@@ -118,21 +118,21 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "a service name must be provided to the delete method" do
-    assert_raise(ArgumentError){ Win32::Service.delete }
+    assert_raise(ArgumentError) { Win32::Service.delete }
   end
 
   test "delete method raises an error if a bogus service name is provided" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.delete('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.delete("bogus") }
   end
 
   test "delete method raises an error if a bogus host name is provided" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.delete('bogus', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.delete("bogus", "bogus") }
   end
 
   test "delete method only accepts up to two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.delete('x', 'y', 'z') }
+    assert_raise(ArgumentError) { Win32::Service.delete("x", "y", "z") }
   end
 
   test "pause basic functionality" do
@@ -147,54 +147,54 @@ class TC_Win32_Service < Test::Unit::TestCase
     omit_unless_elevated
     start_service(@service_name)
 
-    assert_nothing_raised{ Win32::Service.pause(@service_name) }
-    wait_for_status('paused')
+    assert_nothing_raised { Win32::Service.pause(@service_name) }
+    wait_for_status("paused")
 
-    assert_nothing_raised{ Win32::Service.resume(@service_name) }
-    wait_for_status('running')
+    assert_nothing_raised { Win32::Service.resume(@service_name) }
+    wait_for_status("running")
   end
 
   test "pausing an already paused service is harmless" do
     omit_unless_elevated
     start_service(@service_name)
 
-    assert_nothing_raised{ Win32::Service.pause(@service_name) }
-    wait_for_status('paused')
-    assert_nothing_raised{ Win32::Service.pause(@service_name) }
+    assert_nothing_raised { Win32::Service.pause(@service_name) }
+    wait_for_status("paused")
+    assert_nothing_raised { Win32::Service.pause(@service_name) }
   end
 
   test "pause requires a service name as an argument" do
-    assert_raise(ArgumentError){ Win32::Service.pause }
+    assert_raise(ArgumentError) { Win32::Service.pause }
   end
 
   test "pausing an unrecognized service name raises an error" do
-    assert_raise(SystemCallError){ Win32::Service.pause('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.pause("bogus") }
   end
 
   test "pausing a service on an unrecognized host raises an error" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.pause('W32Time', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.pause("W32Time", "bogus") }
   end
 
   test "pause method accepts a maximum of two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.pause('x', 'y', 'z') }
+    assert_raise(ArgumentError) { Win32::Service.pause("x", "y", "z") }
   end
 
   test "resume method requires a service name" do
-    assert_raise(ArgumentError){ Win32::Service.resume }
+    assert_raise(ArgumentError) { Win32::Service.resume }
   end
 
   test "resume method with an unrecognized service name raises an error" do
-    assert_raise(SystemCallError){ Win32::Service.resume('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.resume("bogus") }
   end
 
   test "resume method with an unrecognized host name raises an error" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.resume('W32Time', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.resume("W32Time", "bogus") }
   end
 
   test "resume method accepts a maximum of two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.resume('W32Time', @@host, true) }
+    assert_raise(ArgumentError) { Win32::Service.resume("W32Time", @@host, true) }
   end
 
   test "stop method basic functionality" do
@@ -209,86 +209,86 @@ class TC_Win32_Service < Test::Unit::TestCase
     omit_unless_elevated
     start_service(@service_name)
 
-    assert_nothing_raised{ Win32::Service.stop(@service_name) }
-    wait_for_status('stopped')
+    assert_nothing_raised { Win32::Service.stop(@service_name) }
+    wait_for_status("stopped")
 
-    assert_nothing_raised{ Win32::Service.start(@service_name) }
-    wait_for_status('running')
+    assert_nothing_raised { Win32::Service.start(@service_name) }
+    wait_for_status("running")
   end
 
   test "attempting to stop a stopped service raises an error" do
     omit_unless_elevated
     start_service(@service_name)
 
-    assert_nothing_raised{ Win32::Service.stop(@service_name) }
-    wait_for_status('stopped')
-    assert_raise(SystemCallError){ Win32::Service.stop(@service_name) }
+    assert_nothing_raised { Win32::Service.stop(@service_name) }
+    wait_for_status("stopped")
+    assert_raise(SystemCallError) { Win32::Service.stop(@service_name) }
 
-    assert_nothing_raised{ Win32::Service.start(@service_name) }
+    assert_nothing_raised { Win32::Service.start(@service_name) }
   end
 
   test "stop method requires a service name" do
-    assert_raise(ArgumentError){ Win32::Service.stop }
+    assert_raise(ArgumentError) { Win32::Service.stop }
   end
 
   test "stop method raises an error if the service name is unrecognized" do
-    assert_raise(SystemCallError){ Win32::Service.stop('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.stop("bogus") }
   end
 
   test "stop method raises an error if the host is unrecognized" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.stop('W32Time', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.stop("W32Time", "bogus") }
   end
 
   test "stop metho accepts a maximum of two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.stop('W32Time', @@host, true) }
+    assert_raise(ArgumentError) { Win32::Service.stop("W32Time", @@host, true) }
   end
 
   test "start method requires a service name" do
-    assert_raise(ArgumentError){ Win32::Service.start }
+    assert_raise(ArgumentError) { Win32::Service.start }
   end
 
   test "attempting to start a running service raises an error" do
     omit_unless_elevated
     start_service(@service_name)
-    assert_raise(SystemCallError){ Win32::Service.start(@service_name) }
+    assert_raise(SystemCallError) { Win32::Service.start(@service_name) }
   end
 
   test "attempting to start an unrecognized service raises an error" do
-    assert_raise(SystemCallError){ Win32::Service.start('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.start("bogus") }
   end
 
   test "attempting to start a service on an unknown host raises an error" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.start('bogus', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.start("bogus", "bogus") }
   end
 
   test "stop requires at least one argument" do
-    assert_raise(ArgumentError){ Win32::Service.stop }
+    assert_raise(ArgumentError) { Win32::Service.stop }
   end
 
   test "stop raises an error with an unrecognized service name" do
-    assert_raise(SystemCallError){ Win32::Service.stop('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.stop("bogus") }
   end
 
   test "stop raises an error with an unrecognized host" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.stop('W32Time', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.stop("W32Time", "bogus") }
   end
 
   test "stop accepts a maximum of 2 arguments" do
-    assert_raise(ArgumentError){ Win32::Service.stop('a', 'b', 'c') }
+    assert_raise(ArgumentError) { Win32::Service.stop("a", "b", "c") }
   end
 
   test "status basic functionality" do
     assert_respond_to(Win32::Service, :status)
-    assert_nothing_raised{ Win32::Service.status(@service_name) }
+    assert_nothing_raised { Win32::Service.status(@service_name) }
     assert_kind_of(Struct::ServiceStatus, Win32::Service.status(@service_name))
   end
 
   test "get_service_name basic functionality" do
     assert_respond_to(Win32::Service, :get_service_name)
-    assert_nothing_raised{ Win32::Service.get_service_name(@display_name) }
+    assert_nothing_raised { Win32::Service.get_service_name(@display_name) }
     assert_kind_of(String, Win32::Service.get_service_name(@display_name))
   end
 
@@ -302,25 +302,25 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_service_name requires at least one argument" do
-    assert_raise(ArgumentError){ Win32::Service.get_service_name }
+    assert_raise(ArgumentError) { Win32::Service.get_service_name }
   end
 
   test "get_service_name raises an error if a bogus service name is provided" do
-    assert_raise(SystemCallError){ Win32::Service.get_service_name('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.get_service_name("bogus") }
   end
 
   test "get_service_name raises an error if a bogus host is provided" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.get_service_name('foo', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.get_service_name("foo", "bogus") }
   end
 
   test "get_service_name accepts a maximum of two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.get_service_name('x', 'y', 'z') }
+    assert_raise(ArgumentError) { Win32::Service.get_service_name("x", "y", "z") }
   end
 
   test "get_display_name basic functionality" do
     assert_respond_to(Win32::Service, :get_display_name)
-    assert_nothing_raised{ Win32::Service.get_display_name(@service_name) }
+    assert_nothing_raised { Win32::Service.get_display_name(@service_name) }
     assert_kind_of(String, Win32::Service.get_display_name(@service_name))
   end
 
@@ -334,45 +334,45 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "get_display_name requires at least one argument" do
-    assert_raise(ArgumentError){ Win32::Service.get_display_name }
+    assert_raise(ArgumentError) { Win32::Service.get_display_name }
   end
 
   test "get_display_name raises an error if the service does not exist" do
-    assert_raise(SystemCallError){ Win32::Service.get_display_name('bogus') }
+    assert_raise(SystemCallError) { Win32::Service.get_display_name("bogus") }
   end
 
   test "get_display_name raises an error if a bad host name is provided" do
     omit_unless_elevated
-    assert_raise(SystemCallError){ Win32::Service.get_display_name('W32Time', 'bogus') }
+    assert_raise(SystemCallError) { Win32::Service.get_display_name("W32Time", "bogus") }
   end
 
   test "get_display_name takes a maximum of two arguments" do
-    assert_raise(ArgumentError){ Win32::Service.get_display_name('x', 'y', 'z') }
+    assert_raise(ArgumentError) { Win32::Service.get_display_name("x", "y", "z") }
   end
 
   test "exists method basic functionality" do
     assert_respond_to(Win32::Service, :exists?)
-    assert_boolean(Win32::Service.exists?('W32Time'))
-    assert_nothing_raised{ Win32::Service.exists?('W32Time') }
+    assert_boolean(Win32::Service.exists?("W32Time"))
+    assert_nothing_raised { Win32::Service.exists?("W32Time") }
   end
 
   test "exists method returns expected results" do
-    assert_true(Win32::Service.exists?('W32Time'))
-    assert_false(Win32::Service.exists?('foobar'))
+    assert_true(Win32::Service.exists?("W32Time"))
+    assert_false(Win32::Service.exists?("foobar"))
   end
 
   test "exists method requires at least one argument or an error is raised" do
-    assert_raises(ArgumentError){ Win32::Service.exists? }
+    assert_raises(ArgumentError) { Win32::Service.exists? }
   end
 
   test "exists method raises an error if a bogus host is passed" do
     omit_unless_elevated
-    assert_raises(SystemCallError){ Win32::Service.exists?('foo', 'bogus') }
+    assert_raises(SystemCallError) { Win32::Service.exists?("foo", "bogus") }
   end
 
   test "exists method only accepts up to two arguments" do
-    assert_raises(ArgumentError){
-      Win32::Service.exists?('foo', 'bar', 'baz')
+    assert_raises(ArgumentError) {
+      Win32::Service.exists?("foo", "bar", "baz")
     }
   end
 
@@ -432,15 +432,15 @@ class TC_Win32_Service < Test::Unit::TestCase
   end
 
   test "internal ffi functions are not public as singleton methods" do
-    assert_false(@singleton_methods.include?('CloseHandle'))
-    assert_false(@singleton_methods.include?('ControlService'))
-    assert_false(@singleton_methods.include?('DeleteService'))
+    assert_false(@singleton_methods.include?("CloseHandle"))
+    assert_false(@singleton_methods.include?("ControlService"))
+    assert_false(@singleton_methods.include?("DeleteService"))
   end
 
   test "internal ffi functions are not public as instance methods" do
-    assert_false(@instance_methods.include?('CloseHandle'))
-    assert_false(@instance_methods.include?('ControlService'))
-    assert_false(@instance_methods.include?('DeleteService'))
+    assert_false(@instance_methods.include?("CloseHandle"))
+    assert_false(@instance_methods.include?("ControlService"))
+    assert_false(@instance_methods.include?("DeleteService"))
   end
 
   def teardown
@@ -455,11 +455,11 @@ class TC_Win32_Service < Test::Unit::TestCase
     status = Win32::Service.status(@@service_name).current_state
 
     if @elevated
-      if status == 'paused'
+      if status == "paused"
         Win32::Service.resume(@@service_name)
       end
 
-      unless ['running', 'start pending'].include?(status)
+      unless ["running", "start pending"].include?(status)
         Win32::Service.start(@@service_name)
       end
     end

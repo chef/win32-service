@@ -1,1 +1,1 @@
-require_relative 'win32/daemon'
+require_relative "win32/daemon"

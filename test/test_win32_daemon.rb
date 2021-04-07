@@ -7,8 +7,8 @@
 # These tests are rather limited, since the acid test is to install
 # your daemon as a service and see how it behaves.
 #########################################################################
-require 'test-unit'
-require 'win32/daemon'
+require "test-unit"
+require "win32/daemon"
 include Win32
 
 class TC_Daemon < Test::Unit::TestCase
@@ -22,11 +22,11 @@ class TC_Daemon < Test::Unit::TestCase
 
   test "constructor basic functionality" do
     assert_respond_to(Daemon, :new)
-    assert_nothing_raised{ Daemon.new }
+    assert_nothing_raised { Daemon.new }
   end
 
   test "constructor does not accept any arguments" do
-    assert_raises(ArgumentError){ Daemon.new(1) }
+    assert_raises(ArgumentError) { Daemon.new(1) }
   end
 
   test "mainloop basic functionality" do
