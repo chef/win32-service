@@ -12,7 +12,7 @@ rubygems:
   - win32-service
 
 release_branches:
-  - master:
+  - main:
       version_constraint: "*"
 
 github:
