@@ -1,27 +1,24 @@
 # win32-service Change Log
 
-<!-- latest_release 2.3.2 -->
-## [win32-service-2.3.2](https://github.com/chef/win32-service/tree/win32-service-2.3.2) (2021-04-07)
-
-#### Merged Pull Requests
-- Resolve the majority of chefstyle violations [#76](https://github.com/chef/win32-service/pull/76) ([tas50](https://github.com/tas50))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=2.2.0 -->
-### Changes not yet released to rubygems.org
-
-#### Merged Pull Requests
-- Resolve the majority of chefstyle violations [#76](https://github.com/chef/win32-service/pull/76) ([tas50](https://github.com/tas50)) <!-- 2.3.2 -->
-- Add PR testing in Buildkite [#75](https://github.com/chef/win32-service/pull/75) ([tas50](https://github.com/tas50)) <!-- 2.3.1 -->
-- daemon: Enable to handle user defined control codes [#74](https://github.com/chef/win32-service/pull/74) ([ashie](https://github.com/ashie)) <!-- 2.3.0 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [win32-service-2.3.2](https://github.com/chef/win32-service/tree/win32-service-2.3.2) (2021-11-08)
+
+#### Merged Pull Requests
+- daemon: Enable to handle user defined control codes [#74](https://github.com/chef/win32-service/pull/74) ([ashie](https://github.com/ashie))
+- Add PR testing in Buildkite [#75](https://github.com/chef/win32-service/pull/75) ([tas50](https://github.com/tas50))
+- Resolve the majority of chefstyle violations [#76](https://github.com/chef/win32-service/pull/76) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
+
 ## [win32-service-2.2.0](https://github.com/chef/win32-service/tree/win32-service-2.2.0) (2020-11-20)
 
 #### Merged Pull Requests
 - Refactor ::status with new methods [#64](https://github.com/chef/win32-service/pull/64) ([jasonwbarnett](https://github.com/jasonwbarnett))
-<!-- latest_stable_release -->
 
 ## [win32-service-2.1.6](https://github.com/chef/win32-service/tree/win32-service-2.1.6) (2020-08-17)
 
