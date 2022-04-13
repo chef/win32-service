@@ -342,9 +342,9 @@ module Win32
       raise TypeError if host && !host.is_a?(String)
 
       begin
-        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
+        handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-        FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+        FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
         # Display name defaults to service_name
         opts["display_name"] ||= service_name
@@ -504,9 +504,9 @@ module Win32
       end
 
       begin
-        handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+        handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CONNECT)
 
-        FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+        FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
         desired_access = SERVICE_CHANGE_CONFIG
 
@@ -514,13 +514,13 @@ module Win32
           desired_access |= SERVICE_START
         end
 
-        handle_scs = OpenService(
+        handle_scs = OpenServiceA(
           handle_scm,
           service,
           desired_access
         )
 
-        FFI.raise_windows_error("OpenService") if handle_scs == 0
+        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
         dependencies = opts["dependencies"]
 
@@ -601,11 +601,11 @@ module Win32
       bool = false
 
       begin
-        handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+        handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-        FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+        FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
+        handle_scs = OpenServiceA(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
         close_service_handle(handle_scm)
@@ -628,9 +628,9 @@ module Win32
     # Service.get_display_name('W32Time') => 'Windows Time'
     #
     def self.get_display_name(service, host = nil)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CONNECT)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       display_name = FFI::MemoryPointer.new(260)
       display_size = FFI::MemoryPointer.new(:ulong)
@@ -644,7 +644,7 @@ module Win32
           display_size
         )
 
-        FFI.raise_windows_error("OpenSCManager") unless bool
+        FFI.raise_windows_error("OpenSCManagerA") unless bool
       ensure
         close_service_handle(handle_scm)
       end
@@ -665,9 +665,9 @@ module Win32
     # Service.get_service_name('Windows Time') => 'W32Time'
     #
     def self.get_service_name(display_name, host = nil)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CONNECT)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       service_name = FFI::MemoryPointer.new(260)
       service_size = FFI::MemoryPointer.new(:ulong)
@@ -702,14 +702,14 @@ module Win32
     #    Service.start('SomeSvc', 'foo', 'hello') => self
     #
     def self.start(service, host = nil, *args)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CONNECT)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_START)
+        handle_scs = OpenServiceA(handle_scm, service, SERVICE_START)
 
-        FFI.raise_windows_error("OpenService") if handle_scs == 0
+        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
         num_args = 0
 
@@ -813,14 +813,14 @@ module Win32
     #   Service.delete('SomeService') => self
     #
     def self.delete(service, host = nil)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CREATE_SERVICE)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CREATE_SERVICE)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, DELETE)
+        handle_scs = OpenServiceA(handle_scm, service, DELETE)
 
-        FFI.raise_windows_error("OpenService") if handle_scs == 0
+        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
         unless DeleteService(handle_scs)
           FFI.raise_windows_error("DeleteService")
@@ -848,14 +848,14 @@ module Win32
     def self.config_info(service, host = nil)
       raise TypeError if host && !host.is_a?(String)
 
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
+        handle_scs = OpenServiceA(handle_scm, service, SERVICE_QUERY_CONFIG)
 
-        FFI.raise_windows_error("OpenService") if handle_scs == 0
+        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
         # First, get the buf size needed
         bytes = FFI::MemoryPointer.new(:ulong)
@@ -968,9 +968,9 @@ module Win32
         raise TypeError unless group.is_a?(String) # Avoid strange errors
       end
 
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       bytes_needed      = FFI::MemoryPointer.new(:ulong)
       services_returned = FFI::MemoryPointer.new(:ulong)
@@ -1036,13 +1036,13 @@ module Win32
           service_flags = struct[:ServiceStatusProcess][:dwServiceFlags]
 
           begin
-            handle_scs = OpenService(
+            handle_scs = OpenServiceA(
               handle_scm,
               service_name,
               SERVICE_QUERY_CONFIG
             )
 
-            FFI.raise_windows_error("OpenService") if handle_scs == 0
+            FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
             config_struct = get_config_info(handle_scs)
 
@@ -1197,17 +1197,17 @@ module Win32
     #   a problem of some kind.
     #
     def self.delayed_start(service, host = nil)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_ENUMERATE_SERVICE)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
-      handle_scs = OpenService(
+      handle_scs = OpenServiceA(
         handle_scm,
         service,
         SERVICE_QUERY_CONFIG
       )
 
-      FFI.raise_windows_error("OpenService") if handle_scs == 0
+      FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
       delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
       if delayed_start_buf.is_a?(FFI::MemoryPointer)
@@ -1252,12 +1252,12 @@ module Win32
     # @see Windows::ServiceConstants
     #
     def self.open_service(scm_handle, service_name, desired_access)
-       service_handle = OpenService(
+       service_handle = OpenServiceA(
         scm_handle,
         service_name,
         desired_access
       )
-       FFI.raise_windows_error("OpenService") if service_handle == 0
+       FFI.raise_windows_error("OpenServiceA") if service_handle == 0
 
        if block_given?
          yield service_handle
@@ -1289,8 +1289,8 @@ module Win32
     # @see Windows::ServiceConstants
     #
     def self.open_sc_manager(host = nil, desired_access = SC_MANAGER_CONNECT)
-      scm_handle = OpenSCManager(host, nil, desired_access)
-      FFI.raise_windows_error("OpenSCManager") if scm_handle == 0
+      scm_handle = OpenSCManagerA(host, nil, desired_access)
+      FFI.raise_windows_error("OpenSCManagerA") if scm_handle == 0
 
       if block_given?
         yield scm_handle
@@ -1635,14 +1635,14 @@ module Win32
     # A shortcut method that simplifies the various service control methods.
     #
     def self.send_signal(service, host, service_signal, control_signal)
-      handle_scm = OpenSCManager(host, nil, SC_MANAGER_CONNECT)
+      handle_scm = OpenSCManagerA(host, nil, SC_MANAGER_CONNECT)
 
-      FFI.raise_windows_error("OpenSCManager") if handle_scm == 0
+      FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenService(handle_scm, service, service_signal)
+        handle_scs = OpenServiceA(handle_scm, service, service_signal)
 
-        FFI.raise_windows_error("OpenService") if handle_scs == 0
+        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
 
         status = SERVICE_STATUS.new
 
