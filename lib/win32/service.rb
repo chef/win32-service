@@ -514,13 +514,13 @@ module Win32
           desired_access |= SERVICE_START
         end
 
-        handle_scs = OpenServiceA(
+        handle_scs = OpenService(
           handle_scm,
           service,
           desired_access
         )
 
-        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+        FFI.raise_windows_error("OpenService") if handle_scs == 0
 
         dependencies = opts["dependencies"]
 
@@ -605,7 +605,7 @@ module Win32
 
         FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
-        handle_scs = OpenServiceA(handle_scm, service, SERVICE_QUERY_STATUS)
+        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_STATUS)
         bool = true if handle_scs > 0
       ensure
         close_service_handle(handle_scm)
@@ -707,9 +707,9 @@ module Win32
       FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenServiceA(handle_scm, service, SERVICE_START)
+        handle_scs = OpenService(handle_scm, service, SERVICE_START)
 
-        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+        FFI.raise_windows_error("OpenService") if handle_scs == 0
 
         num_args = 0
 
@@ -818,9 +818,9 @@ module Win32
       FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenServiceA(handle_scm, service, DELETE)
+        handle_scs = OpenService(handle_scm, service, DELETE)
 
-        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+        FFI.raise_windows_error("OpenService") if handle_scs == 0
 
         unless DeleteService(handle_scs)
           FFI.raise_windows_error("DeleteService")
@@ -853,9 +853,9 @@ module Win32
       FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenServiceA(handle_scm, service, SERVICE_QUERY_CONFIG)
+        handle_scs = OpenService(handle_scm, service, SERVICE_QUERY_CONFIG)
 
-        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+        FFI.raise_windows_error("OpenService") if handle_scs == 0
 
         # First, get the buf size needed
         bytes = FFI::MemoryPointer.new(:ulong)
@@ -1036,13 +1036,13 @@ module Win32
           service_flags = struct[:ServiceStatusProcess][:dwServiceFlags]
 
           begin
-            handle_scs = OpenServiceA(
+            handle_scs = OpenService(
               handle_scm,
               service_name,
               SERVICE_QUERY_CONFIG
             )
 
-            FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+            FFI.raise_windows_error("OpenService") if handle_scs == 0
 
             config_struct = get_config_info(handle_scs)
 
@@ -1201,13 +1201,13 @@ module Win32
 
       FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
-      handle_scs = OpenServiceA(
+      handle_scs = OpenService(
         handle_scm,
         service,
         SERVICE_QUERY_CONFIG
       )
 
-      FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+      FFI.raise_windows_error("OpenService") if handle_scs == 0
 
       delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
       if delayed_start_buf.is_a?(FFI::MemoryPointer)
@@ -1252,12 +1252,12 @@ module Win32
     # @see Windows::ServiceConstants
     #
     def self.open_service(scm_handle, service_name, desired_access)
-       service_handle = OpenServiceA(
+       service_handle = OpenService(
         scm_handle,
         service_name,
         desired_access
       )
-       FFI.raise_windows_error("OpenServiceA") if service_handle == 0
+       FFI.raise_windows_error("OpenService") if service_handle == 0
 
        if block_given?
          yield service_handle
@@ -1640,9 +1640,9 @@ module Win32
       FFI.raise_windows_error("OpenSCManagerA") if handle_scm == 0
 
       begin
-        handle_scs = OpenServiceA(handle_scm, service, service_signal)
+        handle_scs = OpenService(handle_scm, service, service_signal)
 
-        FFI.raise_windows_error("OpenServiceA") if handle_scs == 0
+        FFI.raise_windows_error("OpenService") if handle_scs == 0
 
         status = SERVICE_STATUS.new
 
