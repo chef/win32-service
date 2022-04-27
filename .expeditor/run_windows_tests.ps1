@@ -13,5 +13,5 @@ If ($lastexitcode -ne 0) { Exit $lastexitcode }
 
 Write-Output "--- Bundle Execute"
 
-bundle exec rake
+bundle exec rake --trace
 If ($lastexitcode -ne 0) { Exit $lastexitcode }
