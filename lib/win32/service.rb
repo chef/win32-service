@@ -272,6 +272,7 @@ module Win32
     # * failure_command        => nil,
     # * failure_actions        => nil,
     # * failure_delay          => 0
+    # * failure_flag           => nil
     #
     # Example:
     #
@@ -317,6 +318,7 @@ module Win32
         "failure_command"        => nil,
         "failure_actions"        => nil,
         "failure_delay"          => 0,
+        "failure_flag"           => nil,
         "host"                   => nil,
         "service_name"           => nil,
       }
@@ -396,7 +398,7 @@ module Win32
         end
 
         if opts["failure_reset_period"] || opts["failure_reboot_message"] ||
-            opts["failure_command"] || opts["failure_actions"]
+            opts["failure_command"] || opts["failure_actions"] || opts["failure_flag"]
           self.class.configure_failure_actions(handle_scs, opts)
         end
       ensure
@@ -425,6 +427,7 @@ module Win32
     # * failure_reboot_message
     # * failure_command
     # * failure_actions
+    # * failure_flag
     # * failure_delay
     #
     # Examples:
@@ -475,6 +478,7 @@ module Win32
         "failure_command"        => nil,
         "failure_actions"        => nil,
         "failure_delay"          => 0,
+        "failure_flag"           => nil,
         "service_name"           => nil,
         "host"                   => nil,
         "delayed_start"          => false,
@@ -579,7 +583,7 @@ module Win32
         end
 
         if opts["failure_reset_period"] || opts["failure_reboot_message"] ||
-            opts["failure_command"] || opts["failure_actions"]
+            opts["failure_command"] || opts["failure_actions"] || opts["failure_flag"]
           configure_failure_actions(handle_scs, opts)
         end
       ensure
@@ -1396,6 +1400,18 @@ module Win32
         error = FFI.errno
         close_service_handle(handle_scs)
         raise SystemCallError.new("ChangeServiceConfig2", error)
+      end
+
+      unless opts["failure_flag"].nil?
+        sfaf = SERVICE_FAILURE_ACTIONS_FLAG.new
+        sfaf[:fFailureActionsOnNonCrashFailures] = opts["failure_flag"] ? 1 : 0
+        bool = ChangeServiceConfig2(
+          handle_scs,
+          SERVICE_CONFIG_FAILURE_ACTIONS_FLAG,
+          sfaf
+        )
+
+        FFI.raise_windows_error("ChangeServiceConfig2") unless bool
       end
     end
 
