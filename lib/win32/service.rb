@@ -398,7 +398,7 @@ module Win32
         end
 
         if opts["failure_reset_period"] || opts["failure_reboot_message"] ||
-            opts["failure_command"] || opts["failure_actions"] || opts["failure_flag"]
+            opts["failure_command"] || opts["failure_actions"] || !opts["failure_flag"].nil?
           self.class.configure_failure_actions(handle_scs, opts)
         end
       ensure
@@ -583,7 +583,7 @@ module Win32
         end
 
         if opts["failure_reset_period"] || opts["failure_reboot_message"] ||
-            opts["failure_command"] || opts["failure_actions"] || opts["failure_flag"]
+            opts["failure_command"] || opts["failure_actions"] || !opts["failure_flag"].nil?
           configure_failure_actions(handle_scs, opts)
         end
       ensure
