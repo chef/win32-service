@@ -180,9 +180,13 @@ module Win32
         # Main loop for the service.
         while WaitForSingleObject(@@hStopCompletedEvent, 1000) != WAIT_OBJECT_0
         end
-      ensure
+
         # Stop the service.
         SetTheServiceStatus.call(SERVICE_STOPPED, NO_ERROR, 0, 0)
+      ensure
+        # Stop the service.
+        # This ensures that if the main thread crashes and Service_Main thread is terminated, we will set nonzero win32exitCode
+        SetTheServiceStatus.call(SERVICE_STOPPED, 1, 0, 0)
       end
     end
 
