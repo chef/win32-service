@@ -90,6 +90,12 @@ module Windows
       )
     end
 
+    class SERVICE_FAILURE_ACTIONS_FLAG < FFI::Struct
+      layout(
+        :fFailureActionsOnNonCrashFailures, :int
+      )
+    end
+
     class SERVICE_TABLE_ENTRY < FFI::Struct
       layout(
         :lpServiceName, :pointer,
