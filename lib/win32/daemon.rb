@@ -269,6 +269,10 @@ module Win32
       events.put_pointer(FFI::Pointer.size, FFI::Pointer.new(@@hStartEvent))
 
       while (index = WaitForMultipleObjects(2, events, 0, 1000)) == WAIT_TIMEOUT
+        # applying some magic to delay things, as somehow this while loop
+        # can enter some kind of deadlock state without this, leading
+        # to our service not being able to boot
+        sleep(0.1)
       end
 
       if index == WAIT_FAILED
