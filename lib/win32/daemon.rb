@@ -180,9 +180,13 @@ module Win32
         # Main loop for the service.
         while WaitForSingleObject(@@hStopCompletedEvent, 1000) != WAIT_OBJECT_0
         end
-      ensure
+
         # Stop the service.
         SetTheServiceStatus.call(SERVICE_STOPPED, NO_ERROR, 0, 0)
+      ensure
+        # Stop the service.
+        # This ensures that if the main thread crashes and Service_Main thread is terminated, we will set nonzero win32exitCode
+        SetTheServiceStatus.call(SERVICE_STOPPED, 1, 0, 0)
       end
     end
 
@@ -265,6 +269,10 @@ module Win32
       events.put_pointer(FFI::Pointer.size, FFI::Pointer.new(@@hStartEvent))
 
       while (index = WaitForMultipleObjects(2, events, 0, 1000)) == WAIT_TIMEOUT
+        # applying some magic to delay things, as somehow this while loop
+        # can enter some kind of deadlock state without this, leading
+        # to our service not being able to boot
+        sleep(0.1)
       end
 
       if index == WAIT_FAILED
