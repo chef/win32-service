@@ -9,16 +9,6 @@ expeditor:
 
 steps:
 
-- label: run-specs-ruby-2.7-windows
-  command:
-    - .expeditor/run_windows_tests.ps1
-  expeditor:
-    executor:
-      docker:
-        host_os: windows
-        shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:2.7
-
 - label: run-specs-ruby-3.0-windows
   commands:
    - .expeditor/run_windows_tests.ps1
@@ -40,4 +30,4 @@ steps:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.1 
+        image: rubydistros/windows-2019:3.1
