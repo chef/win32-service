@@ -20,6 +20,7 @@ steps:
         shell: ["powershell", "-Command"]
         image: rubydistros/windows-2019:3.0
 
+
 - label: run-specs-ruby-3.1-windows
   commands:
    - .expeditor/run_windows_tests.ps1
@@ -29,4 +30,4 @@ steps:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.1 
+        image: rubydistros/windows-2019:3.1
