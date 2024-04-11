@@ -13,13 +13,13 @@ require "socket"
 class TC_Win32_Service < Test::Unit::TestCase
   def self.startup
     @@host = Socket.gethostname
-    @@service_name = "printsvc"
+    @@service_name = "StiSvc"
     @@elevated = Win32::Security.elevated_security?
   end
 
   def setup
-    @display_name = "Print Service"
-    @service_name = "printsvc"
+    @display_name = "Windows Image Acquisition (WIA)"
+    @service_name = "StiSvc"
     @service_stat = nil
     @services     = []
     @elevated     = Win32::Security.elevated_security?
