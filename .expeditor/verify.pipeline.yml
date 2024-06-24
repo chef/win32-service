@@ -11,6 +11,7 @@ steps:
 
 - label: run-specs-ruby-3.0-windows
   commands:
+   - .expeditor/prep_environment.ps1 -Ruby 3.0
    - .expeditor/run_windows_tests.ps1
 
   expeditor:
@@ -18,11 +19,13 @@ steps:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.0
+        # image: rubydistros/windows-2019:3.0
+        image: mcr.microsoft.com/windows:ltsc2019
 
 
 - label: run-specs-ruby-3.1-windows
   commands:
+   - .expeditor/prep_environment.ps1 -Ruby 3.1
    - .expeditor/run_windows_tests.ps1
 
   expeditor:
@@ -30,4 +33,5 @@ steps:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.1
+        # image: rubydistros/windows-2019:3.1
+        image: mcr.microsoft.com/windows:ltsc2019
