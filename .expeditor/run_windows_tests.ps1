@@ -38,7 +38,7 @@ Start-Process "c:/$env:RUBY_FILE" -ArgumentList "/allusers /verysilent /dir=$env
 Write-Output 'Cleaning up installation'
 Remove-Item "c:/$env:RUBY_FILE" -Force
 
-$env:PATH += ";$env:RUBY_DIR"
+$env:PATH += ";$env:RUBY_DIR/bin"
 
 # This will run ruby test on windows platform
 
