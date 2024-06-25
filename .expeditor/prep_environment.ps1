@@ -16,7 +16,7 @@ Remove-Item -Recurse -Force c:\chococache
 
 if($Ruby -eq "3.0")
 {
-  $env:RUBY_URL="https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.6-1/rubyinstaller-3.0.6-1-x64.exe"
+  $env:RUBY_URL="https://github.com/oneclick/rubyinstaller3/releases/download/RubyInstaller-3.0.6-1/rubyinstaller-3.0.6-1-x64.exe"
   $env:RUBY_FILE="rubyinstaller-3.0.6-1-x64.exe"
   $env:RUBY_DIR="c:/ruby30"
 }

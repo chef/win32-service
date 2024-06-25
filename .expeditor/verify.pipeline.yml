@@ -11,8 +11,7 @@ steps:
 
 - label: run-specs-ruby-3.0-windows
   commands:
-   - .expeditor/prep_environment.ps1 -Ruby 3.0
-   - .expeditor/run_windows_tests.ps1
+   - .expeditor/run_windows_tests.ps1 -Ruby 3.0
 
   expeditor:
     executor:
@@ -25,8 +24,7 @@ steps:
 
 - label: run-specs-ruby-3.1-windows
   commands:
-   - .expeditor/prep_environment.ps1 -Ruby 3.1
-   - .expeditor/run_windows_tests.ps1
+   - .expeditor/run_windows_tests.ps1 -Ruby 3.0
 
   expeditor:
     executor:
