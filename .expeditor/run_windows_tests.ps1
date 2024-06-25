@@ -28,9 +28,9 @@ if($Ruby -eq "3.1")
 }
 
 # Install Ruby + Devkit
-Write-Output 'Downloading Ruby + DevKit'; \
-  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  (New-Object System.Net.WebClient).DownloadFile("$env:RUBY_URL", "c:/$env:RUBY_FILE")
+Write-Output 'Downloading Ruby + DevKit';
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
+(New-Object System.Net.WebClient).DownloadFile("$env:RUBY_URL", "c:/$env:RUBY_FILE")
 
 Write-Output 'Installing Ruby + DevKit'
 Start-Process "c:/$env:RUBY_FILE" -ArgumentList "/allusers /verysilent /dir=$env:RUBY_DIR" -Wait
