@@ -1,4 +1,4 @@
-param ([string] $Ruby)
+param (string $Ruby)
 
 Set-ExecutionPolicy Bypass
 $ErrorActionPreference='Stop'
@@ -10,7 +10,7 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://com
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 choco feature enable -n=allowGlobalConfirmation
 choco config set cacheLocation C:\chococache
-# choco upgrade chocolatey
+choco upgrade chocolatey
 choco install git
 Remove-Item -Recurse -Force c:\chococache
 
@@ -28,29 +28,12 @@ if($Ruby -eq "3.1")
 }
 
 # Install Ruby + Devkit
-Write-Output 'Downloading Ruby + DevKit';
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
-(New-Object System.Net.WebClient).DownloadFile("$env:RUBY_URL", "c:/$env:RUBY_FILE")
+Write-Output 'Downloading Ruby + DevKit'; \
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+  (New-Object System.Net.WebClient).DownloadFile("$env:RUBY_URL", "c:/$env:RUBY_FILE")
 
 Write-Output 'Installing Ruby + DevKit'
 Start-Process "c:/$env:RUBY_FILE" -ArgumentList "/allusers /verysilent /dir=$env:RUBY_DIR" -Wait
 
 Write-Output 'Cleaning up installation'
 Remove-Item "c:/$env:RUBY_FILE" -Force
-
-$env:PATH += ";$env:RUBY_DIR/bin"
-
-# This will run ruby test on windows platform
-
-Write-Output "--- Bundle install"
-
-bundle config --local path vendor/bundle
-If ($lastexitcode -ne 0) { Exit $lastexitcode }
-
-bundle install --jobs=7 --retry=3
-If ($lastexitcode -ne 0) { Exit $lastexitcode }
-
-Write-Output "--- Bundle Execute"
-
-bundle exec rake --trace
-If ($lastexitcode -ne 0) { Exit $lastexitcode }

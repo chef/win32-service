@@ -11,22 +11,25 @@ steps:
 
 - label: run-specs-ruby-3.0-windows
   commands:
-   - .expeditor/run_windows_tests.ps1
+   - Set-ExecutionPolicy Bypass; .expeditor/run_windows_tests.ps1 3.0
 
   expeditor:
     executor:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.0
+        # image: rubydistros/windows-2019:3.0
+        image: mcr.microsoft.com/windows:ltsc2019
+
 
 - label: run-specs-ruby-3.1-windows
   commands:
-   - .expeditor/run_windows_tests.ps1
+   - Set-ExecutionPolicy Bypass; .expeditor/run_windows_tests.ps1 3.1
 
   expeditor:
     executor:
       docker:
         host_os: windows
         shell: ["powershell", "-Command"]
-        image: rubydistros/windows-2019:3.1 
+        # image: rubydistros/windows-2019:3.1
+        image: mcr.microsoft.com/windows:ltsc2019
