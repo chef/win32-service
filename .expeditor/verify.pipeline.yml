@@ -11,7 +11,7 @@ steps:
 
 - label: run-specs-ruby-3.0-windows
   commands:
-   - .expeditor/run_windows_tests.ps1 -Ruby 3.0
+   - Set-ExecutionPolicy Bypass; .expeditor/run_windows_tests.ps1 -Ruby 3.0
 
   expeditor:
     executor:
@@ -24,7 +24,7 @@ steps:
 
 - label: run-specs-ruby-3.1-windows
   commands:
-   - .expeditor/run_windows_tests.ps1 -Ruby 3.1
+   - Set-ExecutionPolicy Bypass; .expeditor/run_windows_tests.ps1 -Ruby 3.1
 
   expeditor:
     executor:
