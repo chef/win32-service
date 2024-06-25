@@ -10,7 +10,7 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://com
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 choco feature enable -n=allowGlobalConfirmation
 choco config set cacheLocation C:\chococache
-choco upgrade chocolatey
+# choco upgrade chocolatey
 choco install git
 Remove-Item -Recurse -Force c:\chococache
 
@@ -37,6 +37,8 @@ Start-Process "c:/$env:RUBY_FILE" -ArgumentList "/allusers /verysilent /dir=$env
 
 Write-Output 'Cleaning up installation'
 Remove-Item "c:/$env:RUBY_FILE" -Force
+
+$env:PATH += ";$env:RUBY_DIR"
 
 # This will run ruby test on windows platform
 
