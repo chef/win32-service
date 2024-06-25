@@ -1,4 +1,4 @@
-param (string $Ruby)
+param ([string] $Ruby)
 
 Set-ExecutionPolicy Bypass
 $ErrorActionPreference='Stop'
