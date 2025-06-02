@@ -4,8 +4,11 @@ source "https://rubygems.org"
 gemspec
 
 group(:development, :test) do
-  gem "chefstyle", "1.6.2"
   gem "rake"
+end
+
+group :style do
+  gem "cookstyle", "~> 8.1"
 end
 
 group :debug do

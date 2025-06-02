@@ -24,8 +24,8 @@ class TC_Win32_Service < Test::Unit::TestCase
     @services     = []
     @elevated     = Win32::Security.elevated_security?
 
-    @singleton_methods = Win32::Service.methods.map { |m| m.to_s }
-    @instance_methods  = Win32::Service.instance_methods.map { |m| m.to_s }
+    @singleton_methods = Win32::Service.methods.map(&:to_s)
+    @instance_methods  = Win32::Service.instance_methods.map(&:to_s)
   end
 
   def omit_unless_elevated

@@ -301,24 +301,24 @@ module Win32
       end
 
       opts = {
-        "display_name"           => nil,
-        "desired_access"         => SERVICE_ALL_ACCESS,
-        "service_type"           => SERVICE_WIN32_OWN_PROCESS,
-        "start_type"             => SERVICE_DEMAND_START,
-        "error_control"          => SERVICE_ERROR_NORMAL,
-        "binary_path_name"       => nil,
-        "load_order_group"       => nil,
-        "dependencies"           => nil,
-        "service_start_name"     => nil,
-        "password"               => nil,
-        "description"            => nil,
-        "failure_reset_period"   => nil,
+        "display_name" => nil,
+        "desired_access" => SERVICE_ALL_ACCESS,
+        "service_type" => SERVICE_WIN32_OWN_PROCESS,
+        "start_type" => SERVICE_DEMAND_START,
+        "error_control" => SERVICE_ERROR_NORMAL,
+        "binary_path_name" => nil,
+        "load_order_group" => nil,
+        "dependencies" => nil,
+        "service_start_name" => nil,
+        "password" => nil,
+        "description" => nil,
+        "failure_reset_period" => nil,
         "failure_reboot_message" => nil,
-        "failure_command"        => nil,
-        "failure_actions"        => nil,
-        "failure_delay"          => 0,
-        "host"                   => nil,
-        "service_name"           => nil,
+        "failure_command" => nil,
+        "failure_actions" => nil,
+        "failure_delay" => 0,
+        "host" => nil,
+        "service_name" => nil,
       }
 
       # Validate the hash options
@@ -403,8 +403,6 @@ module Win32
         self.class.close_service_handle(handle_scs)
         self.class.close_service_handle(handle_scm)
       end
-
-      self
     end
 
     # Configures the named +service+ on +host+, or the local host if no host
@@ -460,24 +458,24 @@ module Win32
       end
 
       opts = {
-        "service_type"           => SERVICE_NO_CHANGE,
-        "start_type"             => SERVICE_NO_CHANGE,
-        "error_control"          => SERVICE_NO_CHANGE,
-        "binary_path_name"       => nil,
-        "load_order_group"       => nil,
-        "dependencies"           => nil,
-        "service_start_name"     => nil,
-        "password"               => nil,
-        "display_name"           => nil,
-        "description"            => nil,
-        "failure_reset_period"   => nil,
+        "service_type" => SERVICE_NO_CHANGE,
+        "start_type" => SERVICE_NO_CHANGE,
+        "error_control" => SERVICE_NO_CHANGE,
+        "binary_path_name" => nil,
+        "load_order_group" => nil,
+        "dependencies" => nil,
+        "service_start_name" => nil,
+        "password" => nil,
+        "display_name" => nil,
+        "description" => nil,
+        "failure_reset_period" => nil,
         "failure_reboot_message" => nil,
-        "failure_command"        => nil,
-        "failure_actions"        => nil,
-        "failure_delay"          => 0,
-        "service_name"           => nil,
-        "host"                   => nil,
-        "delayed_start"          => false,
+        "failure_command" => nil,
+        "failure_actions" => nil,
+        "failure_delay" => 0,
+        "service_name" => nil,
+        "host" => nil,
+        "delayed_start" => false,
       }
 
       # Validate the hash options
@@ -686,7 +684,8 @@ module Win32
         close_service_handle(handle_scm)
       end
 
-      service_name.read_string
+      # Return a lowercase, UTF-8 encoded string
+      service_name.read_string.downcase.force_encoding("UTF-8")
     end
 
     # Attempts to start the named +service+ on +host+, or the local machine
@@ -714,13 +713,12 @@ module Win32
         num_args = 0
 
         if args.empty?
-          args = nil
+          nil # rubocop:disable Lint/Void
         else
-          str_ptrs = []
           num_args = args.size
 
-          args.each { |string|
-            str_ptrs << FFI::MemoryPointer.from_string(string)
+          str_ptrs = args.map { |string|
+            FFI::MemoryPointer.from_string(string)
           }
 
           str_ptrs << nil
@@ -1212,12 +1210,12 @@ module Win32
       delayed_start_buf = get_config2_info(handle_scs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
       if delayed_start_buf.is_a?(FFI::MemoryPointer)
         delayed_start_info = SERVICE_DELAYED_AUTO_START_INFO.new(delayed_start_buf)
-        delayed_start = delayed_start_info[:fDelayedAutostart]
+        delayed_start_info[:fDelayedAutostart]
       else
-        delayed_start = false
+        false
       end
     rescue SystemCallError
-      delayed_start = nil
+      nil
     ensure
       close_service_handle(handle_scs)
       close_service_handle(handle_scm)
@@ -1252,18 +1250,18 @@ module Win32
     # @see Windows::ServiceConstants
     #
     def self.open_service(scm_handle, service_name, desired_access)
-       service_handle = OpenService(
+      service_handle = OpenService(
         scm_handle,
         service_name,
         desired_access
       )
-       FFI.raise_windows_error("OpenService") if service_handle == 0
+      FFI.raise_windows_error("OpenService") if service_handle == 0
 
-       if block_given?
-         yield service_handle
-       else
-         service_handle
-       end
+      if block_given?
+        yield service_handle
+      else
+        service_handle
+      end
     ensure
       close_service_handle(service_handle) if block_given?
     end
@@ -1606,30 +1604,19 @@ module Win32
     # Converts a service type numeric constant into a human readable string.
     #
     def self.get_service_type(service_type)
-      case service_type
-        when SERVICE_FILE_SYSTEM_DRIVER
-          "file system driver"
-        when SERVICE_KERNEL_DRIVER
-          "kernel driver"
-        when SERVICE_WIN32_OWN_PROCESS
-          "own process"
-        when SERVICE_WIN32_SHARE_PROCESS
-          "share process"
-        when SERVICE_RECOGNIZER_DRIVER
-          "recognizer driver"
-        when SERVICE_DRIVER
-          "driver"
-        when SERVICE_WIN32
-          "win32"
-        when SERVICE_TYPE_ALL
-          "all"
-        when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_OWN_PROCESS
-          "own process, interactive"
-        when SERVICE_INTERACTIVE_PROCESS | SERVICE_WIN32_SHARE_PROCESS
-          "share process, interactive"
-        else
-          nil
+      if (service_type & SERVICE_INTERACTIVE_PROCESS) > 0
+        interactive_suffix = ", interactive"
       end
+
+      return "share process#{interactive_suffix}" if (service_type & SERVICE_WIN32_SHARE_PROCESS) > 0
+      return "own process#{interactive_suffix}" if (service_type & SERVICE_WIN32_OWN_PROCESS) > 0
+      return "file system driver" if (service_type & SERVICE_FILE_SYSTEM_DRIVER) > 0
+      return "kernel driver" if (service_type & SERVICE_KERNEL_DRIVER) > 0
+      return "recognizer driver" if (service_type & SERVICE_RECOGNIZER_DRIVER) > 0
+      return "driver" if (service_type & SERVICE_DRIVER) > 0
+      return "all" if (service_type == SERVICE_TYPE_ALL) > 0
+
+      "win32" if (service_type & SERVICE_WIN32) > 0
     end
 
     # A shortcut method that simplifies the various service control methods.

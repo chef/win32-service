@@ -43,12 +43,12 @@ include RbConfig
 # Make sure you're using the version you think you're using.
 puts "VERSION: " + Service::VERSION
 
-SERVICE_NAME = "DemoSvc"
-SERVICE_DISPLAYNAME = "Demo"
+SERVICE_NAME = "DemoSvc".freeze
+SERVICE_DISPLAYNAME = "Demo".freeze
 
 # Quote the full path to deal with possible spaces in the path name.
-ruby = File.join(CONFIG["bindir"], CONFIG["ruby_install_name"]).tr("/", '\\')
-path = ' "' + File.dirname(File.expand_path($0)).tr("/", '\\')
+ruby = File.join(CONFIG["bindir"], CONFIG["ruby_install_name"]).tr("/", "\\")
+path = ' "' + File.dirname(File.expand_path($0)).tr("/", "\\")
 path += '\demo_daemon.rb"'
 cmd = ruby + path
 
@@ -58,11 +58,11 @@ raise ArgumentError, "No argument provided" unless ARGV[0]
 case ARGV[0].downcase
    when "install"
      Service.new(
-        service_name: SERVICE_NAME,
-        display_name: SERVICE_DISPLAYNAME,
-        description: "Sample Ruby service",
-        binary_path_name: cmd
-      )
+       service_name: SERVICE_NAME,
+       display_name: SERVICE_DISPLAYNAME,
+       description: "Sample Ruby service",
+       binary_path_name: cmd
+     )
      puts "Service " + SERVICE_NAME + " installed"
    when "start"
      if Service.status(SERVICE_NAME).current_state != "running"
