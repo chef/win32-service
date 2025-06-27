@@ -12,6 +12,8 @@ $filteredSegments = $pathSegments | Where-Object { $_ -notlike "C:\tools*" }
 # Join the remaining segments back together
 $env:Path = $filteredSegments -join ';'
 
+Write-Output "--- Here is the updated PATH: $env:Path"
+
 [Environment]::SetEnvironmentVariable("Path", $env:Path, "Machine")
 
 
@@ -30,6 +32,8 @@ if ($rubies) {
     Write-Output "They are located at:"
     foreach ($ruby in $rubies) {
         Write-Output $ruby.FullName
+        Write-Output "--- What version is this Ruby? Trying ruby --version"
+        & $ruby.FullName "--version"
     }
 } else {
     Write-Output "No Ruby installations found."
@@ -37,7 +41,7 @@ if ($rubies) {
 
 Write-Output "--- Now deleting all the Ruby installations found"
 foreach ($ruby in $rubies) {
-    Remove-Item -Path $ruby.FullName -Recurse -Force
+    Remove-Item -Path $ruby.Parent -Recurse -Force
     Write-Output "Deleted Ruby installation at $($ruby.FullName)"
 }
 
