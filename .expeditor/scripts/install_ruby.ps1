@@ -14,7 +14,6 @@ $env:Path = $filteredSegments -join ';'
 
 Write-Output "--- Here is the updated PATH: $env:Path"
 
-
 Write-Output "--- Is Ruby already installed? Trying Get-Command ruby"
 $rubyInstalled = Get-Command ruby -ErrorAction SilentlyContinue
 if ($rubyInstalled) {
@@ -43,8 +42,18 @@ foreach ($ruby in $rubies) {
     Write-Output "Deleted Ruby installation at $($ruby.FullName)"
 }
 
+Write-Output "--- Removing any existing Ruby installations from C:\ruby"
+if (Test-Path -Path "C:\ruby") {
+    Write-Output "--- Removing C:\ruby directory"
+    Remove-Item -Path "C:\ruby" -Recurse -Force
+} else {
+    Write-Output "--- C:\ruby directory does not exist, skipping removal"
+}
+
 Write-Output "--- Installing Ruby $RubyVersion and MSYS2 using Chocolatey"
 choco install ruby --version $RubyVersion --force -y
+Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+refreshenv
 if (-not $?) { throw "Failed to install Ruby $RubyVersion." }
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") 
