@@ -50,6 +50,10 @@ if (Test-Path -Path "C:\ruby") {
     Write-Output "--- C:\ruby directory does not exist, skipping removal"
 }
 
+Write-Output "--- Removing any existing Ruby installations that are installed with Chocolatey"
+choco uninstall ruby --version 3.1.6.1 -y -f
+choco uninstall ruby --version 3.4.4.2 -y -f
+
 Write-Output "--- Installing Ruby $RubyVersion and MSYS2 using Chocolatey"
 choco install ruby --version $RubyVersion --force -y
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
