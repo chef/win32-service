@@ -38,7 +38,7 @@ if ($rubies) {
 
 Write-Output "--- Now deleting all the Ruby installations found"
 foreach ($ruby in $rubies) {
-    Remove-Item -Path $ruby.Parent -Recurse -Force
+    Remove-Item -Path $ruby.DirectoryName -Recurse -Force
     Write-Output "Deleted Ruby installation at $($ruby.FullName)"
 }
 
