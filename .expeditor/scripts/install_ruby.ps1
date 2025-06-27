@@ -14,8 +14,6 @@ $env:Path = $filteredSegments -join ';'
 
 Write-Output "--- Here is the updated PATH: $env:Path"
 
-[Environment]::SetEnvironmentVariable("Path", $env:Path, "Machine")
-
 
 Write-Output "--- Is Ruby already installed? Trying Get-Command ruby"
 $rubyInstalled = Get-Command ruby -ErrorAction SilentlyContinue
@@ -52,6 +50,7 @@ if (-not $?) { throw "Failed to install Ruby $RubyVersion." }
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") 
 
 Write-Output "--- Installing MSYS2 for Ruby $RubyVersion"
+
 Write-Output "--- I am on Drive: $((Get-Location).Drive.Root)"
 
 Write-Output "--- Searching for existing MSYS2 installations"
