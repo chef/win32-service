@@ -70,7 +70,7 @@ foreach ($devkit in $devkits) {
 
 Write-Output "--- Removing existing MSYS2 installations, if they exist"
 foreach ($devkit in $devkits) {
-    Remove-Item -Path $devkit.FullName -Recurse -Force
+    Remove-Item -Path $devkit.Parent -Recurse -Force
     Write-Output "Deleted MSYS2 installation at $($devkit.FullName)"
 }
 
