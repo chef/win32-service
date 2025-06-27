@@ -1,6 +1,8 @@
 # Stop script execution when a non-terminating error occurs
 $ErrorActionPreference = "Stop"
 
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+
 Write-Output "--- Where the heck is Ruby installed on this machine?"
     Write-Output "--- Is Ruby already installed? Trying Get-Childitem"
     $rubies = Get-ChildItem -Path "C:\" -Filter "ruby.exe" -Recurse -ErrorAction SilentlyContinue
