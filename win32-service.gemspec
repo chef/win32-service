@@ -14,16 +14,16 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["LICENSE", "lib/**/*"]
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.3"
+  spec.required_ruby_version = ">= 3.1"
 
-  spec.add_dependency("ffi")
-  spec.add_dependency("ffi-win32-extensions")
+  spec.add_dependency "ffi", "~> 1.17.2"
+  spec.add_dependency "ffi-win32-extensions"
 
-  spec.add_development_dependency("rspec-core")
-  spec.add_development_dependency("rspec-expectations")
-  spec.add_development_dependency("rspec-mocks")
-  spec.add_development_dependency("test-unit")
-  spec.add_development_dependency("win32-security")
+  spec.add_development_dependency "rspec-core"
+  spec.add_development_dependency "rspec-expectations"
+  spec.add_development_dependency "rspec-mocks"
+  spec.add_development_dependency "test-unit"
+  spec.add_development_dependency "win32-security"
 
   spec.description = <<-EOF
     The win32-service library provides a Ruby interface to services on

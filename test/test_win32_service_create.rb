@@ -15,23 +15,29 @@ class TC_Win32_Service_Create < Test::Unit::TestCase
     @@command  = "C:\\windows\\system32\\notepad.exe"
 
     if Win32::Security.elevated_security?
-      Win32::Service.new(
-        service_name: @@service1,
-        binary_path_name: @@command
-      )
+      # Only create the service if it doesn't already exist
+      unless Win32::Service.exists?(@@service1)
+        Win32::Service.new(
+          service_name: @@service1,
+          binary_path_name: @@command
+        )
+      end
 
-      Win32::Service.new(
-        service_name: @@service2,
-        display_name: "Notepad Test",
-        desired_access: Win32::Service::ALL_ACCESS,
-        service_type: Win32::Service::WIN32_OWN_PROCESS,
-        start_type: Win32::Service::DISABLED,
-        error_control: Win32::Service::ERROR_IGNORE,
-        binary_path_name: @@command,
-        load_order_group: "Network",
-        dependencies: "W32Time",
-        description: "Test service. Please delete me"
-      )
+      # Only create the service if it doesn't already exist
+      unless Win32::Service.exists?(@@service2)
+        Win32::Service.new(
+          service_name: @@service2,
+          display_name: "Notepad Test",
+          desired_access: Win32::Service::ALL_ACCESS,
+          service_type: Win32::Service::WIN32_OWN_PROCESS,
+          start_type: Win32::Service::DISABLED,
+          error_control: Win32::Service::ERROR_IGNORE,
+          binary_path_name: @@command,
+          load_order_group: "Network",
+          dependencies: "W32Time",
+          description: "Test service. Please delete me"
+        )
+      end
     end
   end
 

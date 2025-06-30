@@ -49,7 +49,7 @@ module Windows
     attach_pfunc :CreateService, :CreateServiceA,
       %i{handle string string dword dword dword dword
        string string ptr pointer string string},
-       :handle
+      :handle
 
     attach_pfunc :ControlService, %i{handle dword ptr}, :bool
     attach_pfunc :DeleteService, [:handle], :bool

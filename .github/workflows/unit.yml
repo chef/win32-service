@@ -1,0 +1,33 @@
+---
+name: unit
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+        ruby: ['3.1', '3.4']
+    name: Unit test on ${{ matrix.os }} with Ruby ${{ matrix.ruby }}
+    runs-on: ${{ matrix.os }}
+    env:
+      RUBYOPT: '--disable-error_highlight'
+    steps:
+      - uses: actions/checkout@v4
+      - name: ruby-setup
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+      - run: bundle config --local path vendor/bundle
+      - run: bundle install --jobs 4 --retry 3
+      - run: bundle exec rake

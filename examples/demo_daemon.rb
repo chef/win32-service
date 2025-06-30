@@ -1,4 +1,4 @@
-LOG_FILE = 'C:\\Tmp\\win32_daemon_test.log'
+LOG_FILE = "C:\\Tmp\\win32_daemon_test.log".freeze
 
 begin
   require "rubygems"
