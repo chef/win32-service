@@ -1,16 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 2.4.0 -->
-## [win32-service-2.4.0](https://github.com/chef/win32-service/tree/win32-service-2.4.0) (2025-06-30)
+<!-- latest_release 2.4.1 -->
+## [win32-service-2.4.1](https://github.com/chef/win32-service/tree/win32-service-2.4.1) (2025-11-18)
 
 #### Merged Pull Requests
-- Updating for Ruby 3.4 and Cookstyle [#87](https://github.com/chef/win32-service/pull/87) ([johnmccrae](https://github.com/johnmccrae))
+- Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.3.2 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda)) <!-- 2.4.1 -->
 - Updating for Ruby 3.4 and Cookstyle [#87](https://github.com/chef/win32-service/pull/87) ([johnmccrae](https://github.com/johnmccrae)) <!-- 2.4.0 -->
 <!-- release_rollup -->
 
