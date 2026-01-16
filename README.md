@@ -73,3 +73,7 @@ This package is provided "as is" and without any express or implied warranties, 
 
 - Daniel J. Berger
 - Park Heesob
+
+# Copyright
+
+See [COPYRIGHT.md](./COPYRIGHT.md).
