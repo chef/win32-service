@@ -23,7 +23,6 @@ module Windows
 
     attach_pfunc :CloseHandle, [:handle], :bool
     attach_pfunc :CreateEvent, :CreateEventA, %i{ptr int int str}, :handle
-    attach_pfunc :CreateThread, %i{ptr size_t ptr ptr dword ptr}, :handle, blocking: true
     attach_pfunc :EnterCriticalSection, [:ptr], :void
     attach_pfunc :FormatMessage, :FormatMessageA, %i{ulong ptr ulong ulong str ulong ptr}, :ulong
     attach_pfunc :GetCurrentProcess, [], :handle
@@ -31,7 +30,6 @@ module Windows
     attach_pfunc :LeaveCriticalSection, [:ptr], :void
     attach_pfunc :SetEvent, [:handle], :bool
     attach_pfunc :WaitForSingleObject, %i{handle dword}, :dword, blocking: true
-    attach_pfunc :WaitForMultipleObjects, %i{dword ptr int dword}, :dword
 
     ffi_lib :advapi32
 
