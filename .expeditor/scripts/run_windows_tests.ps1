@@ -27,6 +27,7 @@ ruby --version
 Write-Output "--- Bundle install"
 
 bundle config --local path vendor/bundle
+bundle config set without debug
 bundle lock --add-platform x64-mingw-ucrt
 bundle install --jobs=7 --retry=3
 if (-not $?) { throw "bundle install failed" }
