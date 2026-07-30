@@ -1,0 +1,20 @@
+---
+expeditor:
+  defaults:
+    buildkite:
+      retry:
+        automatic:
+          limit: 1
+      timeout_in_minutes: 10
+
+# PR validation (spec runs + Cookstyle) has moved to GitHub Actions
+# (.github/workflows/unit.yml and .github/workflows/lint.yml). This
+# stub step exists only because the Buildkite `verify` pipeline is
+# still wired up as a webhook-triggered status check for this repo;
+# it intentionally does no real work.
+steps:
+  - label: ":github: Moved to GitHub Actions"
+    command:
+      - echo "Verification has moved to GitHub Actions. See .github/workflows/unit.yml and .github/workflows/lint.yml"
+    agents:
+      queue: default-windows-2019-privileged
