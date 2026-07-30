@@ -29,5 +29,6 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
       - run: bundle config --local path vendor/bundle
+      - run: bundle config set without debug
       - run: bundle install --jobs 4 --retry 3
       - run: bundle exec rake
