@@ -5,19 +5,16 @@ expeditor:
       retry:
         automatic:
           limit: 1
-      timeout_in_minutes: 60
+      timeout_in_minutes: 10
 
+# PR validation (spec runs + Cookstyle) has moved to GitHub Actions
+# (.github/workflows/unit.yml and .github/workflows/lint.yml). This
+# stub step exists only because the Buildkite `verify` pipeline is
+# still wired up as a webhook-triggered status check for this repo;
+# it intentionally does no real work.
 steps:
-  - label: run-specs-ruby-3.1
+  - label: ":github: Moved to GitHub Actions"
     command:
-      - .expeditor/scripts/install_ruby.ps1 -RubyVersion "3.1.6.1"
-      - .expeditor/scripts/run_windows_tests.ps1
-    agents:
-      queue: default-windows-2019-privileged
-
-  - label: run-specs-ruby-3.4
-    command: 
-      - .expeditor/scripts/install_ruby.ps1 -RubyVersion "3.4.4.2"
-      - .expeditor/scripts/run_windows_tests.ps1
+      - echo "Verification has moved to GitHub Actions. See .github/workflows/unit.yml and .github/workflows/lint.yml"
     agents:
       queue: default-windows-2019-privileged
