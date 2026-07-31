@@ -1,16 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 2.4.1 -->
-## [win32-service-2.4.1](https://github.com/chef/win32-service/tree/win32-service-2.4.1) (2025-11-18)
+<!-- latest_release 2.5.0 -->
+## [win32-service-2.5.0](https://github.com/chef/win32-service/tree/win32-service-2.5.0) (2026-07-31)
 
 #### Merged Pull Requests
-- Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda))
+- daemon: Fix slow start with Ruby 3 [#85](https://github.com/chef/win32-service/pull/85) ([daipom](https://github.com/daipom))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.0 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- daemon: Fix slow start with Ruby 3 [#85](https://github.com/chef/win32-service/pull/85) ([daipom](https://github.com/daipom)) <!-- 2.5.0 -->
 - Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda)) <!-- 2.4.1 -->
 <!-- release_rollup -->
 
