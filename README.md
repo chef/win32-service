@@ -21,13 +21,13 @@ end
 
 ## More Documentation
 
-Please see the documentation in the 'doc' directory, or the gem documentation that was installed when you installed this library as a gem.
+Please see the documentation in the `doc/` directory, or the gem documentation that was installed when you installed this library as a gem.
 
 ## Known Issues
 
 ### Problem:
 
-Service.delete causes "Unable to delete: The specified service has been marked for deletion."
+`Service.delete` causes "Unable to delete: The specified service has been marked for deletion."
 
 ### Troubleshooting:
 
@@ -35,17 +35,17 @@ This can be caused by one of two things. Either you attempted to delete a runnin
 
 ### Problem:
 
-Service.start causes, "The service did not respond to the start or control request in a timely fashion."
+`Service.start` causes, "The service did not respond to the start or control request in a timely fashion."
 
 ### Troubleshooting:
 
 The best way to debug your services is to wrap your entire Daemon subclass in a begin/end block and send error messages to a file. That should give a good clue as to the nature of the problem. The most probable culprits are:
 
-- You forgot to require 'win32/daemon' in your Daemon code.
+- You forgot to `require 'win32/daemon'` in your Daemon code.
 
-- You've tried to require a library that's not in your $LOAD_PATH. Make sure that your require statements are inside the begin/rescue block so that you can easily find those mistakes.
+- You've tried to require a library that's not in your `$LOAD_PATH`. Make sure that your `require` statements are inside the `begin`/`rescue` block so that you can easily find those mistakes.
 
-- Your have a bad binary path name. Be sure to use an absolute path name for the binary path name, including the full path to the Ruby interpreter, e.g. 'c:\ruby\bin\ruby' instead of just 'ruby'.
+- You have a bad binary path name. Be sure to use an absolute path name for the binary path name, including the full path to the Ruby interpreter, e.g. 'c:\ruby\bin\ruby' instead of just 'ruby'.
 
 - You've got a syntax error in your code somewhere.
 
