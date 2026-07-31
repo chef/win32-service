@@ -1,16 +1,17 @@
 # win32-service Change Log
 
-<!-- latest_release 2.5.1 -->
-## [win32-service-2.5.1](https://github.com/chef/win32-service/tree/win32-service-2.5.1) (2026-07-31)
+<!-- latest_release 2.5.2 -->
+## [win32-service-2.5.2](https://github.com/chef/win32-service/tree/win32-service-2.5.2) (2026-07-31)
 
 #### Merged Pull Requests
-- Add GitHub Security Actions Workflow [#90](https://github.com/chef/win32-service/pull/90) ([sean-sype-simmons](https://github.com/sean-sype-simmons))
+- Format cleanup for testing fork PR [#100](https://github.com/chef/win32-service/pull/100) ([stringsn88keys](https://github.com/stringsn88keys))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.0 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Format cleanup for testing fork PR [#100](https://github.com/chef/win32-service/pull/100) ([stringsn88keys](https://github.com/stringsn88keys)) <!-- 2.5.2 -->
 - Add GitHub Security Actions Workflow [#90](https://github.com/chef/win32-service/pull/90) ([sean-sype-simmons](https://github.com/sean-sype-simmons)) <!-- 2.5.1 -->
 - daemon: Fix slow start with Ruby 3 [#85](https://github.com/chef/win32-service/pull/85) ([daipom](https://github.com/daipom)) <!-- 2.5.0 -->
 - Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda)) <!-- 2.4.1 -->
