@@ -7,22 +7,26 @@
 - Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda))
 <!-- latest_release -->
 
-<!-- release_rollup since=2.3.2 -->
+<!-- release_rollup since=2.4.0 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
 - Set up AI-assisted development workflow [#94](https://github.com/chef/win32-service/pull/94) ([rishichawda](https://github.com/rishichawda)) <!-- 2.4.1 -->
-- Updating for Ruby 3.4 and Cookstyle [#87](https://github.com/chef/win32-service/pull/87) ([johnmccrae](https://github.com/johnmccrae)) <!-- 2.4.0 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [win32-service-2.4.0](https://github.com/chef/win32-service/tree/win32-service-2.4.0) (2026-07-31)
+
+#### Merged Pull Requests
+- Updating for Ruby 3.4 and Cookstyle [#87](https://github.com/chef/win32-service/pull/87) ([johnmccrae](https://github.com/johnmccrae))
+<!-- latest_stable_release -->
+
 ## [win32-service-2.3.2](https://github.com/chef/win32-service/tree/win32-service-2.3.2) (2021-11-08)
 
 #### Merged Pull Requests
 - daemon: Enable to handle user defined control codes [#74](https://github.com/chef/win32-service/pull/74) ([ashie](https://github.com/ashie))
 - Add PR testing in Buildkite [#75](https://github.com/chef/win32-service/pull/75) ([tas50](https://github.com/tas50))
 - Resolve the majority of chefstyle violations [#76](https://github.com/chef/win32-service/pull/76) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [win32-service-2.2.0](https://github.com/chef/win32-service/tree/win32-service-2.2.0) (2020-11-20)
 
