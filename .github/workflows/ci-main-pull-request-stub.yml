@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 env:
-  STUB_VERSION: "1.0.1" 
+  STUB_VERSION: "1.0.5" 
   
 jobs: 
   echo_version:
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: echo version of stub and inputs
         run: |
-          echo "[ci-main-pull-request-stub-trufflehog-only.yml] version $STUB_VERSION"
+          echo "[ci-main-pull-request-stub.yml] version $STUB_VERSION"
 
   call-ci-main-pr-check-pipeline:
     uses: chef/common-github-actions/.github/workflows/ci-main-pull-request.yml@main
@@ -38,22 +38,34 @@ jobs:
     with:   
       visibility: ${{ github.event.repository.visibility }}   #  private, public, or internal
       # go-private-modules: GOPRIVATE for Go private modules, default is 'github.com/progress-platform-services/*
-      
+
+      # detect-policy-check-fail-on-severities: none  # Only block SBOM upload on blocker-level prior step failures
+
+      # if version specified, it takes precedence; can be a semver like 1.0.2-xyz or a tag like "latest"
+      version: ''
+      detect-version-source-type: 'file'
+      detect-version-source-parameter: 'VERSION' # use for file name
+      language: 'ruby'  # options include "autodetect", "ruby", "go", "node", "python", "java", "dotnet", "c/c++", "other"
+
       # complexity-checks
       perform-complexity-checks: true
       # scc-output-filename: 'scc-output.txt'
       perform-language-linting: false    # Perform language-specific linting and pre-compilation checks
 
+      # grype vulnerability scan on source code (runs on push/merge to main, not on PRs)
+      perform-grype-scan: false
+
       # trufflehog secret scanning
       perform-trufflehog-scan: true
       
-      # BlackDuck SAST (Polaris) and SCA scans
-      # requires secrets POLARIS_SERVER_URL and POLARIS_ACCESS_TOKEN
+      # BlackDuck SAST (Polaris) and SCA scans (requires a build or download to do SAST)
+      # requires these secrets: POLARIS_SERVER_URL, POLARIS_ACCESS_TOKEN
       perform-blackduck-polaris: false
-      polaris-application-name: 'Chef-Chef360'  # one of these: Chef-Agents, Chef-Automate, Chef-Chef360, Chef-Habitat, Chef-Infrastructure-Server, Chef-Shared-Services
+      polaris-application-name: 'Chef-Infrastructure-Server'  # one of these: Chef-Agents, Chef-Automate, Chef-Chef360, Chef-Habitat, Chef-Infrastructure-Server, Chef-Shared-Services, Chef-Other
       polaris-project-name: ${{ github.event.repository.name }}  # typically the application name, followed by - and the repository name, for example Chef-Chef360-chef-vault'
-      perform-blackduck-sca-scan: false
-      
+      # polaris-blackduck-executable: 'path/to/blackduck/binary'
+      # polaris-executable-detect-path: 'path/to/detect'
+
       # perform application build and unit testing, will use custom repository properties when implemented for chef-primary-application, chef-build-profile, and chef-build-language
       build: false
       # ga-build-profile: $chef-ga-build-profile   
@@ -83,7 +95,10 @@ jobs:
       # generate and export Software Bill of Materials (SBOM) in various formats
       generate-sbom: true
       export-github-sbom: true      # SPDX JSON artifact on job instance  
-      generate-blackduck-sbom: false   # requires BlackDuck secrets and inputs as above for SAST scanning
+      perform-blackduck-sca-scan: false # combined with generate sbom & generate github-sbom, also needs version above
+      blackduck-project-group-name: 'Chef-Infrastructure-Server' # typically one of (Chef), Chef-Agents, Chef-Automate, Chef-Chef360, Chef-Habitat, Chef-Infrastructure-Server, Chef-Shared-Services
+      blackduck-project-name: ${{ github.event.repository.name }} # BlackDuck project name, typically the repository name
+      generate-blackduck-sbom: false   # obsolete, use perform-blackduck-sca-scan instead
       generate-msft-sbom: false
       license_scout: false      # Run license scout for license compliance (uses .license_scout.yml)
       
